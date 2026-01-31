@@ -2,8 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSaveSlots } from '../state/useSaveSlots';
 
-/* static constants */
-const PASSWORD = 'getready321';
+// Slot selects are now directly accessible
 const UNLOCK_FLAG = 'qff_demo_unlocked';
 
 // Changed props: accepting goTo and currentStepIndex instead of goNext
@@ -18,43 +17,20 @@ export default function SlotSelect({ goTo, currentStepIndex }) {
     deleteSlot,
   } = useSaveSlots();
 
-  /* password gate hooks (always exist) */
-  const [unlocked, setUnlocked] = useState(
-    localStorage.getItem(UNLOCK_FLAG) === 'true'
-  );
-  const [pwInput, setPwInput] = useState('');
-  const pwRef = useRef(null);
-
-  /* slot-editing hooks (declare them even if locked) */
+  /* slot-editing hooks */
   const [draftName, setDraftName] = useState('');
   const nameInputRef = useRef(null);
 
   /* ── 2. side-effects ───────────────────────────────────────── */
   useEffect(() => {
-    if (!unlocked) pwRef.current?.focus();
-  }, [unlocked]);
-
-  useEffect(() => {
-    if (!unlocked) return;
     const slot = slots.find(s => s.id === activeSlotId);
     setDraftName(slot?.name || '');
-    // Only focus if a slot is actually active
     if (activeSlotId) {
       nameInputRef.current?.focus();
     }
-  }, [unlocked, activeSlotId, slots]);
+  }, [activeSlotId, slots]);
 
   /* ── 3. handlers ───────────────────────────────────────────── */
-  const tryUnlock = () => {
-    if (pwInput.trim() === PASSWORD) {
-      localStorage.setItem(UNLOCK_FLAG, 'true');
-      setUnlocked(true);
-    } else {
-      alert('Sorry, that password is incorrect.');
-      setPwInput('');
-      pwRef.current?.focus();
-    }
-  };
 
   const commitRename = id => {
     const name = draftName.trim();
@@ -77,30 +53,6 @@ export default function SlotSelect({ goTo, currentStepIndex }) {
     }
   };
 
-  /* ── 4. render password screen if locked ───────────────────── */
-  if (!unlocked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
-        {/* ... Password UI ... */}
-        <div className="w-full max-w-sm bg-white p-6 rounded-xl shadow space-y-4">
-          <h1 className="text-xl font-bold text-center">Settings&nbsp;Locked</h1>
-          <input
-            ref={pwRef} type="password" value={pwInput}
-            onChange={e => setPwInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && tryUnlock()}
-            placeholder="********"
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
-          />
-          <button
-            onClick={tryUnlock}
-            className="w-full bg-red-600 text-white font-semibold py-2 rounded"
-          >
-            Unlock
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   /* ── 5. (unlocked) normal Slot-select UI ───────────────────── */
   return (
