@@ -1,0 +1,42 @@
+/* FlightMap.module.css */
+
+/* Scoped design tokens for this component */
+:root {
+  --dot-default:    #8DE2E0;
+  --dot-muted:      #9CA3AF; 
+  --cyan-accent:    #EF4444;
+  --afford-circle:  rgba(255, 255, 255, 1);
+  --afford-stroke:  rgba(255, 255, 255, 1);
+}
+
+.affordabilityCircle {
+  fill: var(--afford-circle);
+  stroke: var(--afford-stroke);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.originDot {
+  fill: #000;
+  pointer-events: none;
+  /* radius now comes solely from the <circle r={…}> attribute in JSX */
+}
+
+.dotSelected {
+  fill: #fff;
+  stroke: var(--cyan-accent);
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.dotAffordable {
+  fill: var(--dot-default);
+  cursor: pointer;
+}
+
+.dotUnaffordable {
+  fill: var(--dot-muted);
+  opacity: 0.5;
+  pointer-events: none;
+}
