@@ -18,12 +18,14 @@ export interface AppState {
   totalAnnualPts: number;
   selectedWTU: string | null;
   selectedRewardId?: string | number | null;
+  selectedRewardCategory?: string | null;
   hasSelectedReward?: boolean;
   currentMonth: string;
   monthlyEarnedByWTE: Record<string | number, number>;
   monthlyTargetByWTE: Record<string | number, number>;
   currentPtsBalance: number;
   setupProgressByWTE: Record<string | number, number>;
+  originCity: string;
 }
 interface SaveSlot { id: string; name: string; created: number; state: AppState; }
 type Slots = SaveSlot[];
@@ -34,9 +36,10 @@ interface SlotsContextValue {
   deleteSlot: (id: string) => void; loadSlot: (id: string) => void;
   saveState: (patch: Partial<AppState>) => void;
   updateSelectedWTU: (wtu: string | null) => void;
-  updateSelectedRewardId: (id: string | number | null, isExplicit?: boolean) => void;
+  updateSelectedRewardId: (id: string | number | null, category?: string | null, isExplicit?: boolean) => void;
   updateSelectedWTEs: (newWTEs: { id: string | number; level: string }[]) => void;
   updateTierIndex: (wteId: string | number, tierIndex: number) => void;
+  updateOriginCity: (city: string) => void;
 }
 
 
@@ -81,7 +84,7 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       setActiveSlotId(initialSlots[0].id);
       setCurrent(initialSlots[0].state);
     } else {
-      createSlot('Slot 1', {});
+      createSlot('Kim', {});
     }
   }, []);
 
@@ -117,8 +120,12 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     saveState({ selectedWTU: wtu });
   }, [saveState]);
 
-  const updateSelectedRewardId = useCallback((id: string | number | null, isExplicit = false) => {
-    saveState({ selectedRewardId: id, hasSelectedReward: isExplicit });
+  const updateSelectedRewardId = useCallback((id: string | number | null, category: string | null = null, isExplicit = false) => {
+    saveState({
+      selectedRewardId: id,
+      selectedRewardCategory: category,
+      hasSelectedReward: isExplicit
+    });
   }, [saveState]);
 
   const updateSelectedWTEs = useCallback((newWTEs: { id: string | number; level: string }[]) => {
@@ -152,6 +159,10 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       saveState(patch); // Call generic save state
       return { ...(prev || {}), ...patch } as AppState;
     });
+  }, [saveState]);
+
+  const updateOriginCity = useCallback((city: string) => {
+    saveState({ originCity: city });
   }, [saveState]);
 
 
@@ -197,10 +208,11 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
   const createSlot = useCallback((name: string, initialState: Partial<AppState>) => {
     const defaultState: AppState = {
       firstRunCompleted: false, selectedWTEs: [], tierIndexById: getDefaultTierIndexById(),
-      totalAnnualPts: 0, selectedWTU: rewardTabs[0], selectedRewardId: null,
+      totalAnnualPts: 0, selectedWTU: rewardTabs[0],
+      selectedRewardId: null, selectedRewardCategory: null,
       currentMonth: new Date().toISOString().slice(0, 7),
       monthlyEarnedByWTE: {}, monthlyTargetByWTE: {}, currentPtsBalance: 0,
-      setupProgressByWTE: {}, ...initialState
+      setupProgressByWTE: {}, originCity: 'Sydney', ...initialState
     };
     const newSlot: SaveSlot = { id: uuid(), name, created: Date.now(), state: defaultState };
     setSlots(s => [newSlot, ...s]);
@@ -251,7 +263,7 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         slots, activeSlotId, current,
         createSlot, renameSlot, deleteSlot, loadSlot, saveState,
         updateSelectedWTU, updateSelectedRewardId,
-        updateSelectedWTEs, updateTierIndex,
+        updateSelectedWTEs, updateTierIndex, updateOriginCity,
       }}
     >
       {children}

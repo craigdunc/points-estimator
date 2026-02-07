@@ -1,52 +1,92 @@
 // src/screens/Intro2.jsx
 import React from 'react';
-import explainerSvg from '../assets/explainer.svg';
+import DreamingPattern from '../assets/images/dreaming-pattern.png';
+import ChooseIcon from '../assets/images/choose.png';
+import AddIcon from '../assets/images/add.png';
+import SetupIcon from '../assets/images/Setup.png';
 
-/**
- * Intro2
- * Props:
- * - goTo(stepIndex: number): jumps to the given step
- * - currentStepIndex: the index of this screen
- * - dashboardStepIndex (optional): index of the dashboard step
- */
 export default function Intro2({ goTo, currentStepIndex, dashboardStepIndex = 5 }) {
-  // If your dashboard is at a different index, override dashboardStepIndex when rendering
   const handleShowMe = () => goTo(currentStepIndex + 1);  // go to next (WTESelection)
-  const handleSkip   = () => goTo(dashboardStepIndex);  // skip to dashboard
+  const handleSkip = () => goTo(dashboardStepIndex);  // skip to dashboard
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between px-6 pt-20 pb-52">
-      <div>
-        <h1 className="text-3xl font-medium mb-6">
-          Let’s get you some points
-        </h1>
-        <p className="mb-6 text-base text-gray-800">
-          One of the <b>best ways</b> to get the most out of your membership is by finding a few <b>different ways</b> of earning points.<br/><br/>You can add some to your dashboard to help get you started.
-        </p>
-        <img
-          src={explainerSvg}
-          alt="How it works"
-          className="w-full mb-12 object-contain"
-        />
+    <div className="min-h-screen bg-[#F3F5F7] flex flex-col font-sans selection:bg-red-100 p-4 py-4">
+      {/* ── CENTRAL WHITE CARD ── */}
+      <div className="bg-white rounded-[12px] overflow-hidden flex flex-col shadow-[0_10px_30px_rgba(0,0,0,0.04)] max-w-[420px] mx-auto w-full">
+
+        {/* ── TOP DECO PATTERN ── */}
+        <div className="h-[65px] w-full overflow-hidden shrink-0">
+          <img
+            src={DreamingPattern}
+            alt=""
+            className="w-full h-full object-cover object-bottom"
+          />
+        </div>
+
+        <div className="flex flex-col px-6 pt-1 pb-4">
+          <h1 className="text-[26px] text-[#000000] leading-tight mb-3">
+            Let’s get you some points
+          </h1>
+
+          <div className="space-y-3 mb-5">
+            <p className="text-[16px] text-[#323232]">
+              One of the best ways to get the most out of your membership is by finding <span className="font-bold">a few different ways</span> of earning points.
+            </p>
+            <p className="text-[16px] text-[#323232]">
+              You can add some to your <span className="font-bold">account homepage.</span>
+            </p>
+          </div>
+
+          {/* ── ICON GRID ── */}
+          <div className="grid grid-cols-3 gap-5 mb-5">
+            <div className="flex flex-col items-center">
+              <div className="w-full aspect-square bg-[#F3F5F7] rounded-[16px] flex items-center justify-center p-4 mb-2">
+                <img src={ChooseIcon} alt="" className="w-full h-full object-contain" />
+              </div>
+              <span className="text-[14px] font-medium text-[#323232]">Choose</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="w-full aspect-square bg-[#F3F5F7] rounded-[16px] flex items-center justify-center p-4 mb-2">
+                <img src={AddIcon} alt="" className="w-full h-full object-contain" />
+              </div>
+              <span className="text-[14px] font-medium text-[#323232]">Add</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="w-full aspect-square bg-white border border-gray-100 rounded-[16px] flex items-center justify-center p-4 mb-2 shadow-sm">
+                <img src={SetupIcon} alt="" className="w-full h-full object-contain" />
+              </div>
+              <span className="text-[14px] font-medium text-[#323232]">Set up</span>
+            </div>
+          </div>
+
+          {/* ── BUTTONS ── */}
+          <div className="space-y-6">
+            <button
+              onClick={handleShowMe}
+              className="w-full py-4 bg-[#E40000] font-medium tracking-[0.2em] text-white text-[17px] rounded-[8px] active:scale-[0.98] transition-all hover:bg-red-700 mb-5"
+            >
+              SHOW ME
+            </button>
+
+            <button
+              onClick={handleSkip}
+              className="w-full text-center text-[16px] font-medium text-[#E40000] active:opacity-70 transition-opacity mb-2"
+            >
+              Skip
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Primary action button goes to next step (WTESelection) */}
+      {/* ── SEE REWARDS LINK ── */}
       <button
-        onClick={handleShowMe}
-        className="w-full py-3 bg-red-600 font-semibold tracking-widest text-white text-base rounded-sm"
+        onClick={() => goTo(4)}
+        className="mt-4 text-center text-[14px] text-[#666666] underline"
       >
-        SHOW ME
+        See rewards
       </button>
-
-      {/* Skip link beneath button jumps to dashboard (stepIndex dashboardStepIndex) */}
-      <div className="text-center mt-8">
-        <button
-          onClick={handleSkip}
-          className="text-base text-gray-600 underline hover:text-gray-800"
-        >
-          Skip
-        </button>
-      </div>
     </div>
   );
 }

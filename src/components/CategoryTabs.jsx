@@ -30,9 +30,9 @@ export default function CategoryTabs({ categories, activeCategory, onCategoryCha
               key={cat.key}
               data-key={cat.key}
               onClick={() => onCategoryChange(cat.key)}
-              className={`text-base whitespace-nowrap pb-1 ${activeCategory === cat.key
-                  ? 'text-red-600 font-bold'
-                  : 'text-gray-800 font-normal'
+              className={`text-base whitespace-nowrap pb-3 ${activeCategory === cat.key
+                ? 'text-red-600 border-b-2 border-red-600 font-medium'
+                : 'text-gray-800 font-normal'
                 }`}
             >
               {cat.label.toUpperCase()}

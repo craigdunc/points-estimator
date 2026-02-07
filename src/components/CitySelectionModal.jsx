@@ -1,8 +1,20 @@
-// src/components/HelpModal.jsx
+// src/components/CitySelectionModal.jsx
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-export default function HelpModal({ isOpen, onClose }) {
+const CITIES = [
+    'Sydney',
+    'Melbourne',
+    'Brisbane',
+    'Perth',
+    'Adelaide',
+    'Hobart',
+    'Canberra',
+    'Darwin',
+    'Gold Coast'
+];
+
+export default function CitySelectionModal({ isOpen, onClose, currentCity, onSelectCity }) {
     // Prevent scrolling when modal is open
     useEffect(() => {
         if (isOpen) {
@@ -24,7 +36,7 @@ export default function HelpModal({ isOpen, onClose }) {
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center p-4 border-b">
-                    <h3 className="font-semibold text-gray-900">Let's get you some points</h3>
+                    <h3 className="font-semibold text-gray-900">Select Origin City</h3>
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-500 transition-colors"
@@ -34,17 +46,29 @@ export default function HelpModal({ isOpen, onClose }) {
                         </svg>
                     </button>
                 </div>
-                <div className="p-6">
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                        Select ways of earning Qantas Points to add to your dashboard. You can change your selection at any time.
-                    </p>
+
+                <div className="max-h-[60vh] overflow-y-auto">
+                    {CITIES.map(city => (
+                        <button
+                            key={city}
+                            onClick={() => {
+                                onSelectCity(city);
+                                onClose();
+                            }}
+                            className={`w-full px-6 py-4 text-left text-base transition-colors border-b border-gray-100 last:border-0 hover:bg-gray-50
+                ${currentCity === city ? 'font-bold text-red-600 bg-red-50' : 'text-gray-700 font-medium'}`}
+                        >
+                            {city}
+                        </button>
+                    ))}
                 </div>
+
                 <div className="p-4 bg-gray-50">
                     <button
                         onClick={onClose}
-                        className="w-full py-3 bg-red-600 text-white text-sm font-semibold tracking-widest rounded-sm transition-colors uppercase"
+                        className="w-full py-3 bg-gray-200 text-gray-700 text-sm font-semibold tracking-widest rounded-sm transition-colors uppercase hover:bg-gray-300"
                     >
-                        GOT IT
+                        CANCEL
                     </button>
                 </div>
             </div>

@@ -34,86 +34,122 @@ export default function WTEList({
         const isExpanded = expandedId === w.id;
 
         return (
-          <div key={w.id} className="border-gray-300 border-b -mb-[1px]">
-            <div className="flex items-center justify-between p-3">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-[22px] h-[22px] ml-[4px]"
-                  checked={isSelected}
-                  onChange={() => onToggleSelect(w.id)}
-                  style={{ accentColor: '#dc2626' }}
-                />
-
-                <img
-                  src={w.iconSrc}
-                  alt={`${w.name} logo`}
-                  className="ml-3 w-[40px] object-contain"
-                />
-
-                <div className="ml-3">
-                  <div className="font-bold text-sm">{w.name}</div>
-
-                  <div className="flex items-center space-x-1 text-sm">
-                    <span>Est</span>
+          <div key={w.id} className={`border-b border-gray-100 transition-colors duration-300 ${isSelected ? 'bg-[#EEF7F8]' : 'bg-white'}`}>
+            {/* ROW HEADER */}
+            <div
+              className="flex items-center justify-between px-3 py-4 cursor-pointer"
+              onClick={() => onToggleExpand(w.id)}
+            >
+              <div className="flex items-center space-x-3">
+                {/* Logo or Checkmark */}
+                <div
+                  className="w-10 h-10 flex-shrink-0 flex items-center justify-center overflow-hidden"
+                  onClick={(e) => { e.stopPropagation(); onToggleSelect(w.id); }}
+                >
+                  {isSelected ? (
+                    <div className="w-[32px] h-[32px] bg-[#00a600] rounded-full flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  ) : (
                     <img
-                      src={PointsRooLogo}
-                      alt="Points Roo logo"
-                      className="w-4 h-4"
+                      src={w.iconSrc}
+                      alt={`${w.name} logo`}
+                      className="w-full h-full object-contain"
                     />
-                    <span className="font-bold text-base">
-                      {tier.pts.toLocaleString()}
-                    </span>
-                    <span className="uppercase text-xs pt-[3px] mr-[2px]">
-                      PTS
-                    </span>
-                    <span>/year</span>
+                  )}
+                </div>
+
+                <div className="flex-grow">
+                  <div className="text-[16px] text-[#323232] leading-tight">
+                    {w.name}
                   </div>
                 </div>
               </div>
 
-              <button
-                onClick={() => onToggleExpand(w.id)}
-                className="p-1 focus:outline-none"
-              >
-                <svg
-                  className={`w-6 h-6 transform transition-transform duration-200 ${
-                    isExpanded ? 'rotate-180' : 'rotate-0'
-                  }`}
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
+              {/* Points & Chevron */}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1.5">
+                  <img
+                    src={PointsRooLogo}
+                    alt=""
+                    className="w-[18px] h-[18px]"
                   />
-                </svg>
-              </button>
+                  <div className="flex items-baseline space-x-1">
+                    <span className="text-[16px] font-medium text-[#323232]">
+                      {tier.pts.toLocaleString()}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#999999] uppercase">
+                      PTS
+                    </span>
+                  </div>
+                </div>
+
+                <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
+                  <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
+            {/* EXPANDED CONTENT */}
             <div
-              className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-out ${
-                isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-              }`}
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
             >
-              <div className="px-4 pb-3">
-                <div className="mb-3 text-sm">
+              <div className="px-5 pb-6 pt-2">
+                <div className="mb-4 text-[16px] text-[#323232]">
                   Approx. ${tier.spend.toLocaleString()} spend/year
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={(w.tiers?.length ?? 1) - 1}
-                  step={1}
-                  value={tierIdx}
-                  className="w-full h-[6px] bg-gray-200 accent-red-500 focus:outline-none appearance-none rounded-full mb-4"
-                  onChange={e => onTierChange(w.id, Number(e.target.value))}
-                />
-                <div className="py-3 text-sm">{w.desc}</div>
+
+                {/* Custom Slider Overlay Container */}
+                <div className="relative w-full h-8 flex items-center mb-6 px-1">
+                  {/* Background Track */}
+                  <div className="absolute inset-x-1 h-2 bg-gray-200 rounded-full"></div>
+
+                  {/* Active Track (Red part) */}
+                  <div
+                    className="absolute left-1 h-1.5 bg-red-600 rounded-full pointer-events-none"
+                    style={{ width: `calc(${(tierIdx / ((w.tiers?.length || 1) - 1)) * 100}% - 4px)` }}
+                  ></div>
+
+                  {/* Tick Dots */}
+                  <div className="absolute inset-x-1 flex justify-between pointer-events-none">
+                    {(w.tiers || []).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 h-2 rounded-full transform translate-y-[1px] ${i <= tierIdx ? 'bg-red-600' : 'bg-gray-400'
+                          }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Real Input Slider (invisible but reachable) */}
+                  <input
+                    type="range"
+                    min={0}
+                    max={(w.tiers?.length ?? 1) - 1}
+                    step={1}
+                    value={tierIdx}
+                    onChange={e => onTierChange(w.id, Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+
+                  {/* Thumb Indicator (Red circle) */}
+                  <div
+                    className="absolute w-6 h-6 bg-red-600 rounded-full pointer-events-none z-20"
+                    style={{
+                      left: `calc(${(tierIdx / ((w.tiers?.length || 1) - 1)) * 100}% - 12px)`,
+                      transition: 'left 0.1s ease-out'
+                    }}
+                  ></div>
+                </div>
+
+                <div className="text-[16px] leading-relaxed text-[#323232]">
+                  {w.desc}
+                </div>
               </div>
             </div>
           </div>

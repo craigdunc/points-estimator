@@ -1,91 +1,145 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import ConnectedRewardCard from './ConnectedRewardCard';
 import PointsRooLogo from '../assets/points-roo.svg';
-import RewardCard from './RewardCard';
 
+/**
+ * StickyFooter
+ * Props:
+ * - totalPts: number
+ * - selectedReward: reward object
+ * - onHomepageClicked: () => void
+ * - onExploreRewardsClicked: () => void
+ */
 export default function StickyFooter({
   totalPts,
   selectedReward,
   hasSelectedReward,
-  onAddToDashboard,
-  onSeeMoreClick,
+  onHomepageClicked,
+  onExploreRewardsClicked,
+  initialMinimized = false
 }) {
-  const [shouldRender, setShouldRender] = useState(totalPts > 0 || !!selectedReward);
-  const [mounted, setMounted] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(initialMinimized);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startY = useRef(0);
 
+  // Sync state if prop changes (e.g. entering/leaving target mode)
   useEffect(() => {
-    let timeoutId;
-    const conditionToShow = totalPts > 0 || !!selectedReward;
+    setIsMinimized(initialMinimized);
+  }, [initialMinimized]);
 
-    if (conditionToShow) {
-      if (!shouldRender) setShouldRender(true);
-      requestAnimationFrame(() => {
-        if (!mounted) setMounted(true);
-      });
+  // Constants for minimizing logic
+  const DRAGGABLE_HEIGHT = 420; // Approx height of expanded footer
+  const MINIMIZED_THRESHOLD = 120; // Swipe down more than this to minimize
+  const MINIMIZED_Y = DRAGGABLE_HEIGHT - 110; // Show only the header when minimized
+
+  const toggleMinimized = () => setIsMinimized(!isMinimized);
+
+  const handleTouchStart = (e) => {
+    startY.current = e.touches[0].clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startY.current;
+
+    // Resistance factor
+    let newOffset = isMinimized ? MINIMIZED_Y + diff : diff;
+
+    // Bounds check
+    if (newOffset < -30) newOffset = -30; // Small overscroll up
+    if (newOffset > MINIMIZED_Y + 50) newOffset = MINIMIZED_Y + 50;
+
+    setDragOffset(newOffset);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+
+    // Snap logic
+    if (isMinimized) {
+      if (dragOffset < MINIMIZED_Y - 50) {
+        setIsMinimized(false);
+      }
     } else {
-      if (mounted) setMounted(false);
-      timeoutId = setTimeout(() => {
-        if (shouldRender) setShouldRender(false);
-      }, 500);
+      if (dragOffset > MINIMIZED_THRESHOLD) {
+        setIsMinimized(true);
+      }
     }
-    return () => clearTimeout(timeoutId);
-  }, [totalPts, selectedReward, shouldRender, mounted]);
+    setDragOffset(0);
+  };
 
-  if (!shouldRender) return null;
+  const getTransform = () => {
+    if (isDragging) {
+      return `translateY(${dragOffset}px)`;
+    }
+    return isMinimized ? `translateY(${MINIMIZED_Y}px)` : 'translateY(0px)';
+  };
 
   return (
     <div
-      className={`fixed bottom-0 inset-x-0 bg-white
-        rounded-t-[28px] overflow-hidden z-30
-        transform transition-transform duration-500 ease-out
-        ${mounted ? 'translate-y-0' : 'translate-y-full'}
-      `}
-      style={{ boxShadow: '0 -20px 20px -10px rgba(0,0,0,0.1)' }}
+      className="fixed bottom-0 inset-x-0 bg-white rounded-t-[28px] overflow-hidden z-30 shadow-[0_-12px_30px_rgba(0,0,0,0.12)] border-t border-gray-100 transform transition-all duration-300 ease-out"
+      style={{
+        transform: getTransform(),
+        transitionDuration: isDragging ? '0ms' : '400ms'
+      }}
     >
-      {/* Estimated Points Summary */}
-      <div className="pt-6 pb-2 px-6">
-        <div className="flex justify-center items-center space-x-1.5 flex-wrap">
-          <span className="text-[13px] font-medium text-gray-700">Est</span>
-          <img src={PointsRooLogo} alt="" className="w-5 h-5" />
-          <span className="text-xl font-black text-gray-900 leading-none">
-            {totalPts ? totalPts.toLocaleString() : '0'}
-          </span>
-          <span className="text-[10px] font-bold text-gray-500 pt-1">PTS</span>
-          <span className="text-[13px] text-gray-600 font-medium pt-0.5 ml-1">/year from selected</span>
+      {/* Drawer Handle */}
+      <div
+        className="flex justify-center pt-3 pb-1 cursor-pointer touch-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onClick={toggleMinimized}
+      >
+        <div className="w-[60px] h-1.5 bg-gray-200 rounded-full" />
+      </div>
+
+      {/* Estimator Summary Header */}
+      <div className="px-6 py-2">
+        <div className="flex flex-col items-center">
+          <div className="flex items-baseline space-x-1 flex-wrap justify-center">
+            <span className="text-[15px] text-[#323232]">Est</span>
+            <img src={PointsRooLogo} alt="" className="w-[16px] h-[18px] translate-y-0.5" />
+            <span className="text-[16px] font-medium text-[#323232] leading-none">
+              {totalPts ? totalPts.toLocaleString() : '0'}
+            </span>
+            <span className="text-[10px] font-bold text-[#999999] uppercase">PTS</span>
+            <span className="text-[15px] text-[#323232] ml-1">a year from selected</span>
+          </div>
         </div>
       </div>
 
-      {/* Reward Section */}
-      <div className="px-6 pb-2">
+      {/* Rewards Content Area */}
+      <div className="transition-opacity duration-300 px-6" style={{ opacity: isMinimized ? 0 : 1 }}>
         <div className="flex justify-between items-center mb-3 mt-1">
-          <h3 className="text-base font-bold text-gray-900">
-            {hasSelectedReward ? 'Selected Reward' : 'Example Reward'}
+          <h3 className="text-[14px] font-medium text-[#323232]">
+            {selectedReward ? (hasSelectedReward ? 'Favourite reward:' : 'Example reward') : ''}
           </h3>
           <button
-            onClick={onSeeMoreClick}
-            className="text-sm font-bold text-red-600 underline underline-offset-4 hover:text-red-700 transition-colors"
+            onClick={onExploreRewardsClicked}
+            className="text-[14px] font-medium text-[#E40000] hover:underline"
           >
-            See more
+            Explore rewards
           </button>
         </div>
 
-        {selectedReward ? (
-          <RewardCard reward={selectedReward} />
-        ) : (
-          <div className="p-8 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 text-center flex flex-col items-center justify-center space-y-2">
-            <p className="text-sm font-medium">Select more ways to earn to unlock rewards.</p>
-          </div>
+        {selectedReward && (
+          <ConnectedRewardCard
+            reward={selectedReward}
+          />
         )}
-      </div>
 
-      {/* Primary Action */}
-      <div className="p-6">
-        <button
-          className="w-full py-4 bg-red-600 font-black tracking-[0.1em] text-white text-base rounded-lg shadow-lg active:scale-[0.98] transition-all disabled:grayscale disabled:opacity-50"
-          onClick={onAddToDashboard}
-          disabled={!selectedReward}
-        >
-          ADD TO DASHBOARD
-        </button>
+        <div className="py-4 pb-6">
+          <button
+            onClick={onHomepageClicked}
+            className="w-full py-4.5 bg-[#E40000] font-medium tracking-[0.1em] text-white text-[16px] rounded-[10px] active:scale-[0.98] transition-all uppercase"
+          >
+            GO TO HOMEPAGE
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -76,6 +76,7 @@ import WellingtonImg from './assets/images/rewards/welllington.jpg'; // Filename
 import HotelOaksImg from './assets/images/rewards/hotel-oaks-melbourne.jpg';
 import HotelBestWesternImg from './assets/images/rewards/hotels-best-western.jpg';
 import HotelLancemoreImg from './assets/images/rewards/hotels-lancermore-crossley-st.jpg';
+import HotelQuestImg from './assets/images/rewards/hotel-quest-east-melbourne.jpg';
 import ActivityBalloonImg from './assets/images/rewards/activities-melbourne-balloon-tour.jpg';
 import MarketplaceAirtagImg from './assets/images/rewards/marketplace-apple-airtag.jpg';
 import MarketplaceLuggageTagImg from './assets/images/rewards/marketplace-qantas-luggage-tag.jpg';
@@ -540,6 +541,7 @@ const localRewardImages = {
   'Best Western Plus Travel Inn': HotelBestWesternImg,
   'Lancemore Crossley St. Melbourne': HotelLancemoreImg,
   'Oaks Melbourne on Collins': HotelOaksImg,
+  'Quest East Melbourne': HotelQuestImg,
 
   // Activities
   'Balloon Tour': ActivityBalloonImg,
@@ -679,12 +681,12 @@ export const marketplaceList = [
   { id: 7, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Bose QuietComfort Headphones', pts: 52700, imageUrl: getImg('Bose Headphones') },
   { id: 8, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Breville Essenza Coffee Machine', pts: 43800, imageUrl: getImg('Breville Machine') },
   { id: 9, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Ninja Foodi Airfryer Max', pts: 39800, imageUrl: getImg('Ninja Airfryer') },
-  { id: 10, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Samsonite 55cm Suitcase', pts: 32800, imageUrl: getImg('Samsonite Suitcase') },
-  { id: 11, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Royal Comfort Towel Set', pts: 21800, imageUrl: getImg('Towel Set') },
+  { id: 10, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Samsonite 55cm Suitcase', pts: 32800, imageUrl: getImg('Samsonite Suitcase'), desc: 'Lightweight and durable carry-on spinner.', linkText: 'See in Qantas Marketplace' },
+  { id: 11, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Royal Comfort Towel Set', pts: 21800, imageUrl: getImg('Towel Set'), desc: 'Luxury 100% Egyptian Cotton towel set.', linkText: 'See in Qantas Marketplace' },
   { id: 12, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Wallabies Jersey - Womens', pts: 12960, imageUrl: getImg('Wallabies Jersey') },
   { id: 13, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Apple Airtag', pts: 9800, imageUrl: getImg('Apple Airtag') },
-  { id: 14, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Qantas Luggage Tag', pts: 4000, imageUrl: getImg('Luggage Tag') },
-  { id: 15, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Qantas Model Aeroplane', pts: 2400, imageUrl: getImg('Model Aeroplane') }
+  { id: 14, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Qantas Luggage Tag', pts: 4000, imageUrl: getImg('Luggage Tag'), desc: 'Durable and stylish Qantas luggage tag.', linkText: 'See in Qantas Marketplace' },
+  { id: 15, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Qantas Model Aeroplane', pts: 2400, imageUrl: getImg('Model Aeroplane'), desc: '1/200 Standard Livery - 787-9\nThe Boeing 787-9. Livery/Paint scheme: Qantas Airways. Base: White plastic base', linkText: 'See in Qantas Marketplace' }
 ];
 
 export const giftCardsList = [

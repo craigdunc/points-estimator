@@ -9,9 +9,10 @@ import {
   giftCardsList,
   entertainmentList,
 } from '../data';
-import OnboardingStepper   from '../components/OnboardingStepper';
-import WTETiles            from '../components/WTETiles';
-import MonthWrapUpModal    from '../components/MonthWrapUpModal';
+import OnboardingStepper from '../components/OnboardingStepper';
+import WTETiles from '../components/WTETiles';
+import MonthWrapUpModal from '../components/MonthWrapUpModal';
+import ConnectedRewardCard from '../components/ConnectedRewardCard';
 // NOTE: We might need these if we dynamically get indices later, but hardcoding for now
 // import WTESelection from './WTESelection';
 // import MonthChange from '../components/MonthChange';
@@ -39,8 +40,8 @@ export default function Dashboard({ goTo, currentStepIndex }) {
   const [wrapUpData, setWrapUpData] = useState(null);
 
   const monthNames = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December',
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
   const [, mm] = currentMonth.split('-');
   const monthName = monthNames[parseInt(mm, 10) - 1] || currentMonth;
@@ -83,19 +84,19 @@ export default function Dashboard({ goTo, currentStepIndex }) {
   // --- Navigation Handler Updates ---
 
   const handleEditWTEs = () => {
-      const wteSelectionIndex = 3; // Based on steps in App.jsx
-      goTo(wteSelectionIndex);
+    const wteSelectionIndex = 3; // Based on steps in App.jsx
+    goTo(wteSelectionIndex);
   };
 
   const handleSetupOrAddWTE = (id) => {
-      if (id === null) {
-          // "Add new" was clicked, go back to WTESelection
-          const wteSelectionIndex = 3; // Based on steps in App.jsx
-          goTo(wteSelectionIndex);
-      } else {
-          // "Set up" was clicked for a specific WTE
-          setOnboardingWteId(id);
-      }
+    if (id === null) {
+      // "Add new" was clicked, go back to WTESelection
+      const wteSelectionIndex = 3; // Based on steps in App.jsx
+      goTo(wteSelectionIndex);
+    } else {
+      // "Set up" was clicked for a specific WTE
+      setOnboardingWteId(id);
+    }
   };
 
   const handleCloseWrapUpModal = () => {
@@ -159,22 +160,16 @@ export default function Dashboard({ goTo, currentStepIndex }) {
 
         {/* Selected Reward Display */}
         {selectedReward && (
-          <div className="mx-2 rounded border p-4">
-            {/* Use selectedReward.type if available, otherwise default */}
-            <div className="font-semibold">{selectedReward.type || 'Selected Reward'}</div>
-            <div className="mt-2 flex items-center justify-between text-lg font-bold">
-              <div>{selectedReward.reward}</div>
-              <div className="flex items-baseline"> {/* Use flex for points */}
-                  {selectedReward.costAUD && <span className="text-xs text-gray-600 mr-1">+ ${selectedReward.costAUD.toFixed(2)}</span>}
-                  <span className="mr-0.5">{selectedReward.pts.toLocaleString()}</span>
-                  <span className="text-xs uppercase">PTS</span>
-              </div>
-            </div>
-            <div className="mt-2 text-xs text-gray-500">
+          <div className="mx-2">
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">
+              {selectedReward.type || 'Favourite reward'}
+            </h3>
+            <ConnectedRewardCard reward={selectedReward} />
+            <p className="mt-3 text-[11px] text-gray-500 leading-relaxed italic">
               {selectedReward.type === 'Classic Flight Reward'
                 ? 'Learn more about Classic Flight Rewards and availability. Taxes, fees and charges apply.'
-                : 'Reward details and conditions apply.'} {/* Generic fallback */}
-            </div>
+                : 'Reward details and conditions apply.'}
+            </p>
           </div>
         )}
 

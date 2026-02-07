@@ -1,6 +1,6 @@
 // src/components/LeafletMap.jsx
 import React, { useMemo } from 'react';
-import { MapContainer, GeoJSON, Circle, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, GeoJSON, Circle, CircleMarker, Marker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import worldData from '../assets/world-countries.json';
@@ -22,12 +22,12 @@ L.Marker.prototype.options.icon = DefaultIcon;
 // Or stick to standard pins. User said "The only labels we want is from our app with our labels for destinations."
 // pins are good.
 
-// Style for the GeoJSON layer (Grey world)
+// Style for the GeoJSON layer (White continents)
 const geoStyle = {
-    fillColor: '#d9d9d9', // Grey fill
+    fillColor: '#ffffff', // White fill
     weight: 0,            // No border for cleaner look
     opacity: 1,
-    color: '#d9d9d9',
+    color: '#ffffff',
     fillOpacity: 1
 };
 
@@ -38,12 +38,40 @@ function MapController({ center, zoom }) {
     return null;
 }
 
+// Create a custom DivIcon with heart for pending/selected state
+const createHeartIcon = (fillColor) => {
+    return L.divIcon({
+        className: 'custom-heart-marker',
+        html: `
+            <div style="
+                width: 48px;
+                height: 48px;
+                background-color: ${fillColor};
+                border: 3px solid white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            ">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px;">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                </svg>
+            </div>
+        `,
+        iconSize: [48, 48],
+        iconAnchor: [24, 24]
+    });
+};
+
 export default function LeafletMap({
     flights,
     origin,
     selectedFlightId,
+    pendingFlightId,
     affordableIds,
-    onFlightClick
+    onFlightClick,
+    isSelectionExplicit = true // Default to true if not specified
 }) {
     const sydney = [origin.lat, origin.lon];
 
@@ -64,13 +92,13 @@ export default function LeafletMap({
     }, [flights, affordableIds, origin]);
 
     return (
-        <div className="relative w-full h-full bg-[#f2f2f2] overflow-hidden rounded-lg">
-            {/* bg-[#f2f2f2] is the ocean color */}
+        <div className="relative w-full h-full overflow-hidden rounded-lg" style={{ background: 'linear-gradient(180deg, #e8d5e0 0%, #d5e0eb 50%, #c5dbe8 100%)' }}>
+            {/* Gradient background for ocean */}
             <MapContainer
                 center={sydney}
                 zoom={2}
                 scrollWheelZoom={true}
-                style={{ height: '100%', width: '100%', background: '#f2f2f2' }}
+                style={{ height: '100%', width: '100%', background: 'transparent' }}
                 attributionControl={false} // Clean look
                 zoomControl={false} // Clean look, can add back if needed
             >
@@ -95,12 +123,30 @@ export default function LeafletMap({
                 {flights.map(f => {
                     const isAffordable = affordableIds.includes(f.id);
                     const isSelected = f.id === selectedFlightId;
+                    const isPending = f.id === pendingFlightId;
 
+                    // 1. Pending Selection OR Explicit Favourite: Heart Icon
+                    if (isPending || (isSelected && isSelectionExplicit)) {
+                        const heartColor = isAffordable ? '#e61c2e' : '#888888';
+                        return (
+                            <Marker
+                                key={f.id}
+                                position={[f.lat, f.lon]}
+                                icon={createHeartIcon(heartColor)}
+                                eventHandlers={{
+                                    click: () => onFlightClick && onFlightClick(f.id),
+                                }}
+                            />
+                        );
+                    }
+
+                    // 2. Implicit Selection (Example Reward): Large Dot without Heart
+                    // 3. Normal Dot
                     return (
                         <CircleMarker
                             key={f.id}
                             center={[f.lat, f.lon]}
-                            radius={isSelected ? 12 : 6}
+                            radius={isSelected ? 12 : 6} // Large radius for selected (even if implicit)
                             pathOptions={{
                                 fillColor: isAffordable ? '#e61c2e' : '#999999',
                                 color: isSelected ? 'white' : 'transparent',
