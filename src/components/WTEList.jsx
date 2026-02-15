@@ -21,7 +21,8 @@ export default function WTEList({
   tierIndexById,
   onToggleSelect,
   onToggleExpand,
-  onTierChange
+  onTierChange,
+  compact = false
 }) {
   return (
     <div className="space-y-0">
@@ -37,7 +38,7 @@ export default function WTEList({
           <div key={w.id} className={`border-b border-gray-100 transition-colors duration-300 ${isSelected ? 'bg-[#EEF7F8]' : 'bg-white'}`}>
             {/* ROW HEADER */}
             <div
-              className="flex items-center justify-between px-3 py-4 cursor-pointer"
+              className={`flex items-center justify-between px-3 cursor-pointer ${compact ? 'py-3' : 'py-4'}`}
               onClick={() => onToggleExpand(w.id)}
             >
               <div className="flex items-center space-x-3">
@@ -62,7 +63,7 @@ export default function WTEList({
                 </div>
 
                 <div className="flex-grow">
-                  <div className="text-[16px] text-[#323232] leading-tight">
+                  <div className={`${compact ? 'text-[15px]' : 'text-[16px]'} text-[#323232] leading-tight`}>
                     {w.name}
                   </div>
                 </div>
@@ -77,7 +78,7 @@ export default function WTEList({
                     className="w-[18px] h-[18px]"
                   />
                   <div className="flex items-baseline space-x-1">
-                    <span className="text-[16px] font-medium text-[#323232]">
+                    <span className={`${compact ? 'text-[15px]' : 'text-[16px]'} font-medium text-[#323232]`}>
                       {tier.pts.toLocaleString()}
                     </span>
                     <span className="text-[10px] font-bold text-[#999999] uppercase">

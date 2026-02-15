@@ -24,15 +24,29 @@ const rewardTabs = [
 ];
 
 // Simple hook for responsive check
-const useIsDesktop = () => {
-  const [isDesktop, setIsDesktop] = useState(false);
+const useViewportMode = () => {
+  const [viewportMode, setViewportMode] = useState('mobile');
   useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    const check = () => {
+      if (window.innerWidth >= 1200) {
+        setViewportMode('desktop');
+        return;
+      }
+
+      if (window.innerWidth >= 768) {
+        setViewportMode('tablet');
+        return;
+      }
+
+      setViewportMode('mobile');
+    };
+
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
-  return isDesktop;
+
+  return viewportMode;
 };
 
 const useRewardsMap = () => useMemo(() => ({
@@ -55,7 +69,6 @@ export default function WTESelection({ goTo, currentStepIndex }) {
 
   const {
     current,
-    updateSelectedWTU,
     updateSelectedRewardId,
     updateSelectedWTEs,
     updateTierIndex
@@ -89,12 +102,6 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   const [expandedId, setExpandedId] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const tabsRef = useRef(null);
-
-  // Rewards available under current points & tab
-  const availableRewards = useMemo(() => {
-    const list = rewardsMap[activeRewardTab] || [];
-    return list.filter(r => typeof r.pts === 'number' && r.pts <= totalAnnualPts);
-  }, [activeRewardTab, totalAnnualPts, rewardsMap]);
 
   // First-time help logic
   useEffect(() => {
@@ -205,7 +212,9 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   const selectedIdsForList = useMemo(() => selectedWTEs.map(w => w.id), [selectedWTEs]);
 
   // Responsive state
-  const isDesktop = useIsDesktop();
+  const viewportMode = useViewportMode();
+  const isMobile = viewportMode === 'mobile';
+  const isSplitView = !isMobile;
 
   if (!current) {
     return <div className="p-6 text-center">Loading selection...</div>;
@@ -213,8 +222,8 @@ export default function WTESelection({ goTo, currentStepIndex }) {
 
   // Common Header Content
   const renderHeader = () => (
-    <div className={`flex items-center px-4 py-4 bg-white ${!isDesktop && 'border-b border-gray-100'}`}>
-      {!isDesktop && (
+    <div className={`flex items-center px-4 py-4 bg-white ${isMobile && 'border-b border-gray-100'}`}>
+      {isMobile && (
         <button
           onClick={() => goTo(currentStepIndex - 1)}
           className="p-2 mr-2 -ml-2 text-gray-500"
@@ -225,16 +234,16 @@ export default function WTESelection({ goTo, currentStepIndex }) {
         </button>
       )}
       <div>
-        <h2 className="text-[24px] font-medium tracking-tight text-[#323232]">
-          Ways to {isDesktop ? 'earn and use points' : 'earn points'}
-        </h2>
-        {isDesktop && (
+          <h2 className="text-[24px] font-medium tracking-tight text-[#323232]">
+          Ways to {isSplitView ? 'earn and use points' : 'earn points'}
+          </h2>
+        {isSplitView && (
           <p className="text-[14px] text-gray-600 mt-1">
             Select ways of earning Qantas Points to add to your dashboard. You can change your selection at any time.
           </p>
         )}
       </div>
-      {!isDesktop && (
+      {isMobile && (
         <button
           onClick={() => setIsHelpOpen(true)}
           className="ml-auto p-2 text-gray-800 hover:text-red-600 transition-colors"
@@ -250,19 +259,50 @@ export default function WTESelection({ goTo, currentStepIndex }) {
     </div>
   );
 
+  const renderSplitViewSections = () => (
+    <div className="space-y-6">
+      {categories.map((category) => (
+        <section key={category.key}>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <h3 className="text-[22px] tracking-tight text-[#323232] leading-none">
+              {category.label}
+            </h3>
+            <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+
+          <div className="bg-white rounded-[16px] border border-gray-100 overflow-hidden max-h-[360px] overflow-y-auto">
+            <WTEList
+              WTEs={WTEs}
+              activeCategory={category.key}
+              selectedIds={selectedIdsForList}
+              expandedId={expandedId}
+              tierIndexById={tierIndexById}
+              onToggleSelect={toggleSelectWTE}
+              onToggleExpand={toggleExpandWTE}
+              onTierChange={handleTierChange}
+              compact={true}
+            />
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+
   return (
-    <div className={`${isDesktop ? 'w-full min-h-screen bg-[#F7F7F7]' : 'max-w-md mx-auto pb-[500px] relative bg-white'}`}>
+    <div className={`${isSplitView ? 'w-full min-h-screen bg-[#F7F7F7] pb-28' : 'max-w-md mx-auto pb-[500px] relative bg-white'}`}>
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
 
       {/* Main Container */}
-      <div className={isDesktop ? "max-w-[1200px] mx-auto px-8 pt-6" : ""}>
+      <div className={isSplitView ? "max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8 pt-4 md:pt-6" : ""}>
         {renderHeader()}
 
-        <div className={isDesktop ? "flex gap-8 mt-6 items-start" : ""}>
+        <div className={isSplitView ? "flex gap-4 xl:gap-8 mt-4 md:mt-6 items-start" : ""}>
           {/* Left Column (WTE List) */}
-          <div className={isDesktop ? "w-[380px] shrink-0" : ""}>
+          <div className={isSplitView ? "w-[320px] xl:w-[380px] shrink-0" : ""}>
             {/* Target Header in Mobile only (or maybe distinct on desktop?) */}
-            {!isDesktop && isTargetMode && (
+            {isMobile && isTargetMode && (
               <div className="px-3 pb-2 bg-gray-100">
                 <div className="bg-white rounded-[12px] p-3 border border-gray-50 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
                   <div className="flex justify-between items-center mb-3">
@@ -300,46 +340,49 @@ export default function WTESelection({ goTo, currentStepIndex }) {
               </div>
             )}
 
-            {/* Category Tabs */}
-            <div className={`pt-2 ${isDesktop ? 'bg-transparent mb-4' : 'bg-gray-100'}`}>
-              <div className={isDesktop ? "uppercase text-[12px] font-bold text-gray-400 mb-2 pl-1" : ""}>
-                {isDesktop && "Everyday Filters"}
-              </div>
-              <CategoryTabs
-                categories={categories}
-                activeCategory={activeCategory}
-                onCategoryChange={setActiveCategory}
-                ref={tabsRef}
-                variant={isDesktop ? 'minimal' : 'default'} // Assuming we could style them differently if needed
-              />
-            </div>
+            {isSplitView ? (
+              renderSplitViewSections()
+            ) : (
+              <>
+                {/* Category Tabs */}
+                <div className="pt-2 bg-gray-100">
+                  <CategoryTabs
+                    categories={categories}
+                    activeCategory={activeCategory}
+                    onCategoryChange={setActiveCategory}
+                    ref={tabsRef}
+                    variant="default"
+                  />
+                </div>
 
-            <WTEList
-              WTEs={WTEs}
-              activeCategory={activeCategory}
-              selectedIds={selectedIdsForList}
-              expandedId={expandedId}
-              tierIndexById={tierIndexById}
-              onToggleSelect={toggleSelectWTE}
-              onToggleExpand={toggleExpandWTE}
-              onTierChange={handleTierChange}
-            />
+                <WTEList
+                  WTEs={WTEs}
+                  activeCategory={activeCategory}
+                  selectedIds={selectedIdsForList}
+                  expandedId={expandedId}
+                  tierIndexById={tierIndexById}
+                  onToggleSelect={toggleSelectWTE}
+                  onToggleExpand={toggleExpandWTE}
+                  onTierChange={handleTierChange}
+                />
+              </>
+            )}
           </div>
 
-          {/* Right Column (Rewards & Preview) - DESKTOP ONLY */}
-          {isDesktop && (
+          {/* Right Column (Rewards & Preview) - TABLET + DESKTOP */}
+          {isSplitView && (
             <div className="flex-grow bg-white rounded-[24px] p-6 shadow-sm min-h-[600px]">
               <RewardsScreen
                 goTo={goTo}
                 isEmbedded={true}
-                desktopMode={true}
+                desktopMode={isSplitView}
               />
             </div>
           )}
         </div>
       </div>
 
-      {!isDesktop && selectedWTEs.length > 0 && (
+      {isMobile && selectedWTEs.length > 0 && (
         <StickyFooter
           totalPts={totalAnnualPts}
           selectedReward={selectedReward}
@@ -354,7 +397,7 @@ export default function WTESelection({ goTo, currentStepIndex }) {
           The design shows "Add the selected ways to earn and reward to your homepage to continue" + [GO TO HOMEPAGE]
           at the bottom of the screen.
       */}
-      {isDesktop && selectedWTEs.length > 0 && (
+      {isSplitView && selectedWTEs.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-4 px-8 flex justify-end items-center z-50">
           <span className="mr-6 text-[14px] font-medium text-gray-700">
             Add the selected ways to earn and reward to your homepage to continue.
