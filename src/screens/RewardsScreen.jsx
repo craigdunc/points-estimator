@@ -2,8 +2,7 @@
 import React, {
   useState,
   useMemo,
-  useCallback,
-  useEffect
+  useCallback
 } from 'react';
 import { useSaveSlots } from '../state/useSaveSlots';
 import ConnectedRewardCard from '../components/ConnectedRewardCard';
@@ -197,8 +196,13 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
 
   const renderMapSection = () => {
     if (activeTabKey !== 'Flights') return null;
+
+    const mapShellClass = desktopMode
+      ? 'relative border border-gray-200 rounded-[12px] overflow-hidden h-[340px] lg:h-[380px] bg-white'
+      : 'flex-grow relative border-t border-b border-gray-200';
+
     return (
-      <div className="flex-grow relative border-t border-b border-gray-200">
+      <div className={mapShellClass}>
         <LeafletMap
           flights={flightPoints}
           origin={ORIGIN_CITY.coords}
