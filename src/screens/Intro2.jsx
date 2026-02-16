@@ -105,7 +105,7 @@ export default function Intro2({ goTo, currentStepIndex, dashboardStepIndex = 5 
 
       {/* ── SEE REWARDS LINK ── */}
       <button
-        onClick={() => goTo(isSplitView ? 3 : 4)}
+        onClick={() => goTo(3)}
         className="mt-6 text-center text-[14px] text-[#666666] underline hover:text-[#323232] transition-colors"
       >
         See rewards

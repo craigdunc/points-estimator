@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ConnectedRewardCard from './ConnectedRewardCard';
 import PointsRooLogo from '../assets/points-roo.svg';
 

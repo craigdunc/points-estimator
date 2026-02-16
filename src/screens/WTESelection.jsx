@@ -110,9 +110,8 @@ export default function WTESelection({ goTo, currentStepIndex }) {
       updateSelectedRewardId(best?.id ?? null, tabToUse, false);
     }
   }, [
+    current,
     current?.totalAnnualPts,
-    // Remove current.selectedWTU dependency if we force Flights? 
-    // Actually we should keep it if we want to re-run when points change.
     current?.hasSelectedReward,
     current?.selectedRewardId,
     rewardsMap,
@@ -187,9 +186,8 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   const selectedIdsForList = useMemo(() => selectedWTEs.map(w => w.id), [selectedWTEs]);
 
   // Responsive state
-  const viewportMode = useViewportMode();
+  const { viewportMode, isSplitView } = useViewportMode();
   const isMobile = viewportMode === 'mobile';
-  const isSplitView = !isMobile;
 
 
 
