@@ -38,7 +38,7 @@ export default function Intro1({ goTo, currentStepIndex }) {
 
       <main className={`flex-grow ${isSplitView ? 'max-w-[1200px] mx-auto w-full px-6 pt-10' : 'pb-12'}`}>
 
-        <div className={`${isSplitView ? 'flex flex-row gap-8 items-start' : 'flex flex-col-reverse'}`}>
+        <div className={`${isSplitView ? 'flex flex-row gap-8 items-start' : 'flex flex-col'}`}>
 
           {/* ── LEFT COL (Membership Card on Desktop) ── */}
           <div className={`${isSplitView ? 'w-[380px] shrink-0' : 'px-4 pt-4 pb-4'}`}>
