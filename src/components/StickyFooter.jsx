@@ -80,7 +80,7 @@ export default function StickyFooter({
 
   return (
     <div
-      className="fixed bottom-0 inset-x-0 bg-white rounded-t-[28px] overflow-hidden z-30 shadow-[0_-12px_30px_rgba(0,0,0,0.12)] border-t border-gray-100 transform transition-all duration-300 ease-out"
+      className="fixed bottom-0 inset-x-0 bg-white rounded-t-[28px] overflow-hidden z-[9000] shadow-[0_-12px_30px_rgba(0,0,0,0.12)] border-t border-gray-100 transform transition-all duration-300 ease-out"
       style={{
         transform: getTransform(),
         transitionDuration: isDragging ? '0ms' : '400ms'

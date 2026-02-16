@@ -46,24 +46,24 @@ export default function RewardCard({
                 {/* Top: Badge (if flight) or Icon */}
                 <div className="flex items-start">
                     {isFlight ? (
-                        <div className="flex items-center space-x-2 bg-white/15 backdrop-blur-md rounded-full px-2 py-1.5 border border-white/20">
-                            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                                <svg className="w-4 h-4 text-[#E40000]" viewBox="0 0 24 24" fill="currentColor">
+                        <div className="flex items-center space-x-1.5 bg-white/15 backdrop-blur-md rounded-full px-1.5 py-1 border border-white/20">
+                            <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                                <svg className="w-3.5 h-3.5 text-[#E40000]" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                                 </svg>
                             </div>
-                            <span className="text-[13px] font-medium">
+                            <span className="text-[11px] font-medium">
                                 Classic Reward Flight
                             </span>
                         </div>
                     ) : (
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2.5">
                             {reward.icon && (
-                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1 shadow-md">
-                                    <img src={reward.icon} alt="" className="w-7 h-7" />
+                                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1 shadow-md">
+                                    <img src={reward.icon} alt="" className="w-5 h-5" />
                                 </div>
                             )}
-                            <span className="text-[15px] font-medium tracking-tight">
+                            <span className="text-[12px] font-medium tracking-tight">
                                 {reward.type}
                             </span>
                         </div>
@@ -80,25 +80,25 @@ export default function RewardCard({
                                     onOriginClick();
                                 }
                             }}
-                            className={`text-xs font-semibold opacity-90 drop-shadow-md text-left ${onOriginClick ? 'hover:underline cursor-pointer' : ''}`}
+                            className={`text-[10px] font-semibold opacity-90 drop-shadow-md text-left ${onOriginClick ? 'hover:underline cursor-pointer' : ''}`}
                         >
                             {reward.destCity ? `${originCity} to` : ''}
                         </button>
-                        <span className="text-[22px] font-medium drop-shadow-lg leading-tight mb-1">
+                        <span className="text-[16px] font-medium drop-shadow-lg leading-tight mb-0.5">
                             {reward.destCity || reward.reward}
                         </span>
                         {isFlight && (
-                            <span className="text-xs font-medium opacity-90">
+                            <span className="text-[10px] font-medium opacity-90">
                                 + $180 charges
                             </span>
                         )}
                     </div>
 
-                    <div className="flex items-baseline space-x-1.5 drop-shadow-lg pb-1">
-                        <span className="text-[22px] font-medium uppercase">
+                    <div className="flex items-baseline space-x-1 drop-shadow-lg pb-0.5">
+                        <span className="text-[16px] font-medium uppercase">
                             {reward.pts.toLocaleString()}
                         </span>
-                        <span className="text-[10px] font-bold uppercase opacity-80">
+                        <span className="text-[9px] font-bold uppercase opacity-80">
                             PTS
                         </span>
                     </div>

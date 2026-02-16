@@ -2,8 +2,7 @@
 import React, {
   useState,
   useMemo,
-  useCallback,
-  useEffect
+  useCallback
 } from 'react';
 import { useSaveSlots } from '../state/useSaveSlots';
 import ConnectedRewardCard from '../components/ConnectedRewardCard';
@@ -47,7 +46,7 @@ const useRewardsMap = () =>
     []
   );
 
-export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = false }) {
+export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = false, containerRef = null }) {
   const { current, updateSelectedWTU, updateSelectedRewardId } = useSaveSlots();
   const rewardsMap = useRewardsMap();
 
@@ -98,6 +97,10 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
   const handleTabChange = useCallback(key => {
     updateSelectedWTU(key);
     setExpandedId(null);
+    // Clear pending state when switching tabs to avoid "ghost" highlights
+    setPendingRewardId(null);
+    setPendingRewardCategory(null);
+    setShowRewardModal(false);
   }, [updateSelectedWTU]);
 
   const handleToggleExpand = useCallback(id => {
@@ -109,24 +112,30 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     const reward = flightPoints.find(r => r.id === id);
     const isAffordable = reward && reward.pts <= totalAnnualPts;
 
+    // Always update the selected reward to reflect the user's latest choice
+    updateSelectedRewardId(id, 'Flights', true);
+    setUserHasInteracted(true);
+
     if (isAffordable) {
-      // If affordable, select it immediately and update the footer view (without modal)
-      // Pass isExplicit=false so it's just a preview/pending selection until they click "Favorite"
-      updateSelectedRewardId(id, 'Flights', false);
-      setUserHasInteracted(true);
       // Clear any pending modal state
       setPendingRewardId(null);
       setPendingRewardCategory(null);
       setShowRewardModal(false);
     } else {
-      // If unaffordable, show the modal flow
+      // Unaffordable - set pending for Duo guidance
       setPendingRewardId(id);
       setPendingRewardCategory('Flights');
+
+      // Animated transition: scroll to top first
+      if (desktopMode && containerRef?.current) {
+        containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
       setTimeout(() => {
         setShowRewardModal(true);
-      }, 400);
+      }, desktopMode ? 800 : 400);
     }
-  }, [flightPoints, totalAnnualPts, updateSelectedRewardId]);
+  }, [flightPoints, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef]);
 
   const handleSelectRewardInList = useCallback((id) => {
     // Check affordability
@@ -134,21 +143,29 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     const reward = list.find(r => r.id === id);
     const isAffordable = reward && reward.pts <= totalAnnualPts;
 
+    // Always update the selected reward to reflect the user's latest choice
+    updateSelectedRewardId(id, activeTabKey, true);
+    setUserHasInteracted(true);
+
     if (isAffordable) {
-      // If affordable, select it immediately
-      updateSelectedRewardId(id, activeTabKey, false);
-      setUserHasInteracted(true);
+      // If affordable, select it immediately as explicit favourite
       setPendingRewardId(null);
       setPendingRewardCategory(null);
       setShowRewardModal(false);
     } else {
       setPendingRewardId(id);
       setPendingRewardCategory(activeTabKey);
+
+      // Animated transition: scroll to top first
+      if (desktopMode && containerRef?.current) {
+        containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
       setTimeout(() => {
         setShowRewardModal(true);
-      }, 400);
+      }, desktopMode ? 800 : 400);
     }
-  }, [activeTabKey, rewardsMap, totalAnnualPts, updateSelectedRewardId]);
+  }, [activeTabKey, rewardsMap, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef]);
 
   const handleCloseModal = useCallback(() => {
     setShowRewardModal(false);
@@ -197,8 +214,11 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
 
   const renderMapSection = () => {
     if (activeTabKey !== 'Flights') return null;
+    const mapShellClass = desktopMode
+      ? 'relative border border-gray-200 rounded-[12px] overflow-hidden h-[340px] lg:h-[380px] bg-white'
+      : 'flex-grow relative border-t border-b border-gray-200';
     return (
-      <div className="flex-grow relative border-t border-b border-gray-200">
+      <div className={mapShellClass}>
         <LeafletMap
           flights={flightPoints}
           origin={ORIGIN_CITY.coords}
@@ -223,34 +243,86 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       </div>
     );
 
-    return <ConnectedRewardCard reward={sel} />;
+    return <ConnectedRewardCard key={globalSelectedRewardId || 'none'} reward={sel} />;
+  };
+
+  const renderDesktopGuidance = () => {
+    if (!showRewardModal || !pendingRewardObj) return null;
+    return (
+      <div className="w-full animate-duo-entrance">
+        <div className="bg-[#E1F5F5] rounded-[14px] p-3 border border-[#C5EDED] flex items-start space-x-3 relative h-full shadow-sm">
+          <button
+            onClick={() => setShowRewardModal(false)}
+            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <div className="shrink-0">
+            <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
+              <img src={DuoMascot} alt="Duo mascot" className="w-full h-full object-contain" />
+            </div>
+          </div>
+
+          <div className="flex-grow pt-0.5">
+            <div className="text-[13px] text-[#323232] mb-0.5 leading-tight pr-6">
+              This reward is <span className="font-bold text-[14px]">{pendingRewardObj.pts.toLocaleString()}</span>
+              <span className="text-[10px] font-bold text-[#999999] ml-1 uppercase">PTS</span>
+            </div>
+            <p className="text-[12px] text-[#666666] leading-relaxed mb-2.5">
+              I'll show you how you can earn the points, in one year.
+            </p>
+            <button
+              onClick={handleShowMe}
+              className="px-3 py-1.5 bg-[#E40000] text-white text-[11px] font-bold uppercase tracking-wider rounded-lg hover:bg-red-700 transition-colors active:scale-95"
+            >
+              Show me how
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderDesktopHeaderContent = () => (
-    <div className="mb-6">
-      <div className="text-left mb-2">
-        <span className="text-[15px] text-[#323232]">Estimated</span>
-        <img src={PointsRooLogo} alt="" className="w-[16px] h-[18px] translate-y-0.5 inline mx-1" />
-        <span className="text-[18px] font-bold text-[#323232]">
+    <div className="mb-6 flex flex-col space-y-3">
+      {/* Full-width Estimated Line */}
+      <div className="w-full text-left">
+        <span className="text-[12px] text-[#323232]">Estimated</span>
+        <img src={PointsRooLogo} alt="" className="w-[14px] h-[16px] translate-y-0.5 inline mx-1" />
+        <span className="text-[14px] font-bold text-[#323232]">
           {totalAnnualPts.toLocaleString()}
         </span>
-        <span className="text-[10px] font-bold text-[#999999] uppercase ml-1">PTS</span>
-        <span className="text-[15px] text-[#323232] ml-1">a year from selected</span>
+        <span className="text-[9px] font-bold text-[#999999] uppercase ml-1">PTS</span>
+        <span className="text-[12px] text-[#323232] ml-1">a year from selected</span>
       </div>
-      <div className="mb-2 text-[14px] text-gray-700">
-        {current.hasSelectedReward ? 'Favourite reward' : 'Example reward'}
-      </div>
-      <div className="mb-6">
-        {renderSelectedRewardPreview()}
-      </div>
-      <div className="text-[16px] text-[#323232] font-medium mb-4">
-        Explore rewards
+
+      {/* 50/50 Split Grid */}
+      <div className="grid grid-cols-2 gap-4 items-stretch">
+        <div className="flex flex-col">
+          <div className="mb-2 text-[12px] text-gray-700">
+            {current.hasSelectedReward ? 'Favourite reward' : 'Example reward'}
+          </div>
+          <div className="flex-grow">
+            {renderSelectedRewardPreview()}
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          {/* Label spacer to align with Reward Card */}
+          <div className="mb-2 h-[18px]"></div>
+          <div className="flex-grow">
+            {renderDesktopGuidance()}
+          </div>
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className={`${isEmbedded ? 'w-full h-full flex flex-col' : 'fixed inset-0 bg-white z-40 flex flex-col h-full overflow-hidden'}`}>
+    <div className={`${isEmbedded ? 'w-full' : 'fixed inset-0 bg-white z-40 flex flex-col h-full overflow-hidden'}`}>
       {/* Header - Only hide if embedded AND not desktop (or handled by parent) */}
       {!isEmbedded && (
         <div className="bg-white shadow-sm p-4 py-4 flex items-center shrink-0">
@@ -281,7 +353,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       )}
 
       {/* Tabs */}
-      <div className="shrink-0 py-0 border-b border-gray-100 bg-white">
+      <div className={`shrink-0 py-0 border-b border-gray-100 bg-white ${isEmbedded ? '' : ''}`}>
         <CategoryTabs
           categories={rewardTabsConfig}
           activeCategory={activeTabKey}
@@ -290,57 +362,63 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       </div>
 
       {/* Main Content (Map or List) */}
-      <div className="flex-grow flex flex-col min-h-0 overflow-y-auto bg-gray-50">
+      <div className={`${isEmbedded ? 'w-full bg-gray-50' : 'flex-grow flex flex-col min-h-0 overflow-y-auto bg-gray-50'}`}>
         {activeTabKey === 'Flights' ? (
           renderMapSection()
         ) : (
           <div>
             {allRewards.map(r => {
               const isExpanded = expandedId === r.id;
-              const isSelected = globalSelectedRewardId === r.id;
+              // Category-aware selection check
+              const isSelected = globalSelectedRewardId === r.id && globalSelectedRewardCategory === activeTabKey;
+              const isPending = pendingRewardId === r.id && pendingRewardCategory === activeTabKey;
               const isAffordable = r.pts <= totalAnnualPts;
 
               return (
                 <div key={r.id} className={`border-b border-gray-100 transition-colors duration-300 
-                  ${isExpanded || isSelected ? 'bg-[#EEF7F8]' : isAffordable ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
+                  ${isExpanded || isSelected || isPending ? 'bg-[#EEF7F8]' : isAffordable ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
                   {/* Header Row */}
                   <div
-                    className="flex items-center p-4 cursor-pointer"
-                    onClick={() => handleToggleExpand(r.id)}
+                    className={`flex items-center cursor-pointer hover:bg-[#EEF7F8]/50 transition-colors group ${desktopMode ? 'py-2 px-3' : 'p-4'}`}
+                    onClick={() => handleSelectRewardInList(r.id)}
                   >
-                    {/* Selectable Icon Area */}
+                    {/* Selection Indicator / Icon Area */}
                     <div
-                      className="w-10 h-10 mr-4 flex-shrink-0 flex items-center justify-center cursor-pointer relative"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectRewardInList(r.id);
-                      }}
+                      className={`${desktopMode ? 'w-7 h-7 mr-3' : 'w-10 h-10 mr-4'} flex-shrink-0 flex items-center justify-center relative`}
                     >
-                      {isSelected ? (
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200 ${isAffordable ? 'bg-[#E40000]' : 'bg-gray-400'}`}>
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white">
+                      {(isSelected || isPending) ? (
+                        <div className={`${desktopMode ? 'w-[24px] h-[24px]' : 'w-10 h-10'} rounded-full flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200 ${isAffordable ? 'bg-[#E40000]' : 'bg-gray-400'}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`${desktopMode ? 'w-3.5 h-3.5' : 'w-6 h-6'} text-white`}>
                             <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                           </svg>
                         </div>
                       ) : (
-                        <img src={r.icon} alt="" className={`w-8 h-8 hover:opacity-100 transition-opacity ${isAffordable ? 'opacity-80' : 'opacity-40'}`} />
+                        <img src={r.icon} alt="" className={`${desktopMode ? 'w-full h-full' : 'w-8 h-8'} transition-opacity group-hover:opacity-100 ${isAffordable ? 'opacity-80' : 'opacity-40'}`} />
                       )}
                     </div>
 
-                    {/* Expandable Body */}
+                    {/* Reward Name Area (Selectable) */}
                     <div className="flex-grow pr-2">
-                      <div className={`text-[16px] font-medium ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.reward}</div>
+                      <div className={`text-[12px] font-medium ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.reward}</div>
                     </div>
                     <div className="flex flex-col items-end">
                       <div className="flex items-center space-x-1.5 mb-1">
                         <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">USE</span>
                         <img src={PointsRooLogo} className={`w-3.5 h-3.5 ${isAffordable ? '' : 'opacity-40'}`} />
-                        <span className={`text-[16px] font-bold ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.pts.toLocaleString()}</span>
+                        <span className={`text-[12px] font-medium ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.pts.toLocaleString()}</span>
                         <span className={`text-[10px] font-bold ${isAffordable ? 'text-[#999999]' : 'text-gray-400'}`}>PTS</span>
                       </div>
                     </div>
-                    <div className={`ml-3 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                    {/* Arrow Glyph Area (Exclusive Expand) */}
+                    <div
+                      className={`ml-3 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-all duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleExpand(r.id);
+                      }}
+                    >
+                      <svg className={desktopMode ? "w-4 h-4" : "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -353,14 +431,14 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                     <div className="px-4 pb-6 pl-[72px]">
                       {/* Description */}
                       {r.desc && (
-                        <p className={`text-[15px] leading-relaxed mb-3 whitespace-pre-line ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>
+                        <p className={`text-[12px] leading-relaxed mb-3 whitespace-pre-line ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>
                           {r.desc}
                         </p>
                       )}
 
                       {/* Link */}
                       {r.linkText && (
-                        <button className="text-[15px] text-red-600 font-medium hover:underline flex items-center mb-2">
+                        <button className="text-[12px] text-red-600 font-medium hover:underline flex items-center mb-2">
                           {r.linkText}
                         </button>
                       )}
@@ -382,7 +460,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
 
       {/* Footer Container - Hidden in desktopMode */}
       {!desktopMode && (
-        <div className="shrink-0 bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] rounded-t-[24px] relative z-20">
+        <div className="shrink-0 bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] rounded-t-[24px] relative z-[9000]">
           {/* Drag Handle (Visual only for now) */}
           <div className="flex justify-center pt-3 pb-1">
             <div className="w-[40px] h-1.5 bg-gray-200 rounded-full" />
@@ -501,6 +579,8 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
           </div>
         </div>
       )}
+
+      {/* Desktop Modal for Selection Guidance - REMOVED, now inline */}
     </div>
   );
 }

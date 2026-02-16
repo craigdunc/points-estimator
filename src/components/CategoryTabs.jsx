@@ -16,21 +16,24 @@ export default function CategoryTabs({ categories, activeCategory, onCategoryCha
     if (!container) return;
     const btn = container.querySelector(`[data-key="${activeCategory}"]`);
     if (!btn) return;
-    const cw = container.offsetWidth;
-    const center = btn.offsetLeft + btn.offsetWidth / 2;
-    container.scrollTo({ left: center - cw / 2, behavior: 'smooth' });
+
+    btn.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center'
+    });
   }, [activeCategory]);
 
   return (
     <div>
       <div className="w-full overflow-x-auto" ref={tabsRef}>
-        <div className="inline-flex px-[30px] space-x-6 whitespace-nowrap">
+        <div className="inline-flex px-4 space-x-4 whitespace-nowrap">
           {categories.map(cat => (
             <button
               key={cat.key}
               data-key={cat.key}
               onClick={() => onCategoryChange(cat.key)}
-              className={`text-base whitespace-nowrap pb-3 ${activeCategory === cat.key
+              className={`text-[12px] whitespace-nowrap pb-3 ${activeCategory === cat.key
                 ? 'text-red-600 border-b-2 border-red-600 font-medium'
                 : 'text-gray-800 font-normal'
                 }`}
