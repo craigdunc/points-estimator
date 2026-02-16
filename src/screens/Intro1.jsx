@@ -38,7 +38,7 @@ export default function Intro1({ goTo, currentStepIndex }) {
 
       <main className={`flex-grow ${isSplitView ? 'max-w-[1200px] mx-auto w-full px-6 pt-10' : 'pb-12'}`}>
 
-        <div className={`${isSplitView ? 'flex flex-row gap-8 items-start' : 'flex flex-col'}`}>
+        <div className={`${isSplitView ? 'flex flex-row gap-8 items-start' : 'flex flex-col-reverse'}`}>
 
           {/* ── LEFT COL (Membership Card on Desktop) ── */}
           <div className={`${isSplitView ? 'w-[380px] shrink-0' : 'px-4 pt-4 pb-4'}`}>
@@ -79,7 +79,7 @@ export default function Intro1({ goTo, currentStepIndex }) {
 
               <div className="relative z-10 text-white h-full flex flex-col">
                 <h2 className={`${isSplitView ? 'text-[40px]' : 'text-[26px]'} font-medium leading-[1.1] mb-6 drop-shadow-sm`}>
-                  Welcome back to Qantas<br />Frequent Flyer, {userName}
+                  Welcome to Qantas<br />Frequent Flyer, {userName}
                 </h2>
 
                 <div className={`space-y-4 mb-auto ${isSplitView ? 'max-w-[480px]' : ''}`}>
@@ -94,7 +94,7 @@ export default function Intro1({ goTo, currentStepIndex }) {
                 <div className={`${isSplitView ? 'w-[180px]' : 'w-full'} mt-10`}>
                   <button
                     onClick={handleNext}
-                    className="w-full py-2 bg-[#E40000] font-medium tracking-[0.1em] text-white text-[14px] rounded-[6px] active:scale-[0.98] transition-all hover:bg-black hover:shadow-xl"
+                    className={`w-full ${isSplitView ? 'py-2 text-[14px]' : 'py-4 text-[17px]'} bg-[#E40000] font-medium tracking-[0.1em] text-white rounded-[6px] active:scale-[0.98] transition-all hover:bg-black hover:shadow-xl`}
                   >
                     NEXT
                   </button>
