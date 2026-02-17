@@ -35,7 +35,7 @@ const ONBOARDING_STEPS = [
   {
     title: "Let's get started!",
     text: "Select ways of earning Qantas Points to add to your dashboard. You can change your selection at any time.",
-    buttonLabel: "Help me"
+    buttonLabel: "HELP ME"
   },
   {
     title: "Ways to earn",
@@ -57,7 +57,8 @@ export default function WTESelection({ goTo, currentStepIndex }) {
     current,
     updateSelectedRewardId,
     updateSelectedWTEs,
-    updateTierIndex
+    updateTierIndex,
+    updateActiveDuoCard
   } = useSaveSlots();
   const rewardsMap = useRewardsMap();
 
@@ -93,7 +94,6 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   const rewardsContainerRef = useRef(null);
   const [collapsedCategories, setCollapsedCategories] = useState(new Set());
   const [onboardingStep, setOnboardingStep] = useState(0);
-  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
 
   // Auto-pick best reward if none selected or if it's currently an example
   useEffect(() => {
@@ -332,12 +332,12 @@ export default function WTESelection({ goTo, currentStepIndex }) {
             )}
 
             {/* Onboarding Guidance Card */}
-            {ONBOARDING_STEPS[onboardingStep] && !onboardingDismissed && (
+            {ONBOARDING_STEPS[onboardingStep] && current?.activeDuoCard === 'onboarding' && (
               <div className={`${isSplitView ? 'mb-4' : 'px-3 mt-4 mb-2'}`}>
                 <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm animate-duo-entrance">
                   {/* Close button to dismiss the flow */}
                   <button
-                    onClick={() => setOnboardingDismissed(true)}
+                    onClick={() => updateActiveDuoCard(null)}
                     className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors p-1"
                     aria-label="Dismiss onboarding"
                   >
@@ -363,7 +363,7 @@ export default function WTESelection({ goTo, currentStepIndex }) {
                       {ONBOARDING_STEPS[onboardingStep].text}
                     </p>
                     <button
-                      className="bg-white border border-[#C5EDED] text-[12px] font-bold text-[#007A7A] px-4 py-1.5 rounded-full hover:bg-[#F0FAFA] transition-colors"
+                      className="bg-white border border-gray-100 text-[11px] font-bold text-[#E40000] px-4 py-2 rounded-lg hover:bg-gray-50 transition-all active:scale-95 uppercase tracking-[0.15em] shadow-sm"
                       onClick={handleOnboardingAction}
                     >
                       {ONBOARDING_STEPS[onboardingStep].buttonLabel}

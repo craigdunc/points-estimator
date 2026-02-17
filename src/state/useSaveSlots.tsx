@@ -27,6 +27,7 @@ export interface AppState {
   setupProgressByWTE: Record<string | number, number>;
   originCity: string;
   isShowingHow?: boolean;
+  activeDuoCard?: 'onboarding' | 'reward-guidance' | null;
 }
 interface SaveSlot { id: string; name: string; created: number; state: AppState; }
 type Slots = SaveSlot[];
@@ -42,6 +43,7 @@ interface SlotsContextValue {
   updateTierIndex: (wteId: string | number, tierIndex: number) => void;
   updateOriginCity: (city: string) => void;
   updateIsShowingHow: (show: boolean) => void;
+  updateActiveDuoCard: (card: 'onboarding' | 'reward-guidance' | null) => void;
 }
 
 
@@ -171,6 +173,10 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     saveState({ isShowingHow: show });
   }, [saveState]);
 
+  const updateActiveDuoCard = useCallback((card: 'onboarding' | 'reward-guidance' | null) => {
+    saveState({ activeDuoCard: card });
+  }, [saveState]);
+
 
   const updateTierIndex = useCallback((wteId: string | number, tierIndex: number) => {
     setCurrent(prev => {
@@ -218,7 +224,8 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       selectedRewardId: null, selectedRewardCategory: null,
       currentMonth: new Date().toISOString().slice(0, 7),
       monthlyEarnedByWTE: {}, monthlyTargetByWTE: {}, currentPtsBalance: 0,
-      setupProgressByWTE: {}, originCity: 'Sydney', isShowingHow: false, ...initialState
+      setupProgressByWTE: {}, originCity: 'Sydney', isShowingHow: false,
+      activeDuoCard: 'onboarding', ...initialState
     };
     const newSlot: SaveSlot = { id: uuid(), name, created: Date.now(), state: defaultState };
     setSlots(s => [newSlot, ...s]);
@@ -271,6 +278,7 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         createSlot, renameSlot, deleteSlot, loadSlot, saveState,
         updateSelectedWTU, updateSelectedRewardId,
         updateSelectedWTEs, updateTierIndex, updateOriginCity, updateIsShowingHow,
+        updateActiveDuoCard,
       }}
     >
       {children}

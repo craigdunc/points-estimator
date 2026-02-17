@@ -47,7 +47,7 @@ const useRewardsMap = () =>
   );
 
 export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = false, containerRef = null }) {
-  const { current, updateSelectedWTU, updateSelectedRewardId, updateIsShowingHow } = useSaveSlots();
+  const { current, updateSelectedWTU, updateSelectedRewardId, updateIsShowingHow, updateActiveDuoCard } = useSaveSlots();
   const rewardsMap = useRewardsMap();
 
   // Global state
@@ -87,7 +87,6 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
 
   // UI state
   const [expandedId, setExpandedId] = useState(null);
-  const [showRewardModal, setShowRewardModal] = useState(false);
   const [pendingRewardId, setPendingRewardId] = useState(null);
   const [pendingRewardCategory, setPendingRewardCategory] = useState(null);
   // Track if user has manually clicked/interacted with a reward
@@ -100,8 +99,8 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     // Clear pending state when switching tabs to avoid "ghost" highlights
     setPendingRewardId(null);
     setPendingRewardCategory(null);
-    setShowRewardModal(false);
-  }, [updateSelectedWTU]);
+    updateActiveDuoCard(null);
+  }, [updateSelectedWTU, updateActiveDuoCard]);
 
   const handleToggleExpand = useCallback(id => {
     setExpandedId(prev => (prev === id ? null : id));
@@ -120,7 +119,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       // Clear any pending modal state
       setPendingRewardId(null);
       setPendingRewardCategory(null);
-      setShowRewardModal(false);
+      updateActiveDuoCard(null);
     } else {
       // Unaffordable - set pending for Duo guidance
       setPendingRewardId(id);
@@ -132,10 +131,10 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       }
 
       setTimeout(() => {
-        setShowRewardModal(true);
+        updateActiveDuoCard('reward-guidance');
       }, desktopMode ? 800 : 400);
     }
-  }, [flightPoints, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef]);
+  }, [flightPoints, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
 
   const handleSelectRewardInList = useCallback((id) => {
     // Check affordability
@@ -151,7 +150,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       // If affordable, select it immediately as explicit favourite
       setPendingRewardId(null);
       setPendingRewardCategory(null);
-      setShowRewardModal(false);
+      updateActiveDuoCard(null);
     } else {
       setPendingRewardId(id);
       setPendingRewardCategory(activeTabKey);
@@ -162,16 +161,16 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       }
 
       setTimeout(() => {
-        setShowRewardModal(true);
+        updateActiveDuoCard('reward-guidance');
       }, desktopMode ? 800 : 400);
     }
-  }, [activeTabKey, rewardsMap, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef]);
+  }, [activeTabKey, rewardsMap, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
 
   const handleCloseModal = useCallback(() => {
-    setShowRewardModal(false);
+    updateActiveDuoCard(null);
     setPendingRewardId(null);
     setPendingRewardCategory(null);
-  }, []);
+  }, [updateActiveDuoCard]);
 
   const handleShowMe = useCallback(() => {
     // First, set the selected reward
@@ -249,12 +248,12 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
   };
 
   const renderDesktopGuidance = () => {
-    if (!showRewardModal || !pendingRewardObj || current?.isShowingHow) return null;
+    if (current?.activeDuoCard !== 'reward-guidance' || !pendingRewardObj || current?.isShowingHow) return null;
     return (
       <div className="w-full animate-duo-entrance">
         <div className="bg-[#E1F5F5] rounded-[14px] p-3 border border-[#C5EDED] flex items-start space-x-3 relative h-full shadow-sm">
           <button
-            onClick={() => setShowRewardModal(false)}
+            onClick={() => updateActiveDuoCard(null)}
             className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -278,7 +277,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
             </p>
             <button
               onClick={handleShowMe}
-              className="px-3 py-1.5 bg-[#E40000] text-white text-[11px] font-bold uppercase tracking-wider rounded-lg hover:bg-red-700 transition-colors active:scale-95"
+              className="px-4 py-2 bg-white border border-gray-100 text-[#E40000] text-[11px] font-bold uppercase tracking-[0.15em] rounded-lg hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
             >
               Show me how
             </button>
@@ -487,7 +486,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
             </div>
 
             {/* Conditional Content: Show reward selection panel OR normal favourite reward content */}
-            {showRewardModal && pendingRewardObj ? (
+            {current?.activeDuoCard === 'reward-guidance' && pendingRewardObj ? (
               /* Reward Selection Panel + Grey Button */
               <>
                 <div className="bg-white rounded-[16px] border border-gray-100 shadow-sm relative mb-4">
@@ -525,7 +524,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                     {/* Show Me Button */}
                     <button
                       onClick={handleShowMe}
-                      className="w-full mt-5 py-4 bg-[#E40000] font-medium tracking-[0.1em] text-white text-[16px] rounded-[8px] active:scale-[0.98] transition-all uppercase hover:bg-red-700"
+                      className="w-full mt-5 py-4 bg-white border border-gray-100 text-[#E40000] font-bold tracking-[0.15em] text-[16px] rounded-[12px] active:scale-[0.98] transition-all uppercase shadow-md hover:bg-gray-50"
                     >
                       SHOW ME
                     </button>
