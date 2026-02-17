@@ -93,6 +93,7 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   const rewardsContainerRef = useRef(null);
   const [collapsedCategories, setCollapsedCategories] = useState(new Set());
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
 
   // Auto-pick best reward if none selected or if it's currently an example
   useEffect(() => {
@@ -293,33 +294,6 @@ export default function WTESelection({ goTo, currentStepIndex }) {
         <div className={isSplitView ? "flex gap-4 xl:gap-8 mt-4 md:mt-6 flex-grow min-h-0" : ""}>
           {/* Left Column (WTE List) — single scrollbar */}
           <div className={isSplitView ? "w-[320px] xl:w-[380px] shrink-0 overflow-y-auto pb-20" : ""}>
-            {/* Onboarding Guidance Card */}
-            {ONBOARDING_STEPS[onboardingStep] && (
-              <div className={`${isSplitView ? 'mb-4' : 'px-3 mt-4 mb-2'}`}>
-                <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm animate-duo-entrance">
-                  <div className="shrink-0 pt-1">
-                    <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
-                      <img src={DuoMascot} alt="Duo" className="w-full h-full object-contain" />
-                    </div>
-                  </div>
-
-                  <div className="flex-grow">
-                    <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
-                      {ONBOARDING_STEPS[onboardingStep].title}
-                    </div>
-                    <p className="text-[12px] text-[#666666] leading-relaxed mb-3">
-                      {ONBOARDING_STEPS[onboardingStep].text}
-                    </p>
-                    <button
-                      className="bg-white border border-[#C5EDED] text-[12px] font-bold text-[#007A7A] px-4 py-1.5 rounded-full hover:bg-[#F0FAFA] transition-colors"
-                      onClick={handleOnboardingAction}
-                    >
-                      {ONBOARDING_STEPS[onboardingStep].buttonLabel}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
             {/* Target Header in Mobile/Tablet/Desktop when in target mode */}
             {isTargetMode && (
               <div className={`${isSplitView ? 'mb-4' : 'px-3 pb-2 bg-gray-100'}`}>
@@ -354,6 +328,45 @@ export default function WTESelection({ goTo, currentStepIndex }) {
                       className="h-full bg-[#E40000] transition-all duration-500 ease-out"
                       style={{ width: `${progressPercent}%` }}
                     />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Onboarding Guidance Card */}
+            {ONBOARDING_STEPS[onboardingStep] && !onboardingDismissed && (
+              <div className={`${isSplitView ? 'mb-4' : 'px-3 mt-4 mb-2'}`}>
+                <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm animate-duo-entrance">
+                  {/* Close button to dismiss the flow */}
+                  <button
+                    onClick={() => setOnboardingDismissed(true)}
+                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                    aria-label="Dismiss onboarding"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+
+                  <div className="shrink-0 pt-1">
+                    <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
+                      <img src={DuoMascot} alt="Duo" className="w-full h-full object-contain" />
+                    </div>
+                  </div>
+
+                  <div className="flex-grow">
+                    <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
+                      {ONBOARDING_STEPS[onboardingStep].title}
+                    </div>
+                    <p className="text-[12px] text-[#666666] leading-relaxed mb-3">
+                      {ONBOARDING_STEPS[onboardingStep].text}
+                    </p>
+                    <button
+                      className="bg-white border border-[#C5EDED] text-[12px] font-bold text-[#007A7A] px-4 py-1.5 rounded-full hover:bg-[#F0FAFA] transition-colors"
+                      onClick={handleOnboardingAction}
+                    >
+                      {ONBOARDING_STEPS[onboardingStep].buttonLabel}
+                    </button>
                   </div>
                 </div>
               </div>
