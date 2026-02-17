@@ -31,30 +31,45 @@ const useRewardsMap = () => useMemo(() => ({
   Entertainment: entertainmentList
 }), []);
 
+const ONBOARDING_STEPS = [
+  {
+    title: "Let's get started!",
+    text: "Select ways of earning Qantas Points to add to your dashboard. You can change your selection at any time.",
+    buttonLabel: "Help me"
+  },
+  {
+    title: "Ways to earn",
+    text: "There are Four main ways to earn in the program. We can take a look at each one-by-one.",
+    buttonLabel: "OK"
+  }
+];
+
 export default function WTESelection({ goTo, currentStepIndex }) {
   // Category tabs for WTE selection
-  const categories = [
+  const categories = useMemo(() => [
     { key: 'everyday', label: 'EVERYDAY' },
     { key: 'big', label: 'BIG POINTS' },
     { key: 'shop', label: 'SHOP' },
     { key: 'travel', label: 'TRAVEL' }
-  ];
+  ], []);
 
   const {
     current,
     updateSelectedRewardId,
     updateSelectedWTEs,
-    updateTierIndex,
-    updateIsShowingHow
+    updateTierIndex
   } = useSaveSlots();
   const rewardsMap = useRewardsMap();
 
-  // Default tier index (middle of available tiers)
   const defaultTierIndexById = useMemo(() => {
     const acc = {};
     WTEs.forEach(w => (acc[w.id] = Math.floor((w.tiers?.length || 1) / 2)));
     return acc;
   }, []);
+
+  // Responsive state
+  const { viewportMode, isSplitView } = useViewportMode();
+  const isMobile = viewportMode === 'mobile';
 
   // Persisted state or defaults
   const saved = current || {
@@ -77,6 +92,7 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   const tabsRef = useRef(null);
   const rewardsContainerRef = useRef(null);
   const [collapsedCategories, setCollapsedCategories] = useState(new Set());
+  const [onboardingStep, setOnboardingStep] = useState(0);
 
   // Auto-pick best reward if none selected or if it's currently an example
   useEffect(() => {
@@ -174,13 +190,25 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   const handleSeeMoreClick = useCallback(() => goTo(4), [goTo]);
   const handleAddToDashboard = useCallback(() => goTo(5), [goTo]);
 
+  const handleOnboardingAction = useCallback(() => {
+    if (onboardingStep === 0) {
+      if (isSplitView) {
+        // Desktop: Collapse all categories
+        setCollapsedCategories(new Set(categories.map(c => c.key)));
+      } else {
+        // Mobile: Clear selections
+        updateSelectedWTEs([]);
+      }
+      setOnboardingStep(1);
+    } else if (onboardingStep === 1) {
+      // For now, just increment or finish. User said "sequence", so we might add more later.
+      // If we only have 2 steps, we'll stay at step 1 or hide it? 
+      // User said "There will be a sequence of these helper cards", so let's just increment.
+      setOnboardingStep(prev => Math.min(prev + 1, ONBOARDING_STEPS.length - 1));
+    }
+  }, [onboardingStep, isSplitView, categories, updateSelectedWTEs]);
+
   const selectedIdsForList = useMemo(() => selectedWTEs.map(w => w.id), [selectedWTEs]);
-
-  // Responsive state
-  const { viewportMode, isSplitView } = useViewportMode();
-  const isMobile = viewportMode === 'mobile';
-
-
 
   // Common Header Content
   const renderHeader = () => (
@@ -266,30 +294,32 @@ export default function WTESelection({ goTo, currentStepIndex }) {
           {/* Left Column (WTE List) — single scrollbar */}
           <div className={isSplitView ? "w-[320px] xl:w-[380px] shrink-0 overflow-y-auto pb-20" : ""}>
             {/* Onboarding Guidance Card */}
-            <div className={`${isSplitView ? 'mb-4' : 'px-3 mt-4 mb-2'}`}>
-              <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm animate-duo-entrance">
-                <div className="shrink-0 pt-1">
-                  <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
-                    <img src={DuoMascot} alt="Duo" className="w-full h-full object-contain" />
+            {ONBOARDING_STEPS[onboardingStep] && (
+              <div className={`${isSplitView ? 'mb-4' : 'px-3 mt-4 mb-2'}`}>
+                <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm animate-duo-entrance">
+                  <div className="shrink-0 pt-1">
+                    <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
+                      <img src={DuoMascot} alt="Duo" className="w-full h-full object-contain" />
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex-grow">
-                  <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
-                    Let's get started!
+                  <div className="flex-grow">
+                    <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
+                      {ONBOARDING_STEPS[onboardingStep].title}
+                    </div>
+                    <p className="text-[12px] text-[#666666] leading-relaxed mb-3">
+                      {ONBOARDING_STEPS[onboardingStep].text}
+                    </p>
+                    <button
+                      className="bg-white border border-[#C5EDED] text-[12px] font-bold text-[#007A7A] px-4 py-1.5 rounded-full hover:bg-[#F0FAFA] transition-colors"
+                      onClick={handleOnboardingAction}
+                    >
+                      {ONBOARDING_STEPS[onboardingStep].buttonLabel}
+                    </button>
                   </div>
-                  <p className="text-[12px] text-[#666666] leading-relaxed mb-3">
-                    Select ways of earning Qantas Points to add to your dashboard. You can change your selection at any time.
-                  </p>
-                  <button
-                    className="bg-white border border-[#C5EDED] text-[12px] font-bold text-[#007A7A] px-4 py-1.5 rounded-full hover:bg-[#F0FAFA] transition-colors"
-                    onClick={() => { }} // Placeholder functionality
-                  >
-                    Help me
-                  </button>
                 </div>
               </div>
-            </div>
+            )}
             {/* Target Header in Mobile/Tablet/Desktop when in target mode */}
             {isTargetMode && (
               <div className={`${isSplitView ? 'mb-4' : 'px-3 pb-2 bg-gray-100'}`}>
@@ -329,36 +359,6 @@ export default function WTESelection({ goTo, currentStepIndex }) {
               </div>
             )}
 
-            {isSplitView && current?.isShowingHow && (
-              <div className="mb-4 animate-duo-entrance">
-                <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm">
-                  {/* Close button to clear the flow */}
-                  <button
-                    onClick={() => updateIsShowingHow(false)}
-                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors p-1"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-
-                  <div className="shrink-0 pt-1">
-                    <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
-                      <img src={DuoMascot} alt="Duo" className="w-full h-full object-contain" />
-                    </div>
-                  </div>
-
-                  <div className="flex-grow">
-                    <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
-                      Ready to start earning?
-                    </div>
-                    <p className="text-[12px] text-[#666666] leading-relaxed">
-                      Select ways of earning Qantas Points from the categories below to see how they help you reach your target of {selectedReward.pts.toLocaleString()} points.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {isSplitView ? (
               renderSplitViewSections()
