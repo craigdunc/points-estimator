@@ -299,9 +299,9 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
         <span className="text-[12px] text-[#323232] ml-1">a year from selected</span>
       </div>
 
-      {/* 50/50 Split Grid */}
-      <div className="grid grid-cols-2 gap-4 items-stretch">
-        <div className="flex flex-col">
+      {/* Grid: Stacks on Tablet (<1200px), Side-by-Side on Desktop (>=1200px) */}
+      <div className="grid xl:grid-cols-2 grid-cols-1 gap-4 items-stretch">
+        <div className="flex flex-col max-w-[320px] w-full">
           <div className="mb-2 text-[12px] text-gray-700">
             {current.hasSelectedReward ? 'Favourite reward' : 'Example reward'}
           </div>
@@ -310,9 +310,9 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
           </div>
         </div>
 
-        <div className="flex flex-col">
-          {/* Label spacer to align with Reward Card */}
-          <div className="mb-2 h-[18px]"></div>
+        <div className="flex flex-col max-w-[320px] w-full">
+          {/* Label spacer only shown on desktop (xl) where side-by-side relies on it for alignment */}
+          <div className="mb-2 h-[18px] hidden xl:block"></div>
           <div className="flex-grow">
             {renderDesktopGuidance()}
           </div>
