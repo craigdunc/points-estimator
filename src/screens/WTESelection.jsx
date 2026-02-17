@@ -12,7 +12,6 @@ import {
 import CategoryTabs from '../components/CategoryTabs';
 import WTEList from '../components/WTEList';
 import StickyFooter from '../components/StickyFooter';
-import HelpModal from '../components/HelpModal';
 import RewardsScreen from './RewardsScreen'; // Import RewardsScreen
 import PointsRooLogo from '../assets/points-roo.svg';
 import { useViewportMode } from '../hooks/useViewportMode';
@@ -75,19 +74,9 @@ export default function WTESelection({ goTo, currentStepIndex }) {
   // UI state for filtering/list
   const [activeCategory, setActiveCategory] = useState(categories[0].key);
   const [expandedId, setExpandedId] = useState(null);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const tabsRef = useRef(null);
   const rewardsContainerRef = useRef(null);
   const [collapsedCategories, setCollapsedCategories] = useState(new Set());
-
-  // First-time help logic
-  useEffect(() => {
-    const hasSeenHelp = localStorage.getItem('hasSeenWTEHelp');
-    if (!hasSeenHelp) {
-      setTimeout(() => setIsHelpOpen(true), 500);
-      localStorage.setItem('hasSeenWTEHelp', 'true');
-    }
-  }, []);
 
   // Auto-pick best reward if none selected or if it's currently an example
   useEffect(() => {
@@ -210,25 +199,7 @@ export default function WTESelection({ goTo, currentStepIndex }) {
         <h2 className={`font-medium tracking-tight text-[#323232] ${isSplitView ? 'text-[16px]' : 'text-[20px]'}`}>
           Ways to {isSplitView ? 'earn and use points' : 'earn points'}
         </h2>
-        {isSplitView && (
-          <p className="text-[12px] text-gray-600 mt-0">
-            Select ways of earning Qantas Points to add to your dashboard. You can change your selection at any time.
-          </p>
-        )}
       </div>
-      {isMobile && (
-        <button
-          onClick={() => setIsHelpOpen(true)}
-          className="ml-auto p-2 text-gray-800 hover:text-red-600 transition-colors"
-          aria-label="Help"
-        >
-          <svg className="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 16v-4" />
-            <path d="M12 8h.01" />
-          </svg>
-        </button>
-      )}
     </div>
   );
 
@@ -286,7 +257,6 @@ export default function WTESelection({ goTo, currentStepIndex }) {
 
   return (
     <div className={`${isSplitView ? 'w-full h-screen bg-[#F7F7F7] overflow-hidden flex flex-col' : 'max-w-md mx-auto pb-[500px] relative bg-white'}`}>
-      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
 
       {/* Main Container */}
       <div className={isSplitView ? "max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8 pt-2 md:pt-2 flex flex-col flex-grow min-h-0 w-full" : ""}>
@@ -295,6 +265,31 @@ export default function WTESelection({ goTo, currentStepIndex }) {
         <div className={isSplitView ? "flex gap-4 xl:gap-8 mt-4 md:mt-6 flex-grow min-h-0" : ""}>
           {/* Left Column (WTE List) — single scrollbar */}
           <div className={isSplitView ? "w-[320px] xl:w-[380px] shrink-0 overflow-y-auto pb-20" : ""}>
+            {/* Onboarding Guidance Card */}
+            <div className={`${isSplitView ? 'mb-4' : 'px-3 mt-4 mb-2'}`}>
+              <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm animate-duo-entrance">
+                <div className="shrink-0 pt-1">
+                  <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
+                    <img src={DuoMascot} alt="Duo" className="w-full h-full object-contain" />
+                  </div>
+                </div>
+
+                <div className="flex-grow">
+                  <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
+                    Let's get started!
+                  </div>
+                  <p className="text-[12px] text-[#666666] leading-relaxed mb-3">
+                    Select ways of earning Qantas Points to add to your dashboard. You can change your selection at any time.
+                  </p>
+                  <button
+                    className="bg-white border border-[#C5EDED] text-[12px] font-bold text-[#007A7A] px-4 py-1.5 rounded-full hover:bg-[#F0FAFA] transition-colors"
+                    onClick={() => { }} // Placeholder functionality
+                  >
+                    Help me
+                  </button>
+                </div>
+              </div>
+            </div>
             {/* Target Header in Mobile/Tablet/Desktop when in target mode */}
             {isTargetMode && (
               <div className={`${isSplitView ? 'mb-4' : 'px-3 pb-2 bg-gray-100'}`}>
