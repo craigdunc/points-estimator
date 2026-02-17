@@ -47,7 +47,7 @@ const useRewardsMap = () =>
   );
 
 export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = false, containerRef = null }) {
-  const { current, updateSelectedWTU, updateSelectedRewardId } = useSaveSlots();
+  const { current, updateSelectedWTU, updateSelectedRewardId, updateIsShowingHow } = useSaveSlots();
   const rewardsMap = useRewardsMap();
 
   // Global state
@@ -178,9 +178,11 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     if (pendingRewardId && pendingRewardCategory) {
       updateSelectedRewardId(pendingRewardId, pendingRewardCategory, true);
     }
+    // Toggle the guidance to show on the left panel
+    updateIsShowingHow(true);
     // Then navigate to WTE selection (step 3) (Should probably update this to handle combined view?)
     if (!isEmbedded) goTo(3);
-  }, [pendingRewardId, pendingRewardCategory, updateSelectedRewardId, goTo, isEmbedded]);
+  }, [pendingRewardId, pendingRewardCategory, updateSelectedRewardId, goTo, isEmbedded, updateIsShowingHow]);
 
   const handleConfirmFavourite = useCallback(() => {
     // Confirm the currently selected reward (globalSelectedRewardId) as explicit
@@ -247,7 +249,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
   };
 
   const renderDesktopGuidance = () => {
-    if (!showRewardModal || !pendingRewardObj) return null;
+    if (!showRewardModal || !pendingRewardObj || current?.isShowingHow) return null;
     return (
       <div className="w-full animate-duo-entrance">
         <div className="bg-[#E1F5F5] rounded-[14px] p-3 border border-[#C5EDED] flex items-start space-x-3 relative h-full shadow-sm">

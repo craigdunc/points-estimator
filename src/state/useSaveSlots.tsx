@@ -26,6 +26,7 @@ export interface AppState {
   currentPtsBalance: number;
   setupProgressByWTE: Record<string | number, number>;
   originCity: string;
+  isShowingHow?: boolean;
 }
 interface SaveSlot { id: string; name: string; created: number; state: AppState; }
 type Slots = SaveSlot[];
@@ -40,6 +41,7 @@ interface SlotsContextValue {
   updateSelectedWTEs: (newWTEs: { id: string | number; level: string }[]) => void;
   updateTierIndex: (wteId: string | number, tierIndex: number) => void;
   updateOriginCity: (city: string) => void;
+  updateIsShowingHow: (show: boolean) => void;
 }
 
 
@@ -165,6 +167,10 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     saveState({ originCity: city });
   }, [saveState]);
 
+  const updateIsShowingHow = useCallback((show: boolean) => {
+    saveState({ isShowingHow: show });
+  }, [saveState]);
+
 
   const updateTierIndex = useCallback((wteId: string | number, tierIndex: number) => {
     setCurrent(prev => {
@@ -212,7 +218,7 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       selectedRewardId: null, selectedRewardCategory: null,
       currentMonth: new Date().toISOString().slice(0, 7),
       monthlyEarnedByWTE: {}, monthlyTargetByWTE: {}, currentPtsBalance: 0,
-      setupProgressByWTE: {}, originCity: 'Sydney', ...initialState
+      setupProgressByWTE: {}, originCity: 'Sydney', isShowingHow: false, ...initialState
     };
     const newSlot: SaveSlot = { id: uuid(), name, created: Date.now(), state: defaultState };
     setSlots(s => [newSlot, ...s]);
@@ -263,7 +269,7 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         slots, activeSlotId, current,
         createSlot, renameSlot, deleteSlot, loadSlot, saveState,
         updateSelectedWTU, updateSelectedRewardId,
-        updateSelectedWTEs, updateTierIndex, updateOriginCity,
+        updateSelectedWTEs, updateTierIndex, updateOriginCity, updateIsShowingHow,
       }}
     >
       {children}

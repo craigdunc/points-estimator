@@ -16,6 +16,7 @@ import HelpModal from '../components/HelpModal';
 import RewardsScreen from './RewardsScreen'; // Import RewardsScreen
 import PointsRooLogo from '../assets/points-roo.svg';
 import { useViewportMode } from '../hooks/useViewportMode';
+import DuoMascot from '../assets/icons/duo.png';
 
 const rewardTabs = [
   'Flights', 'Hotels', 'Activities',
@@ -44,7 +45,8 @@ export default function WTESelection({ goTo, currentStepIndex }) {
     current,
     updateSelectedRewardId,
     updateSelectedWTEs,
-    updateTierIndex
+    updateTierIndex,
+    updateIsShowingHow
   } = useSaveSlots();
   const rewardsMap = useRewardsMap();
 
@@ -327,6 +329,37 @@ export default function WTESelection({ goTo, currentStepIndex }) {
                       className="h-full bg-[#E40000] transition-all duration-500 ease-out"
                       style={{ width: `${progressPercent}%` }}
                     />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isSplitView && current?.isShowingHow && (
+              <div className="mb-4 animate-duo-entrance">
+                <div className="bg-[#E1F5F5] rounded-[16px] p-4 border border-[#C5EDED] flex items-start space-x-3 relative shadow-sm">
+                  {/* Close button to clear the flow */}
+                  <button
+                    onClick={() => updateIsShowingHow(false)}
+                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+
+                  <div className="shrink-0 pt-1">
+                    <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
+                      <img src={DuoMascot} alt="Duo" className="w-full h-full object-contain" />
+                    </div>
+                  </div>
+
+                  <div className="flex-grow">
+                    <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
+                      Ready to start earning?
+                    </div>
+                    <p className="text-[12px] text-[#666666] leading-relaxed">
+                      Select ways of earning Qantas Points from the categories below to see how they help you reach your target of {selectedReward.pts.toLocaleString()} points.
+                    </p>
                   </div>
                 </div>
               </div>
