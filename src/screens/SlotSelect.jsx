@@ -70,7 +70,7 @@ export default function SlotSelect({ goTo, currentStepIndex }) {
         </button>
 
         <h1 className="text-2xl font-bold mb-4">Settings</h1>
-        <p className="mb-6 text-gray-600">Switch prototype save slots or change student name.</p>
+        <p className="mb-6 text-gray-600">Switch prototype save slots or Change name.</p>
 
         {slots.map((slot, idx) => (
           <div

@@ -234,25 +234,26 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteSlot = useCallback((id: string) => {
-    let nextActiveId: string | null = null;
-    let nextCurrentState: AppState | null = null;
-    setSlots(s => {
-      const remaining = s.filter(slot => slot.id !== id);
+    setSlots(prevSlots => {
+      const remaining = prevSlots.filter(slot => slot.id !== id);
+
+      // If we deleted the active slot, we must switch to a new one
       if (activeSlotId === id) {
-        const nextSlot = remaining[0];
-        nextActiveId = nextSlot?.id || null;
-        nextCurrentState = nextSlot?.state || null;
-      } else {
-        nextActiveId = activeSlotId;
-        nextCurrentState = current;
+        const nextSlot = remaining[0] || null;
+        const nextId = nextSlot ? nextSlot.id : null;
+        const nextState = nextSlot ? nextSlot.state : null;
+
+        // Perform these updates as side effects outside the pure filter
+        // We use setTimeout to ensure these fire after this setSlots completes
+        setTimeout(() => {
+          setActiveSlotId(nextId);
+          setCurrent(nextState);
+        }, 0);
       }
+
       return remaining;
     });
-    if (activeSlotId === id) {
-      setActiveSlotId(nextActiveId);
-      setCurrent(nextCurrentState);
-    }
-  }, [activeSlotId, current]);
+  }, [activeSlotId]);
 
   const loadSlot = useCallback((id: string) => {
     const slot = slots.find(s => s.id === id);
