@@ -202,9 +202,7 @@ export default function WTESelection({ goTo, currentStepIndex }) {
       }
       setOnboardingStep(1);
     } else if (onboardingStep === 1) {
-      // For now, just increment or finish. User said "sequence", so we might add more later.
-      // If we only have 2 steps, we'll stay at step 1 or hide it? 
-      // User said "There will be a sequence of these helper cards", so let's just increment.
+      // Just finish or advanced. User wants to stay on the screen usually or move to next card.
       setOnboardingStep(prev => Math.min(prev + 1, ONBOARDING_STEPS.length - 1));
     }
   }, [onboardingStep, isSplitView, categories, updateSelectedWTEs]);
@@ -356,7 +354,10 @@ export default function WTESelection({ goTo, currentStepIndex }) {
 
                   <div className="flex-grow">
                     <div className="text-[14px] font-bold text-[#323232] mb-1 leading-tight">
-                      {ONBOARDING_STEPS[onboardingStep].title}
+                      {onboardingStep === 0
+                        ? (totalAnnualPts > 0 ? "Let's earn more points" : "Let's get started!")
+                        : ONBOARDING_STEPS[onboardingStep].title
+                      }
                     </div>
                     <p className="text-[12px] text-[#666666] leading-relaxed mb-3">
                       {ONBOARDING_STEPS[onboardingStep].text}
