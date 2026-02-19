@@ -1,10 +1,10 @@
+import React from 'react';
 import DreamingPattern from '../assets/images/dreaming-pattern.png';
 import ChooseIcon from '../assets/images/choose.png';
 import AddIcon from '../assets/images/add.png';
 import SetupIcon from '../assets/images/Setup.png';
-import QantasLogo from '../assets/logos/qantas.svg';
-import ProfileIcon from '../assets/icons/Profile.svg';
 import { useViewportMode } from '../hooks/useViewportMode';
+import Header from '../components/Header';
 
 export default function Intro2({ goTo, currentStepIndex, dashboardStepIndex = 5 }) {
   const { isSplitView } = useViewportMode();
@@ -14,23 +14,7 @@ export default function Intro2({ goTo, currentStepIndex, dashboardStepIndex = 5 
 
   return (
     <div className="min-h-screen bg-[#F3F5F7] flex flex-col font-sans selection:bg-red-100">
-      {/* ── HEADER ── */}
-      <header className="bg-white border-b border-gray-100 flex items-center justify-between pl-6 sticky top-0 z-50 h-[60px]">
-        <div className="flex items-center">
-          <img src={QantasLogo} alt="Qantas" className="h-[26px] w-auto" />
-        </div>
-        <div className="flex items-center h-full">
-          <span className="text-[16px] text-[#323232] mr-6">Menu</span>
-          <button
-            onClick={() => goTo(0)}
-            className="h-full flex items-center justify-center text-white transition-colors"
-          >
-            <div className="w-[60px] h-full bg-[#DF0000] flex items-center justify-center">
-              <img src={ProfileIcon} alt="Profile" className="w-[60px] h-[60px]" />
-            </div>
-          </button>
-        </div>
-      </header>
+      <Header isMobile={!isSplitView} showAccountNav={false} />
 
       <main className={`flex-grow flex flex-col items-center justify-center p-4 py-8`}>
         {/* ── CENTRAL WHITE CARD ── */}

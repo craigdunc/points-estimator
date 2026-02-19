@@ -1,16 +1,13 @@
 // src/components/MonthWrapUpModal.jsx
 import React, { useState, useEffect } from 'react';
-import { loadDashboardState, saveDashboardState } from '../utils/dashboardStorage';
+import { useSaveSlots } from '../state/useSaveSlots';
 import { WTEs } from '../data';
 import giftUrl from '../assets/gift.svg';           // 🎁 icon
 
-const monthNames = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December',
-];
 const pct = (val, tgt) => Math.min(Math.round((val / (tgt || 1)) * 100), 100);
 
 export default function MonthWrapUpModal({ data, onClose }) {
+  const { current, saveState } = useSaveSlots();
   const {
     monthName,
     totalEarned,
@@ -23,14 +20,14 @@ export default function MonthWrapUpModal({ data, onClose }) {
   const [bonusCollected, setBonusCollected] = useState(false);
 
   const hitOverall = totalEarned >= totalTarget;
-  const hitAnyWTE  = Object.entries(targetsById)
-                      .some(([id, t]) => earnedById[id] >= t);
-  const showBonus  = !bonusCollected && (hitOverall || hitAnyWTE);
+  const hitAnyWTE = Object.entries(targetsById)
+    .some(([id, t]) => earnedById[id] >= t);
+  const showBonus = !bonusCollected && (hitOverall || hitAnyWTE);
 
   const handleCollect = () => {
-    const st = loadDashboardState();
-    st.currentPtsBalance += 50;
-    saveDashboardState(st);
+    saveState({
+      currentPtsBalance: (current.currentPtsBalance || 0) + 50
+    });
     setBonusCollected(true);
   };
 
@@ -70,11 +67,11 @@ export default function MonthWrapUpModal({ data, onClose }) {
         {/* per-WTE rows */}
         <div className="mt-6 space-y-5">
           {Object.keys(targetsById).map(id => {
-            const tgt   = targetsById[id];
-            const got   = earnedById[id] || 0;
-            const met   = got >= tgt;
-            const wte   = WTEs.find(w => w.id === +id) || { name: id };
-            const logo  = wte.iconSrc || giftUrl;
+            const tgt = targetsById[id];
+            const got = earnedById[id] || 0;
+            const met = got >= tgt;
+            const wte = WTEs.find(w => w.id === +id) || { name: id };
+            const logo = wte.iconSrc || giftUrl;
 
             return (
               <div key={id} className="flex items-center gap-3">
@@ -94,9 +91,8 @@ export default function MonthWrapUpModal({ data, onClose }) {
 
                 {/* gift – always visible; ring when met */}
                 <div
-                  className={`shrink-0 rounded-full p-[3px] ${
-                    met ? 'ring-2 ring-red-600' : 'ring-2 ring-transparent'
-                  }`}
+                  className={`shrink-0 rounded-full p-[3px] ${met ? 'ring-2 ring-red-600' : 'ring-2 ring-transparent'
+                    }`}
                 >
                   <img src={giftUrl} alt="" className="h-5 w-5" />
                 </div>

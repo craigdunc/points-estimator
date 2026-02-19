@@ -15,6 +15,7 @@ import PointsRooLogo from '../assets/points-roo.svg';
  */
 export default function WTEList({
   WTEs,
+  items, // If provided, we use these items directly instead of filtering by activeCategory
   activeCategory,
   selectedIds,
   expandedId,
@@ -24,9 +25,11 @@ export default function WTEList({
   onTierChange,
   compact = false
 }) {
+  const displayItems = items || WTEs.filter(w => w.category === activeCategory);
+
   return (
     <div className={compact ? "space-y-0" : "space-y-0"}>
-      {WTEs.filter(w => w.category === activeCategory).map(w => {
+      {displayItems.map(w => {
         const tierIdx = tierIndexById[w.id] ?? 0;
         const tier = Array.isArray(w.tiers) && w.tiers[tierIdx]
           ? w.tiers[tierIdx]

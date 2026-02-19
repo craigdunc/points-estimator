@@ -28,6 +28,7 @@ export interface AppState {
   originCity: string;
   isShowingHow?: boolean;
   activeDuoCard?: 'onboarding' | 'reward-guidance' | null;
+  dashboardIntroDismissed: boolean;
 }
 interface SaveSlot { id: string; name: string; created: number; state: AppState; }
 type Slots = SaveSlot[];
@@ -44,6 +45,8 @@ interface SlotsContextValue {
   updateOriginCity: (city: string) => void;
   updateIsShowingHow: (show: boolean) => void;
   updateActiveDuoCard: (card: 'onboarding' | 'reward-guidance' | null) => void;
+  setDashboardIntroDismissed: (dismissed: boolean) => void;
+  advanceMonth: () => void;
 }
 
 
@@ -61,6 +64,7 @@ const rewardTabs = [ // Needed for default state
 
 // --- Context & Provider ---
 const STORAGE_KEY = 'qff_save_slots';
+const ACTIVE_SLOT_KEY = 'qff_active_slot_id';
 const SlotsCtx = createContext<SlotsContextValue | undefined>(undefined);
 
 export function SaveSlotsProvider({ children }: { children: ReactNode }) {
@@ -85,8 +89,10 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
 
     if (initialSlots.length > 0) {
       setSlots(initialSlots);
-      setActiveSlotId(initialSlots[0].id);
-      setCurrent(initialSlots[0].state);
+      const savedActiveId = localStorage.getItem(ACTIVE_SLOT_KEY);
+      const activeSlot = initialSlots.find(s => s.id === savedActiveId) || initialSlots[0];
+      setActiveSlotId(activeSlot.id);
+      setCurrent(activeSlot.state);
     } else {
       createSlot('Kim', {});
     }
@@ -101,16 +107,37 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     }
   }, [slots]);
 
+  // Persist activeSlotId
+  useEffect(() => {
+    if (activeSlotId) {
+      localStorage.setItem(ACTIVE_SLOT_KEY, activeSlotId);
+    } else {
+      localStorage.removeItem(ACTIVE_SLOT_KEY);
+    }
+  }, [activeSlotId]);
+
 
   // --- State Update Functions ---
-  const saveState = useCallback((patch: Partial<AppState>) => {
+  const saveState = useCallback((patchOrFn: Partial<AppState> | ((prev: AppState | null) => Partial<AppState>)) => {
     if (!activeSlotId) {
       console.warn("Cannot save state: No active slot ID.");
       return;
     }
     setCurrent(prev => {
-      const baseState = prev || {};
-      const merged = { ...baseState, ...patch } as AppState;
+      const patch = typeof patchOrFn === 'function' ? patchOrFn(prev) : patchOrFn;
+
+      // Shallow comparison to avoid redundant updates
+      let hasChanged = false;
+      for (const key in patch) {
+        if (patch[key as keyof AppState] !== prev?.[key as keyof AppState]) {
+          hasChanged = true;
+          break;
+        }
+      }
+
+      if (!hasChanged && prev !== null) return prev;
+
+      const merged = { ...prev, ...patch } as AppState;
       setSlots(s =>
         s.map(slot =>
           slot.id === activeSlotId ? { ...slot, state: merged } : slot
@@ -133,14 +160,15 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
   }, [saveState]);
 
   const updateSelectedWTEs = useCallback((newWTEs: { id: string | number; level: string }[]) => {
-    setCurrent(prev => {
-      if (!prev) return null;
+    saveState(prev => {
+      if (!prev) return ({} as Partial<AppState>);
       const currentTierIndexById = prev.tierIndexById || getDefaultTierIndexById();
       const newSelectedIds = newWTEs.map(w => w.id);
 
       const newTotalAnnualPts = newWTEs.reduce((sum, wteSelection) => {
         const wteDetails = WTEs.find(w => w.id === wteSelection.id);
-        return sum + (wteDetails ? wteDetails.tiers[Number(wteSelection.level)]?.pts ?? 0 : 0);
+        const pts = wteDetails ? wteDetails.tiers[Number(wteSelection.level)]?.pts ?? 0 : 0;
+        return sum + pts;
       }, 0);
 
       const monthlyTargetByWTE = newSelectedIds.reduce((acc, id) => {
@@ -156,12 +184,12 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         return acc;
       }, {} as Record<string | number, number>);
 
-      const patch: Partial<AppState> = {
-        selectedWTEs: newWTEs, totalAnnualPts: newTotalAnnualPts,
-        monthlyTargetByWTE, monthlyEarnedByWTE,
+      return {
+        selectedWTEs: newWTEs,
+        totalAnnualPts: newTotalAnnualPts,
+        monthlyTargetByWTE,
+        monthlyEarnedByWTE,
       };
-      saveState(patch); // Call generic save state
-      return { ...(prev || {}), ...patch } as AppState;
     });
   }, [saveState]);
 
@@ -177,10 +205,14 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     saveState({ activeDuoCard: card });
   }, [saveState]);
 
+  const setDashboardIntroDismissed = useCallback((dismissed: boolean) => {
+    saveState({ dashboardIntroDismissed: dismissed });
+  }, [saveState]);
+
 
   const updateTierIndex = useCallback((wteId: string | number, tierIndex: number) => {
-    setCurrent(prev => {
-      if (!prev) return null;
+    saveState(prev => {
+      if (!prev) return ({} as Partial<AppState>);
       const currentWTEs = prev.selectedWTEs || [];
       const currentTierIndexById = prev.tierIndexById || getDefaultTierIndexById();
       const newTierIndexById = { ...currentTierIndexById, [wteId]: tierIndex };
@@ -191,7 +223,8 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
 
       const newTotalAnnualPts = newWTEs.reduce((sum, wteSelection) => {
         const wteDetails = WTEs.find(w => w.id === wteSelection.id);
-        return sum + (wteDetails ? wteDetails.tiers[Number(wteSelection.level)]?.pts ?? 0 : 0);
+        const pts = wteDetails ? wteDetails.tiers[Number(wteSelection.level)]?.pts ?? 0 : 0;
+        return sum + pts;
       }, 0);
 
       const monthlyTargetByWTE = newSelectedIds.reduce((acc, id) => {
@@ -207,12 +240,44 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         return acc;
       }, {} as Record<string | number, number>);
 
-      const patch: Partial<AppState> = {
-        selectedWTEs: newWTEs, tierIndexById: newTierIndexById,
-        totalAnnualPts: newTotalAnnualPts, monthlyTargetByWTE, monthlyEarnedByWTE,
+      return {
+        selectedWTEs: newWTEs,
+        tierIndexById: newTierIndexById,
+        totalAnnualPts: newTotalAnnualPts,
+        monthlyTargetByWTE,
+        monthlyEarnedByWTE,
       };
-      saveState(patch);
-      return { ...(prev || {}), ...patch } as AppState;
+    });
+  }, [saveState]);
+
+  const advanceMonth = useCallback(() => {
+    saveState(prev => {
+      if (!prev) return ({} as Partial<AppState>);
+
+      const currentMonth = prev.currentMonth || new Date().toISOString().slice(0, 7);
+      const [y, m] = currentMonth.split('-').map(Number);
+      const nextMonthNum = m === 12 ? 1 : m + 1;
+      const nextYear = m === 12 ? y + 1 : y;
+      const nextIso = `${nextYear}-${String(nextMonthNum).padStart(2, '0')}`;
+
+      const selectedWTEs = prev.selectedWTEs || [];
+      const targetById = prev.monthlyTargetByWTE || {};
+      const results: Record<string | number, number> = {};
+      let monthTotal = 0;
+
+      selectedWTEs.forEach(w => {
+        const tgt = targetById[w.id] ?? 0;
+        // Generate ±20% variation
+        const actual = Math.floor(tgt * (0.8 + Math.random() * 0.4));
+        results[w.id] = actual;
+        monthTotal += actual;
+      });
+
+      return {
+        currentMonth: nextIso,
+        monthlyEarnedByWTE: results,
+        currentPtsBalance: (prev.currentPtsBalance || 0) + monthTotal,
+      };
     });
   }, [saveState]);
 
@@ -225,7 +290,7 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       currentMonth: new Date().toISOString().slice(0, 7),
       monthlyEarnedByWTE: {}, monthlyTargetByWTE: {}, currentPtsBalance: 0,
       setupProgressByWTE: {}, originCity: 'Sydney', isShowingHow: false,
-      activeDuoCard: 'onboarding', ...initialState
+      activeDuoCard: 'onboarding', dashboardIntroDismissed: false, ...initialState
     };
     const newSlot: SaveSlot = { id: uuid(), name, created: Date.now(), state: defaultState };
     setSlots(s => [newSlot, ...s]);
@@ -247,20 +312,23 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       // If we deleted the active slot, we must switch to a new one
       if (activeSlotId === id) {
         const nextSlot = remaining[0] || null;
-        const nextId = nextSlot ? nextSlot.id : null;
-        const nextState = nextSlot ? nextSlot.state : null;
 
         // Perform these updates as side effects outside the pure filter
         // We use setTimeout to ensure these fire after this setSlots completes
         setTimeout(() => {
-          setActiveSlotId(nextId);
-          setCurrent(nextState);
+          if (nextSlot) {
+            setActiveSlotId(nextSlot.id);
+            setCurrent(nextSlot.state);
+          } else {
+            // If No slots left, create an initial one
+            createSlot('Kim', {});
+          }
         }, 0);
       }
 
       return remaining;
     });
-  }, [activeSlotId]);
+  }, [activeSlotId, createSlot]);
 
   const loadSlot = useCallback((id: string) => {
     const slot = slots.find(s => s.id === id);
@@ -278,7 +346,7 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         createSlot, renameSlot, deleteSlot, loadSlot, saveState,
         updateSelectedWTU, updateSelectedRewardId,
         updateSelectedWTEs, updateTierIndex, updateOriginCity, updateIsShowingHow,
-        updateActiveDuoCard,
+        updateActiveDuoCard, setDashboardIntroDismissed, advanceMonth,
       }}
     >
       {children}

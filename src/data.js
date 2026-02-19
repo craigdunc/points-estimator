@@ -106,12 +106,14 @@ import PointsPlusPayIcon from './assets/icons/points-plus-pay.svg';
 // Ways to Earn (WTE) – 30 entries, 5 tiers each
 // ─────────────────────────────────────────────
 export const WTEs = [
-  // ─── EVERYDAY ───
+  // ─── EVERYDAY (SHOP -> EVERYDAY SHOPPING / HOME UTILITIES) ───
   {
     id: 1,
     name: 'Red Energy',
     iconSrc: RedEnergyLogo,
-    category: 'everyday',
+    category: 'shop',
+    section: 'shop',
+    subCategory: 'utilities',
     desc: 'Earn up to 15,000 bonus Qantas Points when you switch, then 2 points per A$1 on energy bills paid on time. Conditions apply.',
     tiers: [
       { spend: 5000, pts: 7350 },
@@ -125,7 +127,9 @@ export const WTEs = [
     id: 2,
     name: 'Everyday Rewards',
     iconSrc: WoolworthsLogo,
-    category: 'everyday',
+    category: 'shop',
+    section: 'shop',
+    subCategory: 'everyday',
     desc: 'Convert 2,000 Rewards points into 1,000 Qantas Points automatically at Woolworths, BIG W and BWS. Conditions apply.',
     tiers: [
       { spend: 1000, pts: 2000 },
@@ -139,7 +143,9 @@ export const WTEs = [
     id: 3,
     name: 'No Annual Fee Credit Card',
     iconSrc: NoFeeCardLogo,
-    category: 'everyday',
+    category: 'banking',
+    section: 'banking',
+    subCategory: 'cards',
     desc: 'Earn up to 8,000 bonus Qantas Points with no annual fee and collect points on everyday spend. Conditions apply.',
     tiers: [
       { spend: 500, pts: 750 },
@@ -153,7 +159,9 @@ export const WTEs = [
     id: 4,
     name: 'BP Rewards',
     iconSrc: BpRewardsLogo,
-    category: 'everyday',
+    category: 'shop',
+    section: 'shop',
+    subCategory: 'everyday',
     desc: 'Swipe at bp to earn up to 2 points per litre on Ultimate 98 and 1 point per A$1 in-store. Conditions apply.',
     tiers: [
       { spend: 500, pts: 700 },
@@ -167,7 +175,9 @@ export const WTEs = [
     id: 5,
     name: 'Qantas Wellbeing',
     iconSrc: QantasWellbeingLogo,
-    category: 'everyday',
+    category: 'shop',
+    section: 'shop',
+    subCategory: 'everyday',
     desc: 'Earn up to 1,000 bonus points in 28 days, then daily points for steps, sleep and wellness challenges. Conditions apply.',
     tiers: [
       { spend: 300, pts: 450 },
@@ -181,7 +191,9 @@ export const WTEs = [
     id: 6,
     name: 'Qantas Pay',
     iconSrc: QantasPayLogo,
-    category: 'everyday',
+    category: 'banking',
+    section: 'banking',
+    subCategory: 'cards',
     desc: 'Earn 1.5 points per A$1 spent overseas and 1 point per A$4 in Australia with Qantas Pay. Conditions apply.',
     tiers: [
       { spend: 200, pts: 250 },
@@ -195,7 +207,9 @@ export const WTEs = [
     id: 7,
     name: 'Binge',
     iconSrc: BingeLogo,
-    category: 'everyday',
+    category: 'shop',
+    section: 'shop',
+    subCategory: 'lifestyle',
     desc: 'Score 1,000 bonus points when you join Binge, plus 50 points every month you stay subscribed. Conditions apply.',
     tiers: [
       { spend: 100, pts: 150 },
@@ -205,12 +219,14 @@ export const WTEs = [
       { spend: 500, pts: 450 },
     ],
   },
-  // --- BIG POINTS EARNERS ---
+  // --- BIG POINTS EARNERS (BANKING -> CARDS / HOMELOANS / INSURANCE) ---
   {
     id: 12,
     name: 'Points Earning Credit Card',
     iconSrc: PointsCardLogo,
-    category: 'big',
+    category: 'banking',
+    section: 'banking',
+    subCategory: 'cards',
     desc: 'Collect up to 120,000 bonus points on signup and earn up to 1.25 points per A$1 on eligible spend. Conditions apply.',
     tiers: [
       { spend: 1000, pts: 50000 },
@@ -224,7 +240,9 @@ export const WTEs = [
     id: 13,
     name: 'Qantas Home Loan',
     iconSrc: HomeLoanLogo,
-    category: 'big',
+    category: 'banking',
+    section: 'banking',
+    subCategory: 'homeloans',
     desc: 'Receive 100,000–150,000 Qantas Points every year with an eligible Qantas Money Home Loan. Conditions apply.',
     tiers: [
       { spend: 10000, pts: 50000 },
@@ -238,7 +256,9 @@ export const WTEs = [
     id: 14,
     name: 'Qantas Car Insurance',
     iconSrc: CarInsuranceLogo,
-    category: 'big',
+    category: 'banking',
+    section: 'banking',
+    subCategory: 'insurance',
     desc: 'Earn up to 40,000 bonus points on a new car policy and 1 point per A$1 on premiums. Conditions apply.',
     tiers: [
       { spend: 200, pts: 6000 },
@@ -252,7 +272,9 @@ export const WTEs = [
     id: 15,
     name: 'Qantas Home Insurance',
     iconSrc: HomeInsuranceLogo,
-    category: 'big',
+    category: 'banking',
+    section: 'banking',
+    subCategory: 'insurance',
     desc: 'Earn up to 40,000 bonus points on home & contents cover and 1 point per A$1 on premiums. Conditions apply.',
     tiers: [
       { spend: 500, pts: 5000 },
@@ -266,7 +288,9 @@ export const WTEs = [
     id: 16,
     name: 'Qantas Wine',
     iconSrc: WineLogo,
-    category: 'big',
+    category: 'shop',
+    section: 'shop',
+    subCategory: 'lifestyle',
     desc: 'Earn at least 1 point per A$1 and up to 10,000 bonus points on selected cases at Qantas Wine. Conditions apply.',
     tiers: [
       { spend: 500, pts: 3000 },
@@ -280,7 +304,9 @@ export const WTEs = [
     id: 17,
     name: 'Qantas Health Insurance',
     iconSrc: HealthInsuranceLogo,
-    category: 'big',
+    category: 'banking',
+    section: 'banking',
+    subCategory: 'insurance',
     desc: 'Join Qantas Health Insurance for up to 130,000 bonus points and 1 point per A$1 on premiums. Conditions apply.',
     tiers: [
       { spend: 500, pts: 3000 },
@@ -292,26 +318,15 @@ export const WTEs = [
   },
 
 
-  // --- SHOP entries below ---
-  {
-    id: 18,
-    name: 'Everyday Rewards (Retail)',
-    iconSrc: EverydayShopLogo,
-    category: 'shop',
-    desc: 'More than just groceries, earn at BIG W, PetStock and MyDeal. Every 2,000 Rewards points becomes 1,000 Qantas Points when you opt‑in. Conditions apply.',
-    tiers: [
-      { spend: 1000, pts: 2000 },
-      { spend: 2000, pts: 4000 },
-      { spend: 3000, pts: 8600 },
-      { spend: 5000, pts: 14000 },
-      { spend: 8000, pts: 22000 },
-    ],
-  },
+  // --- SHOP entries (SHOP -> EVERYDAY SHOPPING / LIFESTYLE) ---
+
   {
     id: 19,
     name: 'Qantas Marketplace',
     iconSrc: MarketplaceLogo,
     category: 'shop',
+    section: 'shop',
+    subCategory: 'lifestyle',
     desc: 'Shop 30,000+ products and earn up to 5 points per A$1 at Qantas Marketplace. Conditions apply.',
     tiers: [
       { spend: 500, pts: 1500 },
@@ -326,6 +341,8 @@ export const WTEs = [
     name: 'Shopping Online Mall',
     iconSrc: OnlineMallLogo,
     category: 'shop',
+    section: 'shop',
+    subCategory: 'lifestyle',
     desc: 'Start via Qantas Shopping and earn up to 10 points per A$1 at 450+ retailers. Conditions apply.',
     tiers: [
       { spend: 500, pts: 850 },
@@ -340,6 +357,8 @@ export const WTEs = [
     name: 'Direct Link Partners',
     iconSrc: DirectLinkLogo,
     category: 'shop',
+    section: 'shop',
+    subCategory: 'lifestyle',
     desc: 'Link partner accounts once and earn points automatically on qualifying transactions. Conditions apply.',
     tiers: [
       { spend: 500, pts: 850 },
@@ -349,12 +368,14 @@ export const WTEs = [
       { spend: 4000, pts: 3400 },
     ],
   },
-  // --- TRAVEL entries below ---
+  // --- TRAVEL entries (TRAVEL -> FLIGHTS / HOTELS / HOLIDAYS / GROUND) ---
   {
     id: 22,
     name: 'Qantas & Partner Flights',
     iconSrc: FlightsLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'flights',
     desc: 'Earn points on every eligible flight with Qantas, Jetstar, over 30 oneworld® member and partner airlines.',
     tiers: [
       { spend: 300, pts: 1200 },
@@ -369,6 +390,8 @@ export const WTEs = [
     name: 'Qantas Hotels',
     iconSrc: HotelsLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'hotels',
     desc: 'Book hotels and accommodation via Qantas Hotels and earn 3 Qantas Points per A$1 spent on eligible stays. Conditions apply.',
     tiers: [
       { spend: 300, pts: 900 },
@@ -383,6 +406,8 @@ export const WTEs = [
     name: 'Qantas Activities',
     iconSrc: ActivitiesLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'holidays',
     desc: 'Earn 1 point per A$1 spent on tours, activities and expariences, powered by Viator. Conditions apply.',
     tiers: [
       { spend: 100, pts: 100 },
@@ -397,6 +422,8 @@ export const WTEs = [
     name: 'Qantas Cars',
     iconSrc: CarsLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'ground',
     desc: 'Earn 4 Qantas Points per A$1 on the rate for Avis and Budget rentals, plus 700 points overseas. Conditions apply.',
     tiers: [
       { spend: 150, pts: 600 },
@@ -412,6 +439,8 @@ export const WTEs = [
     name: 'Qantas Pay (Travel Money)',
     iconSrc: QantasPayTravelLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'ground',
     desc: 'Earn 1 Qantas Point per A$1 loaded with Qantas Pay, and 1 Point per A$1 spent overseas. Conditions apply.',
     tiers: [
       { spend: 500, pts: 750 },
@@ -427,6 +456,8 @@ export const WTEs = [
     name: 'Accor Live Limitless',
     iconSrc: AccorLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'hotels',
     desc: 'Earn bonus Qantas Points on direct hotel spend. Earn both Qantas and ALL Reward points. Conditions apply.',
     tiers: [
       { spend: 250, pts: 750 },
@@ -441,6 +472,8 @@ export const WTEs = [
     name: 'Qantas Holidays',
     iconSrc: HolidaysLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'holidays',
     desc: 'Earn 3 Qantas Points per A$1 spent on eligible holiday packages. Conditions apply.',
     tiers: [
       { spend: 500, pts: 1500 },
@@ -455,6 +488,8 @@ export const WTEs = [
     name: 'Trip-A-Deal',
     iconSrc: TADLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'holidays',
     desc: 'Earn 3 Qantas Points per A$1 spent on eligible Trip-A-Deal holiday packages. Conditions apply.',
     tiers: [
       { spend: 500, pts: 1500 },
@@ -470,6 +505,8 @@ export const WTEs = [
     name: 'Qantas Cruises',
     iconSrc: CruisesLogo,
     category: 'travel',
+    section: 'travel',
+    subCategory: 'holidays',
     desc: 'Earn 1 point per A$1 spent on your cruise. Qantas partners with the Award-winning Cruise Guru. Conditions apply.',
     tiers: [
       { spend: 1000, pts: 1000 },
@@ -479,6 +516,37 @@ export const WTEs = [
       { spend: 36000, pts: 36000 },
     ],
   },
+];
+
+export const WTE_HIERARCHY = [
+  {
+    id: 'travel',
+    label: 'Travel',
+    categories: [
+      { id: 'flights', label: 'FLIGHTS', iconType: 'leisure' },
+      { id: 'holidays', label: 'HOLIDAYS, ACTIVITIES & EXPERIENCES', iconType: 'leisure' },
+      { id: 'hotels', label: 'HOTELS & ACCOMMODATION', iconType: 'building' },
+      { id: 'ground', label: 'GROUND TRANSPORTATION', iconType: 'leisure' },
+    ]
+  },
+  {
+    id: 'shop',
+    label: 'Shop',
+    categories: [
+      { id: 'everyday', label: 'EVERYDAY SHOPPING', iconType: 'leisure' },
+      { id: 'lifestyle', label: 'LIFESTYLE RETAIL & ENTERTAINMENT', iconType: 'building' },
+      { id: 'utilities', label: 'Home Utilities', iconType: 'leisure' },
+    ]
+  },
+  {
+    id: 'banking',
+    label: 'Banking & Insurance',
+    categories: [
+      { id: 'cards', label: 'CARDS & BANKING', iconType: 'leisure' },
+      { id: 'homeloans', label: 'BANKING & HOMELOANS', iconType: 'leisure' },
+      { id: 'insurance', label: 'INSURANCE', iconType: 'building' },
+    ]
+  }
 ];
 
 

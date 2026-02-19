@@ -1,7 +1,7 @@
-// src/screens/Dashboard.jsx
 import React, { useState } from 'react';
 import { useSaveSlots } from '../state/useSaveSlots';
 import {
+  WTEs,
   flightsList,
   hotelsList,
   activitiesList,
@@ -9,17 +9,24 @@ import {
   giftCardsList,
   entertainmentList,
 } from '../data';
-import OnboardingStepper from '../components/OnboardingStepper';
-import WTETiles from '../components/WTETiles';
-import MonthWrapUpModal from '../components/MonthWrapUpModal';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import ConnectedRewardCard from '../components/ConnectedRewardCard';
-// NOTE: We might need these if we dynamically get indices later, but hardcoding for now
-// import WTESelection from './WTESelection';
-// import MonthChange from '../components/MonthChange';
+import PointsRooLogo from '../assets/points-roo.svg';
+import OnboardingStepper from '../components/OnboardingStepper';
+import MonthWrapUpModal from '../components/MonthWrapUpModal';
 
-// Changed props: accepting goTo and currentStepIndex instead of goNext/goBack
-export default function Dashboard({ goTo, currentStepIndex }) {
-  const { slots, activeSlotId, current } = useSaveSlots();
+
+const CairnsThumb = "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&q=80&w=400";
+const MelbourneThumb = "https://images.unsplash.com/photo-1514395462725-fb4566210144?auto=format&fit=crop&q=80&w=600";
+const HotelThumb = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=400";
+const ExperienceThumb = "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=400";
+
+export default function Dashboard({ goTo }) {
+  const { slots, activeSlotId, current, advanceMonth, setDashboardIntroDismissed } = useSaveSlots();
+  const [showOnboardingId, setShowOnboardingId] = useState(null);
+  const [showWrapup, setShowWrapup] = useState(false);
+  const [lastMonthData, setLastMonthData] = useState(null);
   if (!activeSlotId || !current) return null;
   const slot = slots.find(s => s.id === activeSlotId);
 
@@ -28,27 +35,10 @@ export default function Dashboard({ goTo, currentStepIndex }) {
     totalAnnualPts = 0,
     selectedWTU,
     selectedRewardId,
-    setupProgressByWTE = {},
-    currentMonth = new Date().toISOString().slice(0, 7),
-    monthlyTargetByWTE = {},
-    monthlyEarnedByWTE = {},
-    currentPtsBalance = 0
+    dashboardIntroDismissed,
   } = current;
 
-  const [onboardingWteId, setOnboardingWteId] = useState(null);
-  const [showWrapUp, setShowWrapUp] = useState(false);
-  const [wrapUpData, setWrapUpData] = useState(null);
-
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  const [, mm] = currentMonth.split('-');
-  const monthName = monthNames[parseInt(mm, 10) - 1] || currentMonth;
-
-  const memberTier = 'Bronze'; // Example data
-  const memberNumber = '1234567890'; // Example data
-  const monthlyTarget = totalAnnualPts > 0 ? Math.round(totalAnnualPts / 12) : 0;
+  const isIntroState = !dashboardIntroDismissed;
 
   const rewardsMap = {
     Flights: flightsList,
@@ -58,143 +48,442 @@ export default function Dashboard({ goTo, currentStepIndex }) {
     'Gift Cards': giftCardsList,
     Entertainment: entertainmentList,
   };
-  const selectedReward =
-    (rewardsMap[selectedWTU] || []).find(r => r.id === selectedRewardId) || null;
 
+  const selectedReward = (rewardsMap[selectedWTU] || []).find(r => r.id === selectedRewardId) || null;
+  /* --- Time Passes Link --- */
   const handleTimePasses = () => {
-    const totalEarned = Object.values(monthlyEarnedByWTE).reduce((a, b) => a + b, 0);
-    const totalTarget = Object.values(monthlyTargetByWTE).reduce((a, b) => a + b, 0);
+    // Capture data for the wrap-up modal before advancing
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const [, m] = (current.currentMonth || '2025-02').split('-').map(Number);
 
-    const metAnyWTE = Object.entries(monthlyTargetByWTE)
-      .some(([id, tgt]) => (monthlyEarnedByWTE[id] || 0) >= tgt);
-    const metMonth = totalTarget > 0 && totalEarned >= totalTarget; // Ensure target > 0
-    const bonusEligible = metMonth || metAnyWTE;
+    const data = {
+      monthName: monthNames[m - 1],
+      totalEarned: Object.values(current.monthlyEarnedByWTE || {}).reduce((a, b) => a + b, 0),
+      totalTarget: Math.round(totalAnnualPts / 12),
+      earnedById: current.monthlyEarnedByWTE || {},
+      targetsById: current.monthlyTargetByWTE || {},
+    };
 
-    setWrapUpData({
-      monthName,
-      totalEarned,
-      totalTarget,
-      earnedById: monthlyEarnedByWTE,
-      targetsById: monthlyTargetByWTE,
-      bonusEligible,
-    });
-    setShowWrapUp(true);
+    setLastMonthData(data);
+    advanceMonth();
+    setShowWrapup(true);
   };
 
-  // --- Navigation Handler Updates ---
-
-  const handleEditWTEs = () => {
-    const wteSelectionIndex = 3; // Based on steps in App.jsx
-    goTo(wteSelectionIndex);
-  };
-
-  const handleSetupOrAddWTE = (id) => {
-    if (id === null) {
-      // "Add new" was clicked, go back to WTESelection
-      const wteSelectionIndex = 3; // Based on steps in App.jsx
-      goTo(wteSelectionIndex);
-    } else {
-      // "Set up" was clicked for a specific WTE
-      setOnboardingWteId(id);
-    }
-  };
-
-  const handleCloseWrapUpModal = () => {
-    setShowWrapUp(false);
-    // Navigate to the MonthChange screen
-    const monthChangeIndex = 6; // Based on steps in App.jsx
-    goTo(monthChangeIndex);
-  };
-
-  // --- Render ---
   return (
-    <>
-      {/* --------------- MAIN DASHBOARD -------------------------- */}
-      <div className="p-6 space-y-6">
-        {/* Header section */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">{slot?.name || 'Dashboard'}</h1>
-            <div className="text-sm text-gray-700">{memberTier}</div>
-            <div className="text-xs text-gray-500">{memberNumber}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold">
-              {currentPtsBalance.toLocaleString()}&nbsp;PTS
-            </div>
-            <div className="text-sm text-gray-500">
-              {currentPtsBalance === 0 ? "Let's get started!" : 'Nice work!'}
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#F3F5F7] font-sans text-[#323232]">
+      <Header isMobile={false} />
 
-        {/* Month Target */}
-        <div className="text-center">
-          <div className="text-xl font-bold">{monthName}</div>
-          {monthlyTarget > 0 && ( // Only show target if calculated
-            <div className="mt-2 inline-block rounded-full border border-gray-300 px-6 py-2">
-              Target&nbsp;{monthlyTarget.toLocaleString()}&nbsp;PTS
+      <main className="max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8 py-8">
+
+        {/* --- Top White Panel --- */}
+        <div className="bg-white rounded-[32px] shadow-sm p-10 mb-8">
+          {isIntroState ? (
+            <div className="flex flex-col lg:flex-row gap-12 items-center">
+              {/* Left: Intro Content */}
+              <div className="lg:w-1/2">
+                <h1 className="text-[32px] font-medium text-[#323232] leading-tight mb-4">
+                  Good morning, {slot?.name || 'William'}
+                </h1>
+                <div className="max-w-[440px]">
+                  <h2 className="text-[24px] font-bold text-[#323232] mb-3">Let's get you some points</h2>
+                  <p className="text-[14px] text-gray-500 leading-relaxed mb-8">
+                    One of the best ways to get the most out of your membership is by finding a few different ways of earning points. You can add points to your account homepage.
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-6">
+                    <button
+                      onClick={() => {
+                        setDashboardIntroDismissed(true);
+                        goTo(3);
+                      }}
+                      className="bg-[#E40000] text-white px-8 py-3 rounded-[4px] font-bold text-[13px] uppercase tracking-wider hover:bg-red-700 transition-colors shadow-lg"
+                    >
+                      SHOW ME
+                    </button>
+                    <button
+                      onClick={() => goTo(4)}
+                      className="text-[#E40000] text-[13px] font-bold hover:underline"
+                    >
+                      Choose favorite reward
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setDashboardIntroDismissed(true)}
+                    className="mt-6 text-[11px] text-gray-400 font-bold hover:text-gray-600 uppercase tracking-widest"
+                  >
+                    Skip
+                  </button>
+                </div>
+              </div>
+
+              {/* Right: Illustration */}
+              <div className="lg:w-1/2 flex justify-center lg:justify-end">
+                <div className="flex items-end gap-6">
+                  {/* Step 1: Choose */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-[120px] h-[120px] bg-[#F7F7F7] rounded-[16px] border border-gray-100 flex items-center justify-center relative shadow-sm mb-3">
+                      <div className="w-16 h-10 bg-white rounded-[4px] border border-gray-100 flex items-center justify-center p-2">
+                        <div className="w-full h-1 bg-[#E1F2F2] rounded-full" />
+                      </div>
+                      <div className="absolute top-2 right-2 w-6 h-6 bg-white border border-gray-100 rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 text-[#E40000]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="text-[14px] font-medium text-[#323232]">Choose</span>
+                  </div>
+
+                  {/* Step 2: Add */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-[120px] h-[120px] bg-[#F7F7F7] rounded-[16px] border border-gray-100 p-4 flex flex-col justify-center gap-2 relative shadow-sm mb-3">
+                      {[1, 2].map(i => (
+                        <div key={i} className="bg-white rounded-[4px] border border-gray-100 p-2 flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full border border-[#E40000] flex items-center justify-center">
+                            <svg className="w-2.5 h-2.5 text-[#E40000]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <div className="h-1.5 w-12 bg-gray-100 rounded-full" />
+                        </div>
+                      ))}
+                    </div>
+                    <span className="text-[14px] font-medium text-[#323232]">Add</span>
+                  </div>
+
+                  {/* Step 3: Set up */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-[120px] h-[120px] bg-[#F7F7F7] rounded-[16px] border border-gray-100 flex items-center justify-center relative shadow-sm mb-3">
+                      <div className="w-[84px] h-[84px] rounded-full border-4 border-dashed border-[#C5EDED] bg-white flex items-center justify-center" />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pt-2">
+                        <span className="text-[#007A7A] font-bold text-[14px]">+ 50</span>
+                        <span className="text-[#007A7A] font-bold text-[10px] uppercase">PTS</span>
+                      </div>
+                    </div>
+                    <span className="text-[14px] font-medium text-[#323232]">Set up</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Left: Greeting and Progress */}
+              <div className="lg:col-span-8">
+                <div className="flex justify-between items-start mb-10">
+                  <div>
+                    <h1 className="text-[36px] font-medium text-[#323232] leading-tight">
+                      Good morning, {slot?.name || 'William'}
+                    </h1>
+                    <p className="text-[14px] text-gray-500 mt-1">Let's get started</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-6 mb-8">
+                  <span className="text-[16px] font-medium">February</span>
+                  <div className="bg-white border border-gray-200 px-4 py-1.5 rounded-full text-[#323232] text-[13px] font-bold shadow-sm">
+                    Target {Math.round(totalAnnualPts / 12).toLocaleString()} PTS
+                  </div>
+                </div>
+
+                {/* Favourite ways to earn */}
+                <div className="lg:col-span-12 mt-4 pt-10 border-t border-gray-100">
+                  <h3 className="text-[20px] font-bold mb-8">Favourite ways to earn:</h3>
+                  <div className="flex flex-wrap gap-8">
+                    {selectedWTEs.map(({ id: stringId }) => {
+                      const numericId = Number(stringId);
+                      const wte = WTEs.find(w => w.id === numericId);
+                      if (!wte) return null;
+
+                      const earned = (current.monthlyEarnedByWTE || {})[numericId] || 0;
+                      const target = (current.monthlyTargetByWTE || {})[numericId] || 1;
+                      const setupSteps = (current.setupProgressByWTE || {})[numericId] || 0;
+
+                      const percent = earned > 0
+                        ? Math.min(100, Math.round((earned / target) * 100))
+                        : (setupSteps / 4) * 100;
+
+                      return (
+                        <div key={numericId} className="flex flex-col items-center w-[120px]">
+                          <span className="text-[12px] font-medium text-center mb-3 h-[32px] flex items-center line-clamp-2">
+                            {wte.name}
+                          </span>
+                          <div className="relative w-[84px] h-[84px] mb-4">
+                            {/* Progress Circle */}
+                            <svg className="w-full h-full transform -rotate-90">
+                              <circle cx="42" cy="42" r="38" fill="none" stroke="#F3F5F7" strokeWidth="4" />
+                              <circle
+                                cx="42" cy="42" r="38" fill="none"
+                                stroke={earned > 0 ? "#E40000" : "#BCBCBC"}
+                                strokeWidth="4"
+                                strokeDasharray={238.7}
+                                strokeDashoffset={238.7 - (238.7 * percent) / 100}
+                                strokeLinecap="round"
+                                className="transition-all duration-1000"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-[64px] h-[64px] bg-white rounded-full p-2 flex items-center justify-center shadow-sm">
+                                <img src={wte.iconSrc} alt={wte.name} className="w-full h-full object-contain" />
+                              </div>
+                            </div>
+                          </div>
+                          {earned > 0 ? (
+                            <div className="text-center">
+                              <p className="text-[16px] font-bold">+{earned.toLocaleString()}</p>
+                              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">PTS</p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center">
+                              <button
+                                onClick={() => setShowOnboardingId(stringId)}
+                                className="bg-white border border-gray-300 rounded-full px-4 py-1 text-[11px] font-bold hover:border-red-600 hover:text-red-600 transition-colors"
+                              >
+                                Set up
+                              </button>
+                              <span className="text-[10px] text-[#E40000] font-bold mt-1">+50 PTS</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Add New Slot */}
+                    <div className="flex flex-col items-center w-[120px]">
+                      <span className="text-[12px] font-medium mb-3 h-[32px] flex items-center">Add new</span>
+                      <button
+                        onClick={() => goTo(3)}
+                        className="w-[84px] h-[84px] rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center text-[32px] text-gray-300 hover:border-red-600 hover:text-red-600 hover:bg-red-50 transition-all mb-4"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Target Reward & Profile */}
+              <div className="lg:col-span-4 flex flex-col">
+                <div className="flex justify-end mb-10">
+                  <div className="text-right flex items-center gap-4">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={handleTimePasses}
+                        className="text-[#E40000] text-[13px] font-bold hover:underline bg-[#FFEAEA] px-3 py-1.5 rounded-full"
+                      >
+                        Time passes
+                      </button>
+                      <div className="text-right">
+                        <p className="text-[28px] font-bold leading-none">Bronze</p>
+                        <p className="text-[11px] text-gray-500 mt-1 uppercase tracking-wider">Frequent Flyer 1234 567 890</p>
+                      </div>
+                    </div>
+                    <div className="w-[60px] h-[60px] bg-[#E40000] rounded-full flex items-center justify-center shadow-lg">
+                      <img src={PointsRooLogo} alt="" className="w-10 h-10 brightness-0 invert" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-bold text-[#666] uppercase tracking-wider">Target Annual Earn: {totalAnnualPts.toLocaleString()} PTS</span>
+                  </div>
+                  <button
+                    onClick={() => goTo(3)}
+                    className="text-[11px] font-bold text-[#E40000] hover:underline"
+                  >
+                    Edit
+                  </button>
+                </div>
+
+                <p className="text-[11px] font-bold text-[#666] uppercase tracking-wider mb-4">Favourite reward:</p>
+
+                <div className="w-full">
+                  {selectedReward ? (
+                    <ConnectedRewardCard reward={selectedReward} />
+                  ) : (
+                    <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[24px] aspect-[1.4/1] flex items-center justify-center">
+                      <button onClick={() => goTo(4)} className="text-[#E40000] font-bold hover:underline">Select a target reward</button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
 
-        {/* WTE Tiles */}
-        <WTETiles
-          selectedWTEs={selectedWTEs}
-          setupProgressByWTE={setupProgressByWTE}
-          monthlyEarnedByWTE={monthlyEarnedByWTE}
-          monthlyTargetByWTE={monthlyTargetByWTE}
-          onSetupClick={handleSetupOrAddWTE} // Updated handler
-        />
-
-        {/* Annual Target / Edit Link */}
-        <div className="flex items-center justify-between px-2">
-          <div className="text-sm text-gray-700">
-            Target Annual Earn:&nbsp;{totalAnnualPts.toLocaleString()}&nbsp;PTS
+        {/* --- Lower Content (Sitting on Grey) --- */}
+        <div className="space-y-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div className="md:col-span-1">
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Departing from</label>
+              <div className="bg-[#F3F3F3] px-4 py-3 rounded-lg flex items-center space-x-3">
+                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span className="text-[14px]">SYD, Sydney, Australia</span>
+              </div>
+            </div>
+            <div className="md:col-span-1">
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Arrival location</label>
+              <div className="bg-[#F3F3F3] px-4 py-3 rounded-lg flex items-center space-x-3">
+                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span className="text-[14px] text-gray-400">Where to?</span>
+              </div>
+            </div>
+            <div className="md:col-span-1">
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Travel dates</label>
+              <div className="bg-[#F3F3F3] px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-400">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <span className="text-[14px]">Choose dates</span>
+              </div>
+            </div>
+            <div className="md:col-span-1">
+              <button className="w-full bg-[#E40000] text-white font-bold py-3.5 rounded-lg uppercase tracking-widest text-[13px] flex items-center justify-center space-x-2">
+                <span>Search Flights</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
           </div>
-          {/* Updated onClick handler */}
-          <button onClick={handleEditWTEs} className="text-sm text-gray-700 underline">
-            Edit
-          </button>
+          <div className="flex items-center space-x-8 mt-6">
+            <div className="flex items-center space-x-2 text-[13px] font-medium"><div className="w-2 h-2 rounded-full border border-gray-400" /><span>Multi-city</span></div>
+            <div className="flex items-center space-x-2 text-[13px] font-medium"><div className="w-2 h-2 rounded-full border border-gray-400" /><span>Where Can I Go?</span></div>
+            <div className="flex items-center space-x-2 text-[13px] font-medium"><div className="w-2 h-2 rounded-full border border-gray-400" /><span>Flight Credit</span></div>
+          </div>
         </div>
 
-        {/* Selected Reward Display */}
-        {selectedReward && (
-          <div className="mx-2">
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">
-              {selectedReward.type || 'Favourite reward'}
-            </h3>
-            <ConnectedRewardCard reward={selectedReward} />
-            <p className="mt-3 text-[11px] text-gray-500 leading-relaxed italic">
-              {selectedReward.type === 'Classic Flight Reward'
-                ? 'Learn more about Classic Flight Rewards and availability. Taxes, fees and charges apply.'
-                : 'Reward details and conditions apply.'}
-            </p>
+        {/* --- Section 3: Modular Components (Static) --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="bg-white border border-gray-100 rounded-[16px] p-6 shadow-sm">
+            <div className="flex justify-between items-start mb-4">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Points detail</p>
+              <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 5l7 7-7 7" /></svg>
+            </div>
+            <div className="text-[28px] font-medium mb-1 tracking-tight">142,513</div>
+            <p className="text-[11px] text-gray-500 uppercase font-bold mb-4">Current Balance</p>
+            <div className="space-y-4 border-t border-gray-50 pt-4">
+              <div className="flex justify-between text-[13px]">
+                <span className="text-gray-500">Status Credits</span>
+                <span className="font-bold">140</span>
+              </div>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-gray-500">Qantas Business Rewards</span>
+                <span className="font-bold">12,400</span>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Time Passes Button */}
-        <div className="mt-6">
-          <button
-            onClick={handleTimePasses}
-            className="w-full rounded-full py-3 font-semibold tracking-widest text-gray-600 hover:bg-gray-100 border" // Added subtle style
-          >
-            Time&nbsp;passes…
-          </button>
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-[#FAFAFA] border border-dashed border-gray-200 rounded-[16px] p-6 flex flex-col items-center justify-center text-center">
+              <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-2">[ NOVA COMPONENT ]</p>
+              <p className="text-[12px] text-gray-400">TBC</p>
+            </div>
+          ))}
         </div>
-      </div>
 
-      {/* --------------- MODALS --------------------------- */}
-      {showWrapUp && wrapUpData && (
-        <MonthWrapUpModal data={wrapUpData} onClose={handleCloseWrapUpModal} /> // Updated handler
-      )}
+        {/* --- Section 4: Bookings & Upsell (Static) --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-[18px]">Your next booking is in 4 weeks</h3>
+              <button className="text-[12px] font-bold text-[#E40000] flex items-center">MY TRIPS <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
+            </div>
+            <div className="relative rounded-[20px] overflow-hidden aspect-[1.8/1]">
+              <img src={MelbourneThumb} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                <div className="flex items-center space-x-2 text-white/90 text-[11px] font-bold uppercase tracking-widest mb-1">
+                  <span className="w-2 h-2 bg-[#E40000] rounded-full" />
+                  <span>UPCOMING FLIGHT</span>
+                </div>
+                <h4 className="text-white text-[24px] font-light italic">Melbourne</h4>
+                <p className="text-white/60 text-[12px]">SYD → MEL • Fri, 15 Mar 2026</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 className="font-bold text-[18px] mb-4">Complete your trip</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
+                <div className="w-10 h-10 bg-[#E1F1FF] rounded-lg flex items-center justify-center text-[#0066CC]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></div>
+                <div>
+                  <p className="text-[14px] font-bold">Book with Qantas Hotels</p>
+                  <p className="text-[11px] text-gray-500">Earn 3 points per $1 spent</p>
+                </div>
+              </div>
+              <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
+                <div className="w-10 h-10 bg-[#E1FFEF] rounded-lg flex items-center justify-center text-[#00994C]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                <div>
+                  <p className="text-[14px] font-bold">Earn with Bank & Cards</p>
+                  <p className="text-[11px] text-gray-500">100,000+ bonus pts offers</p>
+                </div>
+              </div>
+              <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
+                <div className="w-10 h-10 bg-[#E1F1FF] rounded-lg flex items-center justify-center text-[#0066CC]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a1 1 0 102 0m-2 0a2 2 0 114 0" /></svg></div>
+                <div>
+                  <p className="text-[14px] font-bold">Rent a Car</p>
+                  <p className="text-[11px] text-gray-500">AVIS, Hertz & more</p>
+                </div>
+              </div>
+              <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
+                <div className="w-10 h-10 bg-[#FFE1E1] rounded-lg flex items-center justify-center text-[#E40000]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2C9.043 2 6.346 3.125 4.382 4.984a12.115 12.115 0 00-1.782 12.016A11.955 11.955 0 0112 22a11.955 11.955 0 018.845-8.238 12.115 12.115 0 00-1.782-12.016l.555.232z" /></svg></div>
+                <div>
+                  <p className="text-[14px] font-bold">Travel Insurance</p>
+                  <p className="text-[11px] text-gray-500">Protect your journey</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      {onboardingWteId !== null && (
+        {/* --- Section 5: Offers (Static) --- */}
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-bold text-[22px]">My Offers</h3>
+            <button className="text-[12px] font-bold text-[#666] flex items-center">EXPLORE ALL <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-sm group cursor-pointer">
+              <div className="aspect-[2/1] overflow-hidden relative">
+                <img src={ExperienceThumb} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute top-4 left-4 bg-[#E40000] text-white text-[10px] font-bold px-2 py-1 rounded">OPEN FOR YOU</div>
+              </div>
+              <div className="p-6">
+                <h4 className="text-[18px] font-bold mb-2">Earn 20,000 pts with Travel Insurance</h4>
+                <p className="text-[13px] text-gray-500 mb-6 leading-relaxed">Secure your next international trip and earn big on your premium.</p>
+                <button className="text-[12px] font-bold group-hover:text-[#E40000] transition-colors flex items-center">LEARN MORE <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
+              </div>
+            </div>
+            <div className="bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-sm group cursor-pointer">
+              <div className="aspect-[2/1] overflow-hidden relative">
+                <img src={HotelThumb} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute top-4 left-4 bg-[#007A7A] text-white text-[10px] font-bold px-2 py-1 rounded">HOTEL EXCLUSIVE</div>
+              </div>
+              <div className="p-6">
+                <h4 className="text-[18px] font-bold mb-2">Double points on luxury stays</h4>
+                <p className="text-[13px] text-gray-500 mb-6 leading-relaxed">Book a Luxury collection stay before March 31st for 2x points.</p>
+                <button className="text-[12px] font-bold group-hover:text-[#E40000] transition-colors flex items-center">VIEW HOTELS <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <Footer />
+
+      {/* Modals */}
+      {showOnboardingId && (
         <OnboardingStepper
-          wteId={onboardingWteId}
-          onDone={() => setOnboardingWteId(null)}
+          wteId={showOnboardingId}
+          onDone={() => setShowOnboardingId(null)}
         />
       )}
-    </>
+
+      {showWrapup && lastMonthData && (
+        <MonthWrapUpModal
+          data={lastMonthData}
+          onClose={() => setShowWrapup(false)}
+        />
+      )}
+    </div>
   );
 }
+
+

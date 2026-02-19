@@ -26,7 +26,7 @@ export default function CategoryTabs({ categories, activeCategory, onCategoryCha
 
   return (
     <div>
-      <div className="w-full overflow-x-auto" ref={tabsRef}>
+      <div className="w-full overflow-x-auto no-scrollbar" ref={tabsRef}>
         <div className="inline-flex px-4 space-x-4 whitespace-nowrap">
           {categories.map(cat => (
             <button

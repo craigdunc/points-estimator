@@ -4,36 +4,77 @@
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
 :root {
   /* Colours */
-  --color-red-primary:  #EF4444;
-  --color-cyan-accent:  #00FFFF;
-  --color-gray-map:     #F3F4F6;
-  --color-dot-muted:    #9CA3AF;
+  --color-red-primary: #EF4444;
+  --color-cyan-accent: #00FFFF;
+  --color-gray-map: #F3F4F6;
+  --color-dot-muted: #9CA3AF;
 
   /* Typography */
-  --font-xs:     0.75rem;   /* 12px */
-  --font-sm:     0.875rem;  /* 14px */
-  --font-base:   1rem;      /* 16px */
-  --font-lg:     1.125rem;  /* 18px */
+  --font-xs: 0.75rem;
+  /* 12px */
+  --font-sm: 0.875rem;
+  /* 14px */
+  --font-base: 1rem;
+  /* 16px */
+  --font-lg: 1.125rem;
+  /* 18px */
 
-  --leading-tight:   1.25;
-  --leading-snug:    1.375;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
   --leading-relaxed: 1.625;
 }
+
 /* ─────────────────────────────────────────────────────────────────────────────── */
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* Hide scrollbars in WebKit browsers (Chrome, Safari, Opera) */
-::-webkit-scrollbar {
+/* Hide scrollbars on mobile but show on desktop/tablet */
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+}
+
+/* Custom scrollbar styling for Desktop/Tablet */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #d1d1d1;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #b1b1b1;
+  }
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbars in IE, Edge, Firefox */
-* {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* remove native styling from range inputs */
@@ -48,10 +89,12 @@ input[type="range"] {
 /* range track */
 input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
-  background: #e5e7eb;    /* gray-200 */
+  background: #e5e7eb;
+  /* gray-200 */
   border-radius: 9999px;
   border: none;
 }
+
 input[type="range"]::-moz-range-track {
   height: 6px;
   background: #e5e7eb;
@@ -64,10 +107,13 @@ input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  background: #dc2626;     /* red-600 */
+  background: #dc2626;
+  /* red-600 */
   border-radius: 50%;
-  margin-top: -7px;        /* (thumb/2 − track/2) = (20/2 − 6/2) = 7px */
+  margin-top: -7px;
+  /* (thumb/2 − track/2) = (20/2 − 6/2) = 7px */
 }
+
 input[type="range"]::-moz-range-thumb {
   width: 20px;
   height: 20px;
@@ -81,12 +127,12 @@ input[type="range"]:focus {
   outline: none;
 }
 
-/* ─── Animations ────────────────────────────────────────────────────────────── */
 @keyframes duo-slide-up {
   0% {
     opacity: 0;
     transform: translateY(10px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -95,4 +141,27 @@ input[type="range"]:focus {
 
 .animate-duo-entrance {
   animation: duo-slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ─── Duo Entrance Sequence ────────────────────────────────────────────────── */
+.animate-onboarding-expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.animate-onboarding-expand.expanded {
+  grid-template-rows: 1fr;
+}
+
+.onboarding-card-content {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.onboarding-card-content.visible {
+  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 1;
+  transform: translateY(0);
 }

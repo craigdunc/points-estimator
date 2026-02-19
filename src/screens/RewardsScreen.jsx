@@ -2,7 +2,9 @@
 import React, {
   useState,
   useMemo,
-  useCallback
+  useCallback,
+  useRef,
+  useEffect
 } from 'react';
 import { useSaveSlots } from '../state/useSaveSlots';
 import ConnectedRewardCard from '../components/ConnectedRewardCard';
@@ -89,8 +91,59 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
   const [expandedId, setExpandedId] = useState(null);
   const [pendingRewardId, setPendingRewardId] = useState(null);
   const [pendingRewardCategory, setPendingRewardCategory] = useState(null);
-  // Track if user has manually clicked/interacted with a reward
   const [userHasInteracted, setUserHasInteracted] = useState(false);
+
+  // Minimization state for mobile
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startY = useRef(0);
+
+  // Constants for minimizing logic
+  const DRAGGABLE_HEIGHT = 420;
+  const MINIMIZED_THRESHOLD = 120;
+  const MINIMIZED_Y = DRAGGABLE_HEIGHT - 110;
+
+  const toggleMinimized = () => setIsMinimized(!isMinimized);
+
+  const handleTouchStart = (e) => {
+    startY.current = e.touches[0].clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startY.current;
+    let newOffset = isMinimized ? MINIMIZED_Y + diff : diff;
+    if (newOffset < -30) newOffset = -30;
+    if (newOffset > MINIMIZED_Y + 50) newOffset = MINIMIZED_Y + 50;
+    setDragOffset(newOffset);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (isMinimized) {
+      if (dragOffset < MINIMIZED_Y - 50) setIsMinimized(false);
+    } else {
+      if (dragOffset > MINIMIZED_THRESHOLD) setIsMinimized(true);
+    }
+    setDragOffset(0);
+  };
+
+  const getTransform = () => {
+    if (isDragging) return `translateY(${dragOffset}px)`;
+    return isMinimized ? `translateY(${MINIMIZED_Y}px)` : 'translateY(0px)';
+  };
+
+  // Auto-minimize on mobile map view
+  useEffect(() => {
+    if (!desktopMode && activeTabKey === 'Flights') {
+      setIsMinimized(true);
+    } else {
+      setIsMinimized(false);
+    }
+  }, [activeTabKey, desktopMode]);
 
   // Handlers
   const handleTabChange = useCallback(key => {
@@ -363,7 +416,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       </div>
 
       {/* Main Content (Map or List) */}
-      <div className={`${isEmbedded ? 'w-full bg-gray-50' : 'flex-grow flex flex-col min-h-0 overflow-y-auto bg-gray-50'}`}>
+      <div className={`${isEmbedded ? 'w-full bg-gray-50' : 'flex-grow flex flex-col min-h-0 bg-gray-50 overflow-y-auto'}`}>
         {activeTabKey === 'Flights' ? (
           renderMapSection()
         ) : (
@@ -461,9 +514,21 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
 
       {/* Footer Container - Hidden in desktopMode */}
       {!desktopMode && (
-        <div className="shrink-0 bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] rounded-t-[24px] relative z-[9000]">
-          {/* Drag Handle (Visual only for now) */}
-          <div className="flex justify-center pt-3 pb-1">
+        <div
+          className="shrink-0 bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] rounded-t-[24px] relative z-[9000] transform transition-all duration-300 ease-out"
+          style={{
+            transform: getTransform(),
+            transitionDuration: isDragging ? '0ms' : '400ms'
+          }}
+        >
+          {/* Drag Handle */}
+          <div
+            className="flex justify-center pt-3 pb-1 cursor-pointer touch-none"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onClick={toggleMinimized}
+          >
             <div className="w-[40px] h-1.5 bg-gray-200 rounded-full" />
           </div>
 

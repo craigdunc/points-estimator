@@ -1,40 +1,23 @@
 import React from 'react';
 import { useSaveSlots } from '../state/useSaveSlots';
 import WelcomeHeroImg from '../assets/images/welcome_hero.png';
-import QantasLogo from '../assets/logos/qantas.svg';
-import ProfileIcon from '../assets/icons/Profile.svg';
 import QantasIDIcon from '../assets/icons/Qantas-ID.svg';
 import { useViewportMode } from '../hooks/useViewportMode';
+import Header from '../components/Header';
 
-export default function Intro1({ goTo, currentStepIndex }) {
+export default function Intro1({ goTo }) {
   const { slots, activeSlotId } = useSaveSlots();
   const { isSplitView } = useViewportMode();
   const currentSlot = slots.find(s => s.id === activeSlotId);
   const userName = currentSlot?.name || 'Kim';
 
   const handleNext = () => {
-    goTo(currentStepIndex + 1);
+    goTo(5); // Jump directly to Dashboard
   };
 
   return (
     <div className="min-h-screen bg-[#F3F5F7] flex flex-col font-sans selection:bg-red-100">
-      {/* ── HEADER ── */}
-      <header className="bg-white border-b border-gray-100 flex items-center justify-between pl-6 sticky top-0 z-50 h-[60px]">
-        <div className="flex items-center">
-          <img src={QantasLogo} alt="Qantas" className="h-[26px] w-auto" />
-        </div>
-        <div className="flex items-center h-full">
-          <span className="text-[16px] text-[#323232] mr-6">Menu</span>
-          <button
-            onClick={() => goTo(0)}
-            className="h-full flex items-center justify-center text-white transition-colors"
-          >
-            <div className="w-[60px] h-full bg-[#DF0000] flex items-center justify-center">
-              <img src={ProfileIcon} alt="Profile" className="w-[60px] h-[60px]" />
-            </div>
-          </button>
-        </div>
-      </header>
+      <Header isMobile={!isSplitView} showAccountNav={false} />
 
       <main className={`flex-grow ${isSplitView ? 'max-w-[1200px] mx-auto w-full px-6 pt-10' : 'pb-12'}`}>
 
