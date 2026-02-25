@@ -598,7 +598,43 @@ export default function Dashboard({ goTo }) {
               </div>
             </div>
 
-            {/* --- Section 4.25: Maximise your membership --- */}
+            {/* --- Section 4.5: Qantas travel credit and Complimentary Lounge Invitations --- */}
+            <div className="mb-12 flex flex-col space-y-4">
+              <h3 className="font-light text-[20px] text-[#323232]">Qantas travel credit and Complimentary Lounge Invitations</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {/* Qantas Passes */}
+                <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <img src={iconBoardingPass} alt="Qantas Passes" className="w-[32px] h-[32px] mr-4 object-contain" />
+                  <div className="flex-grow flex flex-col">
+                    <span className="text-[16px] text-[#323232] font-medium mb-1">Qantas Passes</span>
+                    <span className="text-[13px] text-[#666]">
+                      <a href="#" className="text-[#E40000] underline hover:no-underline font-medium">Learn more</a> about Qantas Passes
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3 ml-4">
+                    <div className="bg-[#E5E5E5] px-2.5 py-0.5 rounded text-[14px] font-medium text-[#323232]">2</div>
+                    <svg className="w-5 h-5 text-[#323232]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </div>
+                </div>
+
+                {/* Complimentary Lounge Invitations */}
+                <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <img src={iconLounge} alt="Complimentary Lounge Invitations" className="w-[32px] h-[32px] mr-4 object-contain" />
+                  <div className="flex-grow flex flex-col">
+                    <span className="text-[16px] text-[#323232] font-medium mb-1">Complimentary Lounge Invitations</span>
+                    <span className="text-[13px] text-[#666]">Expires 31 Dec 2023.</span>
+                  </div>
+                  <div className="flex items-center space-x-3 ml-4">
+                    <div className="bg-[#E5E5E5] px-2.5 py-0.5 rounded text-[14px] font-medium text-[#323232]">3</div>
+                    <svg className="w-5 h-5 text-[#323232]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* --- Section 4.6: Maximise your membership --- */}
             <div className="mb-12 flex flex-col space-y-4">
               <h3 className="font-light text-[20px] text-[#323232]">Maximise your membership</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -657,7 +693,7 @@ export default function Dashboard({ goTo }) {
               </div>
             </div>
 
-            {/* --- Section 4.5: Book and explore (Static) --- */}
+            {/* --- Section 4.7: Book and explore (Static) --- */}
             <div className="mb-12 flex flex-col space-y-4">
               <h3 className="font-light text-[20px] text-[#323232]">Book and explore</h3>
               <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 p-2 flex items-stretch w-full overflow-x-auto whitespace-nowrap hide-scrollbar">
@@ -680,42 +716,6 @@ export default function Dashboard({ goTo }) {
                     {idx < exploreItems.length - 1 && <div className="absolute right-0 top-1/2 -translate-y-1/2 w-px h-10 bg-gray-100"></div>}
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* --- Section 4.75: Passes and Lounge Invitations --- */}
-            <div className="mb-12 flex flex-col space-y-4">
-              <h3 className="font-light text-[20px] text-[#323232]">Qantas travel credit and Complimentary Lounge Invitations</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                {/* Qantas Passes */}
-                <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src={iconBoardingPass} alt="Qantas Passes" className="w-[32px] h-[32px] mr-4 object-contain" />
-                  <div className="flex-grow flex flex-col">
-                    <span className="text-[16px] text-[#323232] font-medium mb-1">Qantas Passes</span>
-                    <span className="text-[13px] text-[#666]">
-                      <a href="#" className="text-[#E40000] underline hover:no-underline font-medium">Learn more</a> about Qantas Passes
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-3 ml-4">
-                    <div className="bg-[#E5E5E5] px-2.5 py-0.5 rounded text-[14px] font-medium text-[#323232]">2</div>
-                    <svg className="w-5 h-5 text-[#323232]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                  </div>
-                </div>
-
-                {/* Complimentary Lounge Invitations */}
-                <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src={iconLounge} alt="Complimentary Lounge Invitations" className="w-[32px] h-[32px] mr-4 object-contain" />
-                  <div className="flex-grow flex flex-col">
-                    <span className="text-[16px] text-[#323232] font-medium mb-1">Complimentary Lounge Invitations</span>
-                    <span className="text-[13px] text-[#666]">Expires 31 Dec 2023.</span>
-                  </div>
-                  <div className="flex items-center space-x-3 ml-4">
-                    <div className="bg-[#E5E5E5] px-2.5 py-0.5 rounded text-[14px] font-medium text-[#323232]">3</div>
-                    <svg className="w-5 h-5 text-[#323232]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                  </div>
-                </div>
-
               </div>
             </div>
 
