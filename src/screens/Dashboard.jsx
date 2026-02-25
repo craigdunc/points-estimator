@@ -435,64 +435,72 @@ export default function Dashboard({ goTo }) {
           </div>
 
           {/* --- Section 3: Modular Components (Static) --- */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
 
             {/* Points detail mockup */}
-            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Spend/Earn</p>
-                  <p className="text-[11px] font-bold text-[#E40000] flex items-center cursor-pointer hover:underline">
-                    Tier benefits <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg>
-                  </p>
+            <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex flex-col justify-between overflow-hidden">
+              <div className="p-4 bg-white flex justify-between items-center border-b border-gray-100">
+                <div className="flex-1">
+                  <p className="text-[14px] text-gray-500 mb-1 leading-none">Qantas Points</p>
+                  <p className="text-[22px] font-medium text-[#323232] leading-none mt-2">146,000</p>
                 </div>
-                <div className="flex justify-between items-end mb-6">
-                  <div className="text-[24px] font-medium leading-none">140,000</div>
-                  <div className="text-[24px] font-medium leading-none">0</div>
-                </div>
-
-                <p className="text-[12px] font-bold text-[#323232] mb-3">Earn points by</p>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-[12px]">
-                    <span className="text-gray-500">Qantas Points Club</span>
-                    <span className="font-bold text-[#00994C]">+ 500</span>
-                  </div>
-                  <div className="flex justify-between text-[12px]">
-                    <span className="text-gray-500">Status Credits</span>
-                    <span className="font-bold text-[#00994C]">+ 840</span>
-                  </div>
-                  <div className="flex justify-between text-[12px]">
-                    <span className="text-gray-500">Bonus earn</span>
-                    <span className="font-bold text-gray-500">0</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between bg-gray-50 rounded-lg p-2.5 mb-2 cursor-pointer hover:bg-gray-100 transition-colors">
-                  <span className="text-[11px] font-bold text-[#323232]">Memberships and Tier bonuses</span>
-                  <div className="w-5 h-5 bg-[#E40000] rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>
-                  </div>
+                <div className="w-px h-10 bg-gray-200 mx-4"></div>
+                <div className="flex-1">
+                  <p className="text-[14px] text-gray-500 mb-1 leading-none">Status Credits</p>
+                  <p className="text-[22px] font-medium text-[#323232] leading-none mt-2">0</p>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-gray-100 mt-2 flex justify-between items-center cursor-pointer hover:text-[#E40000]">
-                <span className="text-[13px] font-bold">Bookings</span>
-                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+              <div className="flex-grow flex flex-col bg-white">
+                <div className="p-4 border-b border-gray-100 flex-grow bg-white">
+                  <p className="text-[14px] text-[#323232] font-medium mb-3">Recent activity</p>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-start">
+                      <p className="text-[12px] text-gray-500 pr-2 leading-snug">BONUS POINTS / COMPLETED...</p>
+                      <span className="text-[14px] text-[#26A701] whitespace-nowrap">+ 100</span>
+                    </div>
+                    <div className="flex justify-between items-start">
+                      <p className="text-[12px] text-gray-500 pr-2 leading-snug">QF 735 FLEXIBLE ECONOMY/A...</p>
+                      <span className="text-[14px] text-[#26A701] whitespace-nowrap">+ 20</span>
+                    </div>
+                    <div className="flex justify-between items-start">
+                      <p className="text-[12px] text-gray-500 pr-2 leading-snug">QANTAS WELLBEING REWARD</p>
+                      <span className="text-[14px] text-[#26A701] whitespace-nowrap">+ 100</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white flex justify-between items-center border-t border-gray-50">
+                  <div>
+                    <p className="text-[15px] text-[#323232] font-medium">Memberships and Tiers</p>
+                    <p className="text-[14px] text-gray-500">Bronze</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-[#E40000] border-2 border-white shadow-sm flex items-center justify-center">
+                    <div className="w-4 h-4 bg-white rounded-full opacity-20"></div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-4 border-t border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors">
+                  <span className="text-[15px] text-[#323232] font-medium">My benefits</span>
+                  <svg className="w-5 h-5 text-[#323232]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </div>
               </div>
             </div>
 
             {/* Nova Component placeholders */}
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white border border-gray-100 rounded-[16px] p-5 shadow-sm flex flex-col justify-between">
-                <p className="text-[11px] font-bold text-gray-800 uppercase tracking-widest mt-1">[ NOVA COMPONENT ]</p>
-
-                <div className="flex-grow flex items-center justify-center">
-                  <p className="text-[20px] text-gray-300 font-light">TBC</p>
+              <div key={i} className="bg-white border border-gray-100 rounded-[4px] shadow-sm flex flex-col justify-between overflow-hidden">
+                <div className="p-4 border-b border-gray-100 bg-white">
+                  <p className="text-[18px] text-[#323232] py-1 font-medium">[NOVA COMPONENT]</p>
                 </div>
 
-                <div className="pt-3 border-t border-gray-50 mt-2 flex justify-between items-center">
-                  <span className="text-[13px] font-bold text-[#323232]">TBC</span>
-                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                <div className="flex-grow flex items-center justify-center p-4 bg-white">
+                  <p className="text-[16px] text-[#323232] font-normal">TBC</p>
+                </div>
+
+                <div className="p-4 border-t border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors bg-white">
+                  <span className="text-[15px] text-[#323232] font-medium">TBC</span>
+                  <svg className="w-5 h-5 text-[#323232]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </div>
               </div>
             ))}
@@ -500,55 +508,79 @@ export default function Dashboard({ goTo }) {
 
           {/* --- Section 4: Bookings & Upsell (Static) --- */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <div>
+            <div className="flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-[18px]">Your next booking is in 4 weeks</h3>
-                <button className="text-[12px] font-bold text-[#E40000] flex items-center">MY TRIPS <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
+                <h3 className="font-light text-[20px] text-[#323232]">Your next booking is in 4 weeks</h3>
+                <button className="text-[14px] font-medium text-[#323232] flex items-center hover:underline">All bookings <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 5l7 7-7 7" /></svg></button>
               </div>
-              <div className="relative rounded-[20px] overflow-hidden aspect-[1.8/1]">
-                <img src={MelbourneThumb} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                  <div className="flex items-center space-x-2 text-white/90 text-[11px] font-bold uppercase tracking-widest mb-1">
-                    <span className="w-2 h-2 bg-[#E40000] rounded-full" />
-                    <span>UPCOMING FLIGHT</span>
+              <div className="relative rounded-[4px] overflow-hidden flex-grow min-h-[162px] shadow-sm flex flex-col">
+                <div className="h-[162px] w-full relative">
+                  <img src={MelbourneThumb} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                    <div className="flex items-center space-x-2 text-white/90 text-[11px] font-bold uppercase tracking-widest mb-1">
+                      <span className="w-2 h-2 bg-[#E40000] rounded-full" />
+                      <span>UPCOMING FLIGHT</span>
+                    </div>
+                    <div className="flex items-end space-x-2">
+                      <h4 className="text-white text-[16px] font-normal">Sydney to</h4>
+                      <h4 className="text-white text-[20px] font-medium leading-none">Melbourne</h4>
+                    </div>
+                    <p className="text-white/80 text-[14px] mt-1">Booking ref: 5ZSHM9 • Tue, 19 Apr 2026</p>
                   </div>
-                  <h4 className="text-white text-[24px] font-light italic">Melbourne</h4>
-                  <p className="text-white/60 text-[12px]">SYD → MEL • Fri, 15 Mar 2026</p>
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="font-bold text-[18px] mb-4">Complete your trip</h3>
+              <h3 className="font-light text-[20px] mb-4 text-[#323232]">Complete your trip</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
-                  <div className="w-10 h-10 bg-[#E1F1FF] rounded-lg flex items-center justify-center text-[#0066CC]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></div>
-                  <div>
-                    <p className="text-[14px] font-bold">Book with Qantas Hotels</p>
-                    <p className="text-[11px] text-gray-500">Earn 3 points per $1 spent</p>
+                <div className="bg-white border border-gray-100 rounded-[4px] p-4 flex flex-col items-start space-y-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-[162px]">
+                  <div className="w-8 h-8 border-b-[3px] border-[#8AE2E1] flex items-center justify-center text-[#323232] mb-2"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></div>
+                  <div className="flex-grow">
+                    <p className="text-[15px] text-[#323232] font-medium leading-snug mb-1">Book with Qantas hotels</p>
+                    <p className="text-[13px] text-gray-500 leading-snug">Earn 3 PTS per $1 spent</p>
                   </div>
                 </div>
-                <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
-                  <div className="w-10 h-10 bg-[#E1FFEF] rounded-lg flex items-center justify-center text-[#00994C]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-                  <div>
-                    <p className="text-[14px] font-bold">Earn with Bank & Cards</p>
-                    <p className="text-[11px] text-gray-500">100,000+ bonus pts offers</p>
+                <div className="bg-white border border-gray-100 rounded-[4px] p-4 flex flex-col items-start space-y-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-[162px]">
+                  <div className="w-8 h-8 border-b-[3px] border-[#8AE2E1] flex items-center justify-center text-[#323232] mb-2"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg></div>
+                  <div className="flex-grow">
+                    <p className="text-[15px] text-[#323232] font-medium leading-snug mb-1">Hire a car</p>
+                    <p className="text-[13px] text-gray-500 leading-snug">Earn 4 PTS per $1 spent with Avis</p>
                   </div>
                 </div>
-                <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
-                  <div className="w-10 h-10 bg-[#E1F1FF] rounded-lg flex items-center justify-center text-[#0066CC]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a1 1 0 102 0m-2 0a2 2 0 114 0" /></svg></div>
-                  <div>
-                    <p className="text-[14px] font-bold">Rent a Car</p>
-                    <p className="text-[11px] text-gray-500">AVIS, Hertz & more</p>
+                <div className="bg-white border border-gray-100 rounded-[4px] p-4 flex flex-col items-start space-y-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-[162px]">
+                  <div className="w-8 h-8 border-b-[3px] border-[#8AE2E1] flex items-center justify-center text-[#323232] mb-2"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2C9.043 2 6.346 3.125 4.382 4.984a12.115 12.115 0 00-1.782 12.016A11.955 11.955 0 0112 22a11.955 11.955 0 018.845-8.238 12.115 12.115 0 00-1.782-12.016l.555.232z" /></svg></div>
+                  <div className="flex-grow">
+                    <p className="text-[15px] text-[#323232] font-medium leading-snug mb-1">Qantas Travel Insurance</p>
+                    <p className="text-[13px] text-gray-500 leading-snug">Earn 1 point per $1 spent</p>
                   </div>
                 </div>
-                <div className="bg-white border border-gray-100 rounded-[16px] p-4 flex flex-col items-start space-y-3 shadow-sm hover:translate-y-[-4px] transition-transform duration-300 cursor-pointer">
-                  <div className="w-10 h-10 bg-[#FFE1E1] rounded-lg flex items-center justify-center text-[#E40000]"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2C9.043 2 6.346 3.125 4.382 4.984a12.115 12.115 0 00-1.782 12.016A11.955 11.955 0 0112 22a11.955 11.955 0 018.845-8.238 12.115 12.115 0 00-1.782-12.016l.555.232z" /></svg></div>
-                  <div>
-                    <p className="text-[14px] font-bold">Travel Insurance</p>
-                    <p className="text-[11px] text-gray-500">Protect your journey</p>
+                <div className="bg-white border border-gray-100 rounded-[4px] p-4 flex flex-col items-start space-y-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-[162px]">
+                  <div className="w-8 h-8 border-b-[3px] border-[#8AE2E1] flex items-center justify-center text-[#323232] mb-2"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg></div>
+                  <div className="flex-grow">
+                    <p className="text-[15px] text-[#323232] font-medium leading-snug mb-1">Qantas Travel Money</p>
+                    <p className="text-[13px] text-gray-500 leading-snug">Earn 1.5 points for every A$1 spent overseas</p>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* --- Section 4.5: Book and explore (Static) --- */}
+          <div className="mb-12 flex flex-col space-y-4">
+            <h3 className="font-light text-[20px] text-[#323232]">Book and explore</h3>
+            <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 p-2 flex items-center overflow-x-auto whitespace-nowrap hide-scrollbar">
+              {['Hotels', 'Holidays', 'Travel Insurance', 'Credit Cards', 'Marketplace', 'Home Loans', 'Car Hire', 'All products'].map((item, idx) => (
+                <div key={idx} className="flex items-center">
+                  <div className="px-6 py-3 hover:bg-gray-50 cursor-pointer flex flex-col items-center justify-center space-y-2 rounded-md transition-colors min-w-[100px]">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <span className="text-[14px] text-[#323232]">{item}</span>
+                  </div>
+                  {idx < 7 && <div className="w-px h-10 bg-gray-100"></div>}
+                </div>
+              ))}
             </div>
           </div>
 
