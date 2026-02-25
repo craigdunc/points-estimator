@@ -19,6 +19,32 @@ import PointsRooLogo from '../assets/points-roo.svg';
 import OnboardingStepper from '../components/OnboardingStepper';
 import MonthWrapUpModal from '../components/MonthWrapUpModal';
 
+import imgRede from '../assets/images/rede.jpg';
+import imgCarpetCourt from '../assets/images/carpetcourt.jpg';
+import imgSingapore from '../assets/images/singapore.jpg';
+import imgQtGoldcoast from '../assets/images/qt-goldcoast.jpg';
+import logoRede from '../assets/logos/rede.png';
+import logoCarpetCourt from '../assets/logos/carpetcourt.png';
+import iconClassicReward from '../assets/icons/classic reward.svg';
+
+import iconHotelBed from '../assets/icons/hotel-bed.svg';
+import iconHoliday from '../assets/icons/holiday.svg';
+import iconPlaneProtection from '../assets/icons/plane protection.svg';
+import iconCreditCards from '../assets/icons/credit cards.svg';
+import iconGift from '../assets/icons/gift.svg';
+import iconHouseWithDollar from '../assets/icons/runway_icon_detailed_house_with_dollar.svg';
+import iconCar from '../assets/icons/car.svg';
+
+const exploreItems = [
+  { name: 'Hotels', icon: iconHotelBed },
+  { name: 'Holidays', icon: iconHoliday },
+  { name: 'Travel Insurance', icon: iconPlaneProtection },
+  { name: 'Credit Cards', icon: iconCreditCards },
+  { name: 'Marketplace', icon: iconGift },
+  { name: 'Home Loans', icon: iconHouseWithDollar },
+  { name: 'Car Hire', icon: iconCar },
+  { name: 'All products', isAll: true }
+];
 
 const CairnsThumb = "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&q=80&w=400";
 const MelbourneThumb = "https://images.unsplash.com/photo-1514395462725-fb4566210144?auto=format&fit=crop&q=80&w=600";
@@ -571,50 +597,152 @@ export default function Dashboard({ goTo }) {
             <div className="mb-12 flex flex-col space-y-4">
               <h3 className="font-light text-[20px] text-[#323232]">Book and explore</h3>
               <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 p-2 flex items-center overflow-x-auto whitespace-nowrap hide-scrollbar">
-                {['Hotels', 'Holidays', 'Travel Insurance', 'Credit Cards', 'Marketplace', 'Home Loans', 'Car Hire', 'All products'].map((item, idx) => (
+                {exploreItems.map((item, idx) => (
                   <div key={idx} className="flex items-center">
                     <div className="px-6 py-3 hover:bg-gray-50 cursor-pointer flex flex-col items-center justify-center space-y-2 rounded-md transition-colors min-w-[100px]">
-                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                      </div>
-                      <span className="text-[14px] text-[#323232]">{item}</span>
+                      {item.isAll ? (
+                        <div className="h-8 flex items-center justify-center text-[#323232] mb-1">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="5" cy="12" r="2" />
+                            <circle cx="12" cy="12" r="2" />
+                            <circle cx="19" cy="12" r="2" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <img src={item.icon} alt={item.name} className="h-8 object-contain mb-1" />
+                      )}
+                      <span className="text-[14px] text-[#323232]">{item.name}</span>
                     </div>
-                    {idx < 7 && <div className="w-px h-10 bg-gray-100"></div>}
+                    {idx < exploreItems.length - 1 && <div className="w-px h-10 bg-gray-100"></div>}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* --- Section 5: Offers (Static) --- */}
-            <div className="mb-12">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-[22px]">My Offers</h3>
-                <button className="text-[12px] font-bold text-[#666] flex items-center">EXPLORE ALL <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-sm group cursor-pointer">
-                  <div className="aspect-[2/1] overflow-hidden relative">
-                    <img src={ExperienceThumb} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute top-4 left-4 bg-[#E40000] text-white text-[10px] font-bold px-2 py-1 rounded">OPEN FOR YOU</div>
+            {/* --- Section 5: Offers & Use my points --- */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+              {/* Left: My offers */}
+              <div className="flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="font-light text-[20px] text-[#323232]">My offers</h3>
+                  <button className="text-[14px] text-[#323232] flex items-center hover:underline font-medium">See more <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg></button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow">
+                  {/* Card 1 */}
+                  <div className="bg-white border border-gray-100 rounded-[4px] shadow-sm flex flex-col group relative overflow-hidden h-full">
+                    <div className="aspect-[1.8/1] relative flex-shrink-0">
+                      <img src={imgRede} alt="Red Energy" className="w-full h-full object-cover" />
+                      <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1.5 pb-1 uppercase">OFFER ENDS SOON</div>
+                      <button className="absolute top-3 right-4 w-6 h-6 bg-black text-white hover:bg-gray-800 rounded-full flex items-center justify-center p-1 cursor-pointer transition-colors shadow-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                      <div className="absolute bottom-3 right-4 bg-white px-2 py-1 rounded-[2px] shadow flex h-7 items-center justify-center">
+                        <img src={logoRede} className="h-4 object-contain" />
+                      </div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h4 className="text-[15px] font-medium text-[#323232] mb-2 leading-snug">Earn 1 Qantas Point per $1 spent</h4>
+                      <p className="text-[13px] text-[#666] mb-4 leading-relaxed flex-grow">Switch to a Qantas Red Saver plan by 27 September for a guaranteed share of three million points.</p>
+                      <div className="mt-auto">
+                        <a href="#" className="text-[13px] text-gray-400 underline decoration-gray-300 underline-offset-2 hover:text-[#323232] transition-colors">Terms and conditions</a>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-gray-100 text-center">
+                      <button className="text-[#E40000] text-[13px] font-bold tracking-wide uppercase hover:underline">SWITCH NOW</button>
+                    </div>
                   </div>
-                  <div className="p-6">
-                    <h4 className="text-[18px] font-bold mb-2">Earn 20,000 pts with Travel Insurance</h4>
-                    <p className="text-[13px] text-gray-500 mb-6 leading-relaxed">Secure your next international trip and earn big on your premium.</p>
-                    <button className="text-[12px] font-bold group-hover:text-[#E40000] transition-colors flex items-center">LEARN MORE <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
+
+                  {/* Card 2 */}
+                  <div className="bg-white border border-gray-100 rounded-[4px] shadow-sm flex flex-col group relative overflow-hidden h-full">
+                    <div className="aspect-[1.8/1] relative flex-shrink-0">
+                      <img src={imgCarpetCourt} alt="Carpet Court" className="w-full h-full object-cover" />
+                      <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1.5 pb-1 uppercase">LIMITED OFFER</div>
+                      <button className="absolute top-3 right-4 w-6 h-6 bg-black text-white hover:bg-gray-800 rounded-full flex items-center justify-center p-1 cursor-pointer transition-colors shadow-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                      <div className="absolute bottom-3 right-4 bg-white px-2 py-1 rounded-[2px] shadow flex h-7 items-center justify-center">
+                        <img src={logoCarpetCourt} className="h-2.5 object-contain" />
+                      </div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h4 className="text-[15px] font-medium text-[#323232] mb-2 leading-snug">Win 100,000 Qantas Points with Carpet Court</h4>
+                      <p className="text-[13px] text-[#666] mb-4 leading-relaxed flex-grow">Simply shop by 30 September 2023 for your chance to win one of 50 prizes of 100,000 Qantas Points.</p>
+                      <div className="mt-auto">
+                        <a href="#" className="text-[13px] text-gray-400 underline decoration-gray-300 underline-offset-2 hover:text-[#323232] transition-colors">Terms and conditions</a>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-gray-100 text-center">
+                      <button className="text-[#E40000] text-[13px] font-bold tracking-wide uppercase hover:underline">FIND OUT MORE</button>
+                    </div>
                   </div>
                 </div>
-                <div className="bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-sm group cursor-pointer">
-                  <div className="aspect-[2/1] overflow-hidden relative">
-                    <img src={HotelThumb} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute top-4 left-4 bg-[#007A7A] text-white text-[10px] font-bold px-2 py-1 rounded">HOTEL EXCLUSIVE</div>
+              </div>
+
+              {/* Right: Use my points */}
+              <div className="flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="font-light text-[20px] text-[#323232]">Use my points</h3>
+                  <button className="text-[14px] text-[#323232] flex items-center hover:underline font-medium">See more <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg></button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow">
+                  {/* Card 3 */}
+                  <div className="bg-white border border-gray-100 rounded-[4px] shadow-sm flex flex-col relative overflow-hidden h-full">
+                    <div className="aspect-[1.8/1] relative flex-shrink-0">
+                      <img src={imgSingapore} alt="Singapore" className="w-full h-full object-cover" />
+                      <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1.5 pb-1 uppercase">NEXT AVAILABLE 28 MAY</div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h4 className="text-[15px] font-medium text-[#323232] mb-8 leading-snug">Sydney to Singapore</h4>
+                      <div className="flex-grow"></div>
+                      <div className="mt-auto">
+                        <div className="flex justify-between items-end">
+                          <div>
+                            <p className="text-[13px] text-[#666] mb-0.5">Economy one way from</p>
+                            <p className="text-[20px] font-medium text-[#323232] leading-none tracking-tight">7,524 PTS<span className="text-[12px] font-normal align-top ml-0.5">~</span></p>
+                          </div>
+                          <p className="text-[11px] text-[#666] mb-0.5">+AUD $40.26</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-gray-100 text-center">
+                      <button className="text-[#E40000] text-[13px] font-bold tracking-wide uppercase hover:underline">SEARCH FLIGHTS</button>
+                    </div>
                   </div>
-                  <div className="p-6">
-                    <h4 className="text-[18px] font-bold mb-2">Double points on luxury stays</h4>
-                    <p className="text-[13px] text-gray-500 mb-6 leading-relaxed">Book a Luxury collection stay before March 31st for 2x points.</p>
-                    <button className="text-[12px] font-bold group-hover:text-[#E40000] transition-colors flex items-center">VIEW HOTELS <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg></button>
+
+                  {/* Card 4 */}
+                  <div className="bg-white border border-gray-100 rounded-[4px] shadow-sm flex flex-col relative overflow-hidden h-full">
+                    <div className="aspect-[1.8/1] relative flex-shrink-0">
+                      <img src={imgQtGoldcoast} alt="QT Gold Coast" className="w-full h-full object-cover" />
+                      <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1 pb-1 uppercase space-x-1">
+                        <img src={iconClassicReward} className="w-[14px] h-[14px]" />
+                        <span className="pt-0.5">CLASSIC REWARD</span>
+                      </div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h4 className="text-[15px] font-medium text-[#323232] mb-1 leading-snug">QT Gold Coast</h4>
+                      <div className="flex space-x-[1px] mb-6 mt-1">
+                        {[1, 2, 3, 4].map(star => <svg key={star} className="w-[11px] h-[11px] text-[#FFB81C]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}
+                        <svg className="w-[11px] h-[11px] text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                      </div>
+                      <div className="flex-grow"></div>
+                      <div className="mt-auto">
+                        <p className="text-[13px] text-[#666] mb-0.5">1 night from</p>
+                        <p className="text-[20px] font-medium text-[#323232] leading-none tracking-tight">19,000 PTS<span className="text-[12px] font-normal align-top ml-0.5">~</span></p>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-gray-100 text-center">
+                      <button className="text-[#E40000] text-[13px] font-bold tracking-wide uppercase hover:underline">SEARCH HOTELS</button>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Terms and conditions block */}
+            <div className="border-t border-[#E1E1E1] pt-6 mb-12">
+              <h4 className="text-[13px] font-bold text-[#666] mb-3">Terms and conditions</h4>
+              <p className="text-[13px] text-[#666] mb-4 leading-relaxed max-w-[90%]">
+                You must be a Qantas Frequent Flyer to earn and redeem Qantas Points. A joining fee may apply. Membership and points are subject to the Qantas Frequent Flyer program <a href="#" className="underline">Terms and Conditions</a>.
+              </p>
+              <button className="text-[13px] text-[#666] flex items-center hover:text-[#323232] transition-colors">
+                View all <svg className="ml-1 w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </button>
             </div>
           </div>
         </main>
