@@ -25,6 +25,9 @@ import imgSingapore from '../assets/images/singapore.jpg';
 import imgQtGoldcoast from '../assets/images/qt-goldcoast.jpg';
 import logoRede from '../assets/logos/rede.png';
 import logoCarpetCourt from '../assets/logos/carpetcourt.png';
+import logoEDR from '../assets/logos/EDR.svg';
+import logoUpgrade from '../assets/logos/upgrade.svg';
+import logoPoints from '../assets/logos/points.svg';
 import iconClassicReward from '../assets/icons/classic reward.svg';
 
 import iconHotelBed from '../assets/icons/hotel-bed.svg';
@@ -590,6 +593,65 @@ export default function Dashboard({ goTo }) {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* --- Section 4.25: Maximise your membership --- */}
+            <div className="mb-12 flex flex-col space-y-4">
+              <h3 className="font-light text-[20px] text-[#323232]">Maximise your membership</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                {/* Card 1 */}
+                <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex overflow-hidden">
+                  <div className="p-4 flex flex-col justify-start items-center">
+                    <img src={logoEDR} alt="Everyday Rewards" className="w-[48px] h-[48px] object-contain" />
+                  </div>
+                  <div className="py-4 pr-4 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-[15px] text-[#323232] font-medium leading-snug mb-1">Earn with Everyday Rewards</h4>
+                      <p className="text-[13px] text-[#666] leading-snug mb-3">Earn Qantas Points by linking Everyday Rewards to your account. <a href="#" className="underline">T&amp;C&apos;s apply</a></p>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <button className="text-[13px] text-[#E40000] font-medium leading-normal hover:underline">Start earning points</button>
+                      <button className="text-[13px] text-gray-500 font-normal leading-normal hover:text-[#323232] transition-colors">Not now</button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 2 */}
+                <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex overflow-hidden">
+                  <div className="p-4 flex flex-col justify-start items-center">
+                    <img src={logoUpgrade} alt="Upgrade to business class" className="w-[48px] h-[48px] object-contain" />
+                  </div>
+                  <div className="py-4 pr-4 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-[15px] text-[#323232] font-medium leading-snug mb-1">Upgrade to business class</h4>
+                      <p className="text-[13px] text-[#666] leading-snug mb-3">Use your points to upgrade to business class on your next flight. <a href="#" className="underline">T&amp;C&apos;s apply</a></p>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <button className="text-[13px] text-[#E40000] font-medium leading-normal hover:underline">Upgrade</button>
+                      <button className="text-[13px] text-gray-500 font-normal leading-normal hover:text-[#323232] transition-colors">Not now</button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 3 */}
+                <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 flex overflow-hidden">
+                  <div className="p-4 flex flex-col justify-start items-center">
+                    <img src={logoPoints} alt="Points balance growing" className="w-[48px] h-[48px] object-contain" />
+                  </div>
+                  <div className="py-4 pr-4 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-[15px] text-[#323232] font-medium leading-snug mb-1">Your points balance is growing</h4>
+                      <p className="text-[13px] text-[#666] leading-snug mb-3">From flights to hotel stays, discover what you can get with 50,000 PTS. <a href="#" className="underline">T&amp;C&apos;s apply</a></p>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <button className="text-[13px] text-[#E40000] font-medium leading-normal hover:underline">Learn more</button>
+                      <button className="text-[13px] text-gray-500 font-normal leading-normal hover:text-[#323232] transition-colors">Not now</button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
 
