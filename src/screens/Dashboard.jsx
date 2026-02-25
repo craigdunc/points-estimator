@@ -116,7 +116,7 @@ export default function Dashboard({ goTo }) {
         />
 
         <div className="w-full bg-white rounded-b-[64px] shadow-sm mb-12">
-          <div className="w-full mx-auto px-4 md:px-6 xl:px-12 pt-8 pb-12">
+          <div className="w-full max-w-[1218px] mx-auto px-4 md:px-6 pt-8 pb-12">
 
             {/* --- Top Global Header (Inside White Box) --- */}
             <div className="flex justify-between items-center mb-10">
@@ -384,7 +384,7 @@ export default function Dashboard({ goTo }) {
           </div>
         </div>
 
-        <main className="w-full px-4 md:px-6 xl:px-12 py-4 mb-20 flex-grow">
+        <main className="w-full max-w-[1218px] mx-auto px-4 md:px-6 py-4 mb-20 flex-grow">
           {/* --- Lower Content (Sitting on Grey) --- */}
           <div className="space-y-12">
 
@@ -634,8 +634,8 @@ export default function Dashboard({ goTo }) {
                       <img src={imgRede} alt="Red Energy" className="w-full h-full object-cover" />
                       <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1.5 pb-1 uppercase">OFFER ENDS SOON</div>
                       <button className="absolute top-3 right-4 w-6 h-6 bg-black text-white hover:bg-gray-800 rounded-full flex items-center justify-center p-1 cursor-pointer transition-colors shadow-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                      <div className="absolute bottom-3 right-4 bg-white px-2 py-1 rounded-[2px] shadow flex h-7 items-center justify-center">
-                        <img src={logoRede} className="h-4 object-contain" />
+                      <div className="absolute bottom-3 right-4 bg-white px-3 py-1 rounded-[4px] shadow flex h-[42px] min-w-[64px] items-center justify-center">
+                        <img src={logoRede} className="h-6 object-contain" />
                       </div>
                     </div>
                     <div className="p-4 flex flex-col flex-grow">
@@ -656,8 +656,8 @@ export default function Dashboard({ goTo }) {
                       <img src={imgCarpetCourt} alt="Carpet Court" className="w-full h-full object-cover" />
                       <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1.5 pb-1 uppercase">LIMITED OFFER</div>
                       <button className="absolute top-3 right-4 w-6 h-6 bg-black text-white hover:bg-gray-800 rounded-full flex items-center justify-center p-1 cursor-pointer transition-colors shadow-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                      <div className="absolute bottom-3 right-4 bg-white px-2 py-1 rounded-[2px] shadow flex h-7 items-center justify-center">
-                        <img src={logoCarpetCourt} className="h-2.5 object-contain" />
+                      <div className="absolute bottom-3 right-4 bg-white px-3 py-1 rounded-[4px] shadow flex h-[42px] min-w-[64px] items-center justify-center">
+                        <img src={logoCarpetCourt} className="h-[14px] object-contain" />
                       </div>
                     </div>
                     <div className="p-4 flex flex-col flex-grow">

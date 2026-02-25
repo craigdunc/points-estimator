@@ -8,12 +8,12 @@ import instaIcon from '../assets/icons/insta.svg';
 import youtubeIcon from '../assets/icons/youtube.svg';
 
 const socialIcons = {
-    facebook: <img src={fbIcon} alt="Facebook" className="w-6 h-6" />,
-    x: <img src={xIcon} alt="X" className="w-6 h-6" />,
-    linkedin: <img src={inIcon} alt="LinkedIn" className="w-6 h-6" />,
-    tiktok: <img src={tiktokIcon} alt="TikTok" className="w-6 h-6" />,
-    instagram: <img src={instaIcon} alt="Instagram" className="w-6 h-6" />,
-    youtube: <img src={youtubeIcon} alt="YouTube" className="w-6 h-6" />
+    facebook: <img src={fbIcon} alt="Facebook" className="w-12 h-12" />,
+    x: <img src={xIcon} alt="X" className="w-12 h-12" />,
+    linkedin: <img src={inIcon} alt="LinkedIn" className="w-12 h-12" />,
+    tiktok: <img src={tiktokIcon} alt="TikTok" className="w-12 h-12" />,
+    instagram: <img src={instaIcon} alt="Instagram" className="w-12 h-12" />,
+    youtube: <img src={youtubeIcon} alt="YouTube" className="w-12 h-12" />
 };
 
 export default function Footer() {
