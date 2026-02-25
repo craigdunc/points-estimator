@@ -596,10 +596,10 @@ export default function Dashboard({ goTo }) {
             {/* --- Section 4.5: Book and explore (Static) --- */}
             <div className="mb-12 flex flex-col space-y-4">
               <h3 className="font-light text-[20px] text-[#323232]">Book and explore</h3>
-              <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 p-2 flex items-center overflow-x-auto whitespace-nowrap hide-scrollbar">
+              <div className="bg-white rounded-[4px] shadow-sm border border-gray-100 p-2 flex items-stretch w-full overflow-x-auto whitespace-nowrap hide-scrollbar">
                 {exploreItems.map((item, idx) => (
-                  <div key={idx} className="flex items-center">
-                    <div className="px-6 py-3 hover:bg-gray-50 cursor-pointer flex flex-col items-center justify-center space-y-2 rounded-md transition-colors min-w-[100px]">
+                  <div key={idx} className="flex-1 flex items-center justify-center min-w-[120px] relative">
+                    <div className="px-2 py-3 hover:bg-gray-50 cursor-pointer flex flex-col items-center justify-center space-y-2 rounded-md transition-colors w-full h-full">
                       {item.isAll ? (
                         <div className="h-8 flex items-center justify-center text-[#323232] mb-1">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -611,9 +611,9 @@ export default function Dashboard({ goTo }) {
                       ) : (
                         <img src={item.icon} alt={item.name} className="h-8 object-contain mb-1" />
                       )}
-                      <span className="text-[14px] text-[#323232]">{item.name}</span>
+                      <span className="text-[14px] text-[#323232] text-center">{item.name}</span>
                     </div>
-                    {idx < exploreItems.length - 1 && <div className="w-px h-10 bg-gray-100"></div>}
+                    {idx < exploreItems.length - 1 && <div className="absolute right-0 top-1/2 -translate-y-1/2 w-px h-10 bg-gray-100"></div>}
                   </div>
                 ))}
               </div>
