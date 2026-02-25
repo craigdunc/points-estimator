@@ -387,7 +387,7 @@ export default function Dashboard({ goTo }) {
           </div>
         </div>
 
-        <main className="w-full max-w-[1218px] mx-auto px-4 md:px-6 py-4 mb-20 flex-grow">
+        <main className="w-full max-w-[1218px] mx-auto px-4 md:px-6 py-4 mb-8 flex-grow">
           {/* --- Lower Content (Sitting on Grey) --- */}
           <div className="space-y-12">
 
@@ -696,8 +696,8 @@ export default function Dashboard({ goTo }) {
                       <img src={imgRede} alt="Red Energy" className="w-full h-full object-cover" />
                       <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1.5 pb-1 uppercase">OFFER ENDS SOON</div>
                       <button className="absolute top-3 right-4 w-6 h-6 bg-black text-white hover:bg-gray-800 rounded-full flex items-center justify-center p-1 cursor-pointer transition-colors shadow-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                      <div className="absolute bottom-3 right-4 bg-white px-3 py-1 rounded-[4px] shadow flex h-[42px] min-w-[64px] items-center justify-center">
-                        <img src={logoRede} className="h-6 object-contain" />
+                      <div className="absolute bottom-3 right-4 bg-white p-2 rounded-[4px] shadow flex w-[84px] h-[54px] items-center justify-center">
+                        <img src={logoRede} className="w-full h-full object-contain" />
                       </div>
                     </div>
                     <div className="p-4 flex flex-col flex-grow">
@@ -718,8 +718,8 @@ export default function Dashboard({ goTo }) {
                       <img src={imgCarpetCourt} alt="Carpet Court" className="w-full h-full object-cover" />
                       <div className="absolute top-3 left-3 bg-[#C2EFE8] text-[#323232] text-[10px] font-medium tracking-wide px-2 py-1 rounded leading-none flex items-center justify-center pt-1.5 pb-1 uppercase">LIMITED OFFER</div>
                       <button className="absolute top-3 right-4 w-6 h-6 bg-black text-white hover:bg-gray-800 rounded-full flex items-center justify-center p-1 cursor-pointer transition-colors shadow-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                      <div className="absolute bottom-3 right-4 bg-white px-3 py-1 rounded-[4px] shadow flex h-[42px] min-w-[64px] items-center justify-center">
-                        <img src={logoCarpetCourt} className="h-[14px] object-contain" />
+                      <div className="absolute bottom-3 right-4 bg-white px-2 py-1.5 rounded-[4px] shadow flex w-[96px] h-[48px] items-center justify-center">
+                        <img src={logoCarpetCourt} className="w-full h-full object-contain" />
                       </div>
                     </div>
                     <div className="p-4 flex flex-col flex-grow">
@@ -797,7 +797,7 @@ export default function Dashboard({ goTo }) {
             </div>
 
             {/* Terms and conditions block */}
-            <div className="border-t border-[#E1E1E1] pt-6 mb-12">
+            <div className="border-t border-[#E1E1E1] pt-6 mb-4">
               <h4 className="text-[13px] font-bold text-[#666] mb-3">Terms and conditions</h4>
               <p className="text-[13px] text-[#666] mb-4 leading-relaxed max-w-[90%]">
                 You must be a Qantas Frequent Flyer to earn and redeem Qantas Points. A joining fee may apply. Membership and points are subject to the Qantas Frequent Flyer program <a href="#" className="underline">Terms and Conditions</a>.

@@ -18,11 +18,22 @@ const socialIcons = {
 
 export default function Footer() {
     return (
-        <footer className="w-full bg-[#f3f3f3] text-[#323232] pt-12 font-sans border-t border-gray-200">
-            <div className="max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8">
+        <footer className="w-full bg-[#f3f3f3] text-[#323232] pt-8 font-sans border-t border-gray-200">
+            <div className="max-w-[1218px] mx-auto px-4 md:px-6">
+
+                <div className="flex justify-end mb-12">
+                    <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="flex items-center text-[14px] text-gray-500 hover:text-[#323232] transition-colors"
+                    >
+                        <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                        Back to top
+                    </button>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-16">
                     <div className="lg:col-span-1">
-                        <img src={QantasLogo} alt="Qantas" className="h-8 mb-6" />
+                        <img src={QantasLogo} alt="Qantas" className="h-[22px] mb-6 object-contain" />
                     </div>
 
                     <div>
