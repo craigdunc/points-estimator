@@ -78,11 +78,11 @@ import HotelBestWesternImg from './assets/images/rewards/hotels-best-western.jpg
 import HotelLancemoreImg from './assets/images/rewards/hotels-lancermore-crossley-st.jpg';
 import HotelQuestImg from './assets/images/rewards/hotel-quest-east-melbourne.jpg';
 import ActivityBalloonImg from './assets/images/rewards/activities-melbourne-balloon-tour.jpg';
-import MarketplaceAirtagImg from './assets/images/rewards/marketplace-apple-airtag.jpg';
-import MarketplaceLuggageTagImg from './assets/images/rewards/marketplace-qantas-luggage-tag.jpg';
-import MarketplaceModelPlaneImg from './assets/images/rewards/marketplace-qantas-model-plane.jpg';
-import MarketplaceTowelsImg from './assets/images/rewards/marketplace-royal-comfort-towels.jpg';
-import MarketplaceJerseyImg from './assets/images/rewards/marketplace-rugby-jersey.jpg';
+import MarketplaceAirtagImg from './assets/images/rewards/apple-airtag.jpg';
+import MarketplaceLuggageTagImg from './assets/images/rewards/qantas-luggage-tag.jpg';
+import MarketplaceModelPlaneImg from './assets/images/rewards/qantas-model-plane.jpg';
+import MarketplaceTowelsImg from './assets/images/rewards/royal-comfort-towels.jpg';
+import MarketplaceJerseyImg from './assets/images/rewards/rugby-jersey.jpg';
 import GiftCardBunningsImg from './assets/images/rewards/gift-card-bunnings.jpg';
 import GiftCardWishImg from './assets/images/rewards/gift-card-everyday-wish.jpg';
 import GiftCardHoytsImg from './assets/images/rewards/gift-card-hoyts.jpg';
@@ -101,6 +101,9 @@ import GiftCardRewardIcon from './assets/icons/gift-card-reward.svg';
 import EntertainmentRewardIcon from './assets/icons/entertainment-reward.svg';
 import PointsPlusPayIcon from './assets/icons/points-plus-pay.svg';
 
+
+export const SC_VALUES = [0, 300, 700, 1400, 3600];
+export const SC_NAMES = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Platinum One'];
 
 // ─────────────────────────────────────────────
 // Ways to Earn (WTE) – 30 entries, 5 tiers each
@@ -549,6 +552,29 @@ export const WTE_HIERARCHY = [
   }
 ];
 
+export const calculateGroundSC = (selectedWTEs) => {
+  if (!selectedWTEs) return 0;
+  let total = 0;
+  WTE_HIERARCHY.forEach(section => {
+    section.categories.forEach(subCat => {
+      if (subCat.id === 'flights') return;
+      const items = WTEs.filter(w => w.subCategory === subCat.id);
+      const categoryPts = items.reduce((sum, w) => {
+        const sel = selectedWTEs.find(s => s.id === w.id);
+        if (sel) {
+          const tierIdx = parseInt(sel.level, 10);
+          return sum + (w.tiers[tierIdx]?.pts || 0);
+        }
+        return sum;
+      }, 0);
+      if (categoryPts >= 1000) {
+        const scAmount = ['utilities', 'cards', 'homeloans', 'insurance'].includes(subCat.id) ? 20 : 10;
+        total += scAmount;
+      }
+    });
+  });
+  return total;
+};
 
 // ─────────────────────────────────────────────
 // Reward definitions
@@ -718,43 +744,122 @@ export const flightsList = [
 ];
 
 export const hotelsList = [
-  { id: 1, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Ritz Carlton Melbourne', pts: 89987, imageUrl: getImg('Ritz Carlton Melbourne') },
-  { id: 2, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Intercontinental Sorrento', pts: 69172, imageUrl: getImg('Intercontinental Sorrento') },
-  { id: 3, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Parkroyal Melbourne Airport', pts: 54523, imageUrl: getImg('Parkroyal Melbourne Airport') },
-  { id: 4, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Lancemore Lindenderry Red Hill', pts: 44000, imageUrl: getImg('Lancemore Lindenderry Red Hill') },
-  { id: 5, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Quest East Melbourne', pts: 35804, imageUrl: getImg('Quest East Melbourne') },
-  { id: 6, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Best Western Plus Travel Inn', pts: 26490, imageUrl: getImg('Best Western Plus Travel Inn') },
-  { id: 7, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Lancemore Crossley St. Melbourne', pts: 20000, imageUrl: getImg('Lancemore Crossley St. Melbourne') },
-  { id: 8, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, reward: 'Oaks Melbourne on Collins', pts: 16000, imageUrl: getImg('Oaks Melbourne on Collins') }
+  // Sydney
+  { id: 1, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Sydney', reward: 'Four Seasons Hotel Sydney', propertyId: '128821', desc: 'Central luxury with dramatic views of Sydney Harbour, offering an outdoor pool, full-service spa, and acclaimed dining at Mode Kitchen & Bar.', pts: 89987, imageUrl: getImg('Four Seasons Sydney') },
+  { id: 2, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Sydney', reward: 'QT Sydney', propertyId: '372910', desc: 'Set within the historic Gowings and State Theatre buildings. QT Sydney blends Gothic, Art Deco, and Italianate influences in the heart of the CBD.', pts: 69172, imageUrl: getImg('QT Sydney') },
+  { id: 3, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Sydney', reward: 'The Fullerton Hotel Sydney', propertyId: '143229', desc: 'Located in the historic former General Post Office building. Enjoy modern luxury, exceptional dining, and proximity to Martin Place.', pts: 54523, imageUrl: getImg('The Fullerton Hotel Sydney') },
+  // Melbourne
+  { id: 4, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Melbourne', reward: 'Ritz Carlton Melbourne', propertyId: '982732', desc: 'Soaring above the CBD, offering breathtaking views, an infinity pool, luxury spa and distinctly Melbourne culinary experiences.', pts: 89987, imageUrl: getImg('Ritz Carlton Melbourne') },
+  { id: 5, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Melbourne', reward: 'Intercontinental Sorrento', propertyId: '802143', desc: 'Seaside glamour on the Mornington Peninsula with a Mediterranean-style pool deck, Aurora Spa & Bathhouse, and distinct culinary venues.', pts: 69172, imageUrl: getImg('Intercontinental Sorrento') },
+  { id: 6, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Melbourne', reward: 'Parkroyal Melbourne Airport', propertyId: '119283', desc: 'Connected directly to the airport terminals by an undercover walkway. Features a heated indoor pool, spa, and 24-hour fitness centre.', pts: 54523, imageUrl: getImg('Parkroyal Melbourne Airport') },
+  { id: 7, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Melbourne', reward: 'Lancemore Lindenderry Red Hill', propertyId: '298112', desc: 'Set on 34 acres of gardens and vines. A classic country house hotel offering cellar door tastings and a hatted restaurant.', pts: 44000, imageUrl: getImg('Lancemore Lindenderry Red Hill') },
+  // Brisbane
+  { id: 8, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Brisbane', reward: 'The Calile Hotel', propertyId: '682121', desc: 'An urban resort in James Street, Fortitude Valley. Features a stunning pool deck, cabanas, and Hellenika restaurant.', pts: 72000, imageUrl: getImg('The Calile Hotel') },
+  { id: 9, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Brisbane', reward: 'W Brisbane', propertyId: '772154', desc: 'Located on the edge of the Brisbane River, boasting stellar views, a vibrant WET Deck pool, and luxurious eclectic design.', pts: 65000, imageUrl: getImg('W Brisbane') },
+  // Perth
+  { id: 10, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Perth', reward: 'COMO The Treasury', propertyId: '492811', desc: 'A contemporary luxury hotel in a 19th-century state buildings complex. Renowned for spacious rooms and Wildflower, its rooftop restaurant.', pts: 82000, imageUrl: getImg('COMO The Treasury') },
+  { id: 11, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Perth', reward: 'Crown Towers Perth', propertyId: '553821', desc: 'Experience unparalleled luxury with expansive lagoon pools, lavishly appointed rooms, and world-class dining at Crown Perth.', pts: 75000, imageUrl: getImg('Crown Towers Perth') },
+  // Tokyo
+  { id: 12, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Tokyo', reward: 'Aman Tokyo', propertyId: '882191', desc: 'Occupying the top six floors of the Otemachi Tower, Aman Tokyo offers a peaceful sanctuary with spectacular views, a ryokan-style spa, and serene design.', pts: 120000, imageUrl: getImg('Aman Tokyo') },
+  { id: 13, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Tokyo', reward: 'Park Hyatt Tokyo', propertyId: '183922', desc: 'Famous for its role in "Lost in Translation", offering sweeping views of the city and Mount Fuji, an indoor pool, and the iconic New York Grill.', pts: 95000, imageUrl: getImg('Park Hyatt Tokyo') },
+  // Bali
+  { id: 14, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Bali', reward: 'The Mulia Bali', propertyId: '472881', desc: 'An ultra-luxurious, all-suite resort on the Nusa Dua coastline featuring exquisite oceanfront pools, personalized butler service and extensive dining.', pts: 60000, imageUrl: getImg('The Mulia Bali') },
+  { id: 15, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Bali', reward: 'AYANA Resort', propertyId: '192833', desc: 'Perched on limestone cliffs above Jimbaran Bay. Known for breathtaking sunsets, an expansive spa, and the famous Rock Bar.', pts: 55000, imageUrl: getImg('AYANA Resort') },
+  // Singapore
+  { id: 16, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Singapore', reward: 'Raffles Singapore', propertyId: '102928', desc: 'The iconic 19th-century colonial hotel. A legendary oasis featuring lush green courtyards, period architecture, and the Long Bar.', pts: 110000, imageUrl: getImg('Raffles Singapore') },
+  { id: 17, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'Singapore', reward: 'Marina Bay Sands', propertyId: '662912', desc: 'Singapore\'s landmark integrated resort, featuring the world\'s largest rooftop Infinity Pool, award-winning dining, and luxury shopping.', pts: 95000, imageUrl: getImg('Marina Bay Sands') },
+  // London
+  { id: 18, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'London', reward: 'The Savoy', propertyId: '112833', desc: 'Perfectly positioned on the River Thames. An iconic luxury hotel with Edwardian and Art Deco elegance, and the famous American Bar.', pts: 130000, imageUrl: getImg('The Savoy') },
+  { id: 19, type: 'Qantas Hotel Reward', icon: HotelRewardIcon, city: 'London', reward: 'Shangri-La The Shard', propertyId: '571922', desc: 'Starting on the 34th floor of The Shard. Experience unmatched panoramic views of London, floor-to-ceiling windows, and the highest hotel pool in Western Europe.', pts: 115000, imageUrl: getImg('Shangri-La The Shard') }
 ];
 
 export const activitiesList = [
-  { id: 1, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: 'Private Yarra Valley Getaway', pts: 473280, imageUrl: getImg('Yarra Valley') },
-  { id: 2, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: '12 Apostles Helicopter Tour', pts: 197940, imageUrl: getImg('12 Apostles') },
-  { id: 3, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: 'Phillip Island Penguins Private Tour', pts: 146940, imageUrl: getImg('Phillip Island') },
-  { id: 4, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: 'Private Grampian National Park Tours', pts: 99000, imageUrl: getImg('Grampian') },
-  { id: 5, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: 'Helicopter Winery Lunch', pts: 77940, imageUrl: getImg('Helicopter Lunch') },
-  { id: 6, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: 'Classic Chevy Road Tour', pts: 60000, imageUrl: getImg('Chevy Tour') },
-  { id: 7, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: '2-Day Yarra Valley Wine Tour', pts: 39000, imageUrl: getImg('Wine Tour') },
-  { id: 8, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, reward: 'Melbourne Premium Balloon Tour', pts: 29880, imageUrl: getImg('Balloon Tour') }
+  // Melbourne (Keep some original to keep it full)
+  { id: 1, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Melbourne', reward: 'Private Yarra Valley Getaway', pts: 473280, imageUrl: getImg('Yarra Valley'), activityId: 'ME101', desc: 'Enjoy a luxurious private getaway to the beautiful Yarra Valley, complete with wine tastings, gourmet meals, and stunning scenery.' },
+  { id: 2, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Melbourne', reward: '12 Apostles Helicopter Tour', pts: 197940, imageUrl: getImg('12 Apostles'), activityId: 'ME102', desc: 'Experience the breathtaking beauty of the Great Ocean Road and the iconic 12 Apostles from the air on a thrilling helicopter tour.' },
+
+  // Las Vegas
+  { id: 201, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Las Vegas', reward: 'Grand Canyon Helicopter Tour', pts: 85000, imageUrl: getImg('Grand Canyon'), desc: 'Take a thrilling helicopter flight from Las Vegas over the Hoover Dam and Lake Mead, landing deep within the Grand Canyon for a champagne picnic.', activityId: 'LV101' },
+  { id: 202, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Las Vegas', reward: 'Cirque du Soleil Ticket', pts: 45000, imageUrl: getImg('Cirque Las Vegas'), desc: 'Experience the mesmerizing acrobatics and breathtaking performances of a world-renowned Cirque du Soleil show on the Las Vegas Strip.', activityId: 'LV102' },
+
+  // Rome
+  { id: 203, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Rome', reward: 'Vatican & Sistine Chapel Tour', pts: 35000, imageUrl: getImg('Vatican'), desc: 'Skip the line and explore the Vatican Museums, marvel at the Sistine Chapel ceiling, and walk through St. Peter\'s Basilica with an expert guide.', activityId: 'RM101' },
+  { id: 204, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Rome', reward: 'Colosseum Underground Experience', pts: 42000, imageUrl: getImg('Colosseum'), desc: 'Gain exclusive access to the restricted underground chambers and arena floor of the Colosseum, discovering the secrets of the gladiators.', activityId: 'RM102' },
+
+  // Paris
+  { id: 205, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Paris', reward: 'Eiffel Tower Summit Access', pts: 28000, imageUrl: getImg('Eiffel Tower Focus'), desc: 'Ride the elevator to the very top of the Eiffel Tower and enjoy sweeping, unforgettable views over the romantic city of Paris.', activityId: 'PA101' },
+  { id: 206, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Paris', reward: 'Louvre Museum Masterpieces Tour', pts: 32000, imageUrl: getImg('Louvre'), desc: 'Bypass the crowds and discover the Louvre\'s greatest treasures, including the Mona Lisa and the Venus de Milo, on a guided small-group tour.', activityId: 'PA102' },
+
+  // London
+  { id: 207, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'London', reward: 'Tower of London Crown Jewels', pts: 25000, imageUrl: getImg('Tower of London Focus'), desc: 'Explore the historic Tower of London, meet the Yeoman Warders, and marvel at the world-famous collection of Crown Jewels.', activityId: 'LD101' },
+  { id: 208, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'London', reward: 'Thames River Dinner Cruise', pts: 55000, imageUrl: getImg('Thames Cruise'), desc: 'Enjoy a multi-course dinner, live entertainment, and stunning illuminated views of London\'s riverside landmarks on this relaxing evening cruise.', activityId: 'LD102' },
+
+  // New York City
+  { id: 209, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'New York City', reward: 'Statue of Liberty & Ellis Island', pts: 22000, imageUrl: getImg('Statue of Liberty'), desc: 'Take a ferry ride to iconic Liberty Island and learn about the immigrant experience at the historic Ellis Island National Museum of Immigration.', activityId: 'NY101' },
+  { id: 210, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'New York City', reward: 'Broadway Show Premium Ticket', pts: 65000, imageUrl: getImg('Broadway'), desc: 'Secure a premium orchestra seat to a top-selling Broadway musical and experience the magic of New York\'s legendary theater district.', activityId: 'NY102' },
+
+  // Washington DC
+  { id: 211, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Washington DC', reward: 'Monuments by Moonlight Tour', pts: 18000, imageUrl: getImg('Washington Monument'), desc: 'Experience the grandeur of Washington DC\'s iconic monuments and memorials illuminated against the night sky on a guided trolley tour.', activityId: 'DC101' },
+
+  // Cancun
+  { id: 212, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Cancun', reward: 'Chichen Itza Day Trip', pts: 38000, imageUrl: getImg('Chichen Itza'), desc: 'Explore the magnificent Mayan ruins of Chichen Itza, swim in a sacred cenote, and enjoy a traditional Mexican buffet lunch.', activityId: 'CA101' },
+  { id: 213, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Cancun', reward: 'Catamaran Sail & Snorkel', pts: 30000, imageUrl: getImg('Cancun Catamaran'), desc: 'Sail across the Caribbean Sea to Isla Mujeres, snorkel in crystal-clear waters, and relax with an open bar on luxury catamaran.', activityId: 'CA102' },
+
+  // Florence
+  { id: 214, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Florence', reward: 'Uffizi Gallery Fast-Track', pts: 29000, imageUrl: getImg('Uffizi'), desc: 'Skip the line and admire Renaissance masterpieces by Botticelli, Michelangelo, and Leonardo da Vinci in the renowned Uffizi Gallery.', activityId: 'FL101' },
+  { id: 215, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Florence', reward: 'Tuscan Wine Tour', pts: 48000, imageUrl: getImg('Tuscan Wine'), desc: 'Venture into the rolling hills of Chianti for guided winery tours, wine tastings, and a traditional Tuscan lunch in scenic countryside.', activityId: 'FL102' },
+
+  // Barcelona
+  { id: 216, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Barcelona', reward: 'Sagrada Familia Guided Tour', pts: 26000, imageUrl: getImg('Sagrada Familia'), desc: 'Discover the fascinating history and intricate details of Antoni Gaudí\'s unfinished masterpiece, the stunning Sagrada Familia basilica.', activityId: 'BA101' },
+  { id: 217, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Barcelona', reward: 'Tapas & Wine Walking Tour', pts: 35000, imageUrl: getImg('Barcelona Tapas'), desc: 'Stroll through the historic Gothic Quarter, stopping at authentic local bars to sample delicious tapas and regional Spanish wines.', activityId: 'BA102' },
+
+  // Oahu
+  { id: 218, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Oahu', reward: 'Pearl Harbor USS Arizona Tour', pts: 24000, imageUrl: getImg('Pearl Harbor'), desc: 'Pay your respects at the historic USS Arizona Memorial and learn about the events of WWII on a guided tour of Pearl Harbor.', activityId: 'HA101' },
+  { id: 219, type: 'Qantas Activities Reward', icon: ActivityRewardIcon, city: 'Oahu', reward: 'Waikiki Sunset Catamaran Sail', pts: 32000, imageUrl: getImg('Waikiki Sunset'), desc: 'Set sail from Waikiki Beach, enjoy tropical cocktails, and watch a spectacular Hawaiian sunset from the deck of a catamaran.', activityId: 'HA102' }
 ];
 
 export const marketplaceList = [
-  { id: 1, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'KitchenAid Artisan Stand Mixer', pts: 209800, imageUrl: getImg('KitchenAid Mixer') },
-  { id: 2, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Samsung 65‑inch 4K Smart TV', pts: 174500, imageUrl: getImg('Samsung TV') },
-  { id: 3, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Dyson Supersonic Hair Dryer', pts: 119800, imageUrl: getImg('Dyson Dryer') },
-  { id: 4, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Roomba Combo Essential Robot', pts: 94800, imageUrl: getImg('Roomba') },
-  { id: 5, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Ultimate Ears Bluetooth Speaker ', pts: 69860, imageUrl: getImg('UE Speaker') },
-  { id: 6, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Tefal 5 Piece Cookware Set', pts: 59800, imageUrl: getImg('Tefal Set') },
-  { id: 7, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Bose QuietComfort Headphones', pts: 52700, imageUrl: getImg('Bose Headphones') },
-  { id: 8, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Breville Essenza Coffee Machine', pts: 43800, imageUrl: getImg('Breville Machine') },
-  { id: 9, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Ninja Foodi Airfryer Max', pts: 39800, imageUrl: getImg('Ninja Airfryer') },
-  { id: 10, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Samsonite 55cm Suitcase', pts: 32800, imageUrl: getImg('Samsonite Suitcase'), desc: 'Lightweight and durable carry-on spinner.', linkText: 'See in Qantas Marketplace' },
-  { id: 11, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Royal Comfort Towel Set', pts: 21800, imageUrl: getImg('Towel Set'), desc: 'Luxury 100% Egyptian Cotton towel set.', linkText: 'See in Qantas Marketplace' },
-  { id: 12, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Wallabies Jersey - Womens', pts: 12960, imageUrl: getImg('Wallabies Jersey') },
-  { id: 13, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Apple Airtag', pts: 9800, imageUrl: getImg('Apple Airtag') },
-  { id: 14, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Qantas Luggage Tag', pts: 4000, imageUrl: getImg('Luggage Tag'), desc: 'Durable and stylish Qantas luggage tag.', linkText: 'See in Qantas Marketplace' },
-  { id: 15, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, reward: 'Qantas Model Aeroplane', pts: 2400, imageUrl: getImg('Model Aeroplane'), desc: '1/200 Standard Livery - 787-9\nThe Boeing 787-9. Livery/Paint scheme: Qantas Airways. Base: White plastic base', linkText: 'See in Qantas Marketplace' }
+  // Appliances
+  { id: 1, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Appliances', reward: 'KitchenAid Artisan Stand Mixer', pts: 209800, imageUrl: getImg('KitchenAid Mixer'), marketplaceId: 'kitchenaid-mixer', desc: 'A versatile and iconic stand mixer, perfect for baking, mixing, and kneading.' },
+  { id: 4, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Appliances', reward: 'Roomba Combo Essential Robot', pts: 94800, imageUrl: getImg('Roomba'), marketplaceId: 'roomba-combo', desc: 'A 2-in-1 robot vacuum and mop with smart navigation and personalized cleaning.' },
+  { id: 8, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Appliances', reward: 'Breville Essenza Coffee Machine', pts: 43800, imageUrl: getImg('Breville Machine'), marketplaceId: 'breville-essenza', desc: 'Compact espresso machine creating café-quality coffee at home in minutes.' },
+  { id: 9, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Appliances', reward: 'Ninja Foodi Airfryer Max', pts: 39800, imageUrl: getImg('Ninja Airfryer'), marketplaceId: 'ninja-airfryer', desc: 'Family-sized air fryer with multiple cooking functions for quick, healthy meals.' },
+
+  // Electronics
+  { id: 2, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Electronics', reward: 'Samsung 65-inch 4K Smart TV', pts: 174500, imageUrl: getImg('Samsung TV'), marketplaceId: 'samsung-65-tv', desc: 'Experience vibrant crystal color and stunning 4K detail with this sleek Smart TV.' },
+  { id: 5, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Electronics', reward: 'Ultimate Ears Bluetooth Speaker', pts: 69860, imageUrl: getImg('UE Speaker'), marketplaceId: 'ue-boom', desc: 'Portable waterproof Bluetooth speaker with bold immersive 360-degree sound.' },
+  { id: 7, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Electronics', reward: 'Bose QuietComfort Headphones', pts: 52700, imageUrl: getImg('Bose Headphones'), marketplaceId: 'bose-qc', desc: 'Premium wireless noise-cancelling headphones for uninterrupted listening.' },
+
+  // Beauty, health and personal care
+  { id: 3, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Beauty, health and personal care', reward: 'Dyson Supersonic Hair Dryer', pts: 119800, imageUrl: getImg('Dyson Dryer'), marketplaceId: 'dyson-supersonic', desc: 'Engineered for fast drying and precision styling, while protecting hair from extreme heat.' },
+
+  // Home
+  { id: 6, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Home', reward: 'Tefal 5 Piece Cookware Set', pts: 59800, imageUrl: getImg('Tefal Set'), marketplaceId: 'tefal-set', desc: 'A high-quality non-stick cookware set designed for everyday culinary excellence.' },
+  { id: 11, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Home', reward: 'Royal Comfort Towel Set', pts: 21800, imageUrl: getImg('Towel Set'), marketplaceId: 'towel-set', desc: 'Luxury 100% Egyptian Cotton towel set offering plush softness and absorbency.' },
+
+  // Travel
+  { id: 10, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Travel', reward: 'Samsonite 55cm Suitcase', pts: 32800, imageUrl: getImg('Samsonite Suitcase'), marketplaceId: 'samsonite-suitcase', desc: 'Lightweight and exceptionally durable carry-on spinner for seamless travel.' },
+  { id: 13, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Travel', reward: 'Apple Airtag', pts: 9800, imageUrl: getImg('Apple Airtag'), marketplaceId: 'apple-airtag', desc: 'Keep track of keys, wallets, and luggage easily with the Find My app.' },
+
+  // Sports, fitness and adventure
+  { id: 12, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Sports, fitness and adventure', reward: 'Wallabies Jersey - Womens', pts: 12960, imageUrl: getImg('Wallabies Jersey'), marketplaceId: 'wallabies-jersey', desc: 'Show your support with this official Wallabies replica jersey, designed for comfort.' },
+  { id: 301, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Sports, fitness and adventure', reward: 'Garmin Forerunner 255', pts: 95000, imageUrl: getImg('Garmin Watch'), marketplaceId: 'garmin-forerunner', desc: 'Advanced GPS running smartwatch offering tailored training plans and performance metrics.' },
+
+  // Outdoor living
+  { id: 305, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Outdoor living', reward: 'Weber Baby Q', pts: 78000, imageUrl: getImg('Weber Baby Q'), marketplaceId: 'weber-baby-q', desc: 'Compact and portable gas barbecue perfect for grilling on the go or relaxing outdoors.' },
+
+  // Women's fashion
+  { id: 302, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: "Women's fashion", reward: 'RM Williams Lady Yearling Boots', pts: 145000, imageUrl: getImg('RM Williams Boots'), marketplaceId: 'rmw-lady-yearling', desc: 'Iconic Australian leather boots handcrafted for durability and timeless style.' },
+
+  // Men's fashion
+  { id: 303, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: "Men's fashion", reward: 'Ray-Ban Aviator Classic', pts: 45000, imageUrl: getImg('RayBan Aviator'), marketplaceId: 'rayban-aviator', desc: 'The iconic Ray-Ban Aviator sunglasses, offering timeless teardrop style and premium UV protection.' },
+
+  // Baby, kids and toys
+  { id: 304, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Baby, kids and toys', reward: 'LEGO Star Wars Millennium Falcon', pts: 42000, imageUrl: getImg('LEGO Falcon'), marketplaceId: 'lego-falcon', desc: 'Build the legendary Millennium Falcon with this highly detailed and engaging LEGO set.' },
+
+  // Qantas merchandise
+  { id: 14, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Qantas merchandise', reward: 'Qantas Luggage Tag', pts: 4000, imageUrl: getImg('Luggage Tag'), marketplaceId: 'qantas-luggage-tag', desc: 'Durable and stylish Qantas luggage tag to easily identify your bags while flying.' },
+  { id: 15, type: 'Qantas Marketplace Reward', icon: MarketplaceRewardIcon, marketCategory: 'Qantas merchandise', reward: 'Qantas Model Aeroplane', pts: 2400, imageUrl: getImg('Model Aeroplane'), marketplaceId: 'qantas-model-plane', desc: '1/200 Standard Livery - 787-9\nThe Boeing 787-9. Livery/Paint scheme: Qantas Airways.' }
 ];
 
 export const giftCardsList = [

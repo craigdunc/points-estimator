@@ -23,6 +23,8 @@ export default function WTEList({
   onToggleSelect,
   onToggleExpand,
   onTierChange,
+  onToggleEarnExample,
+  isEarnExampleOpen,
   compact = false
 }) {
   const displayItems = items || WTEs.filter(w => w.category === activeCategory);
@@ -106,8 +108,21 @@ export default function WTEList({
                 }`}
             >
               <div className="px-5 pb-6 pt-2">
-                <div className="mb-4 text-[12px] text-[#323232]">
-                  Approx. ${tier.spend.toLocaleString()} spend/year
+                <div className="mb-4 flex justify-between items-center px-1">
+                  <div className="text-[12px] text-[#323232]">
+                    Approx. ${tier.spend.toLocaleString()} spend/year
+                  </div>
+                  {onToggleEarnExample && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onToggleEarnExample(); }}
+                      className="text-[11px] font-bold text-[#E40000] hover:underline flex items-center group transition-colors"
+                    >
+                      {isEarnExampleOpen && isExpanded ? 'Close Earn Example' : 'Show Earn Example'}
+                      <svg className={`w-3 h-3 ml-1 transform transition-transform ${isEarnExampleOpen && isExpanded ? 'rotate-180' : 'group-hover:translate-x-0.5'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isEarnExampleOpen && isExpanded ? "M19 9l-7 7-7-7" : "M9 5l7 7-7 7"} />
+                      </svg>
+                    </button>
+                  )}
                 </div>
 
                 {/* Custom Slider Overlay Container */}
@@ -118,7 +133,10 @@ export default function WTEList({
                   {/* Active Track (Red part) */}
                   <div
                     className="absolute left-1 h-1.5 bg-red-600 rounded-full pointer-events-none"
-                    style={{ width: `calc(${(tierIdx / ((w.tiers?.length || 1) - 1)) * 100}% - 4px)` }}
+                    style={{
+                      width: `calc(${(tierIdx / ((w.tiers?.length || 1) - 1)) * 100}% - 4px)`,
+                      transition: 'width 0.4s linear'
+                    }}
                   ></div>
 
                   {/* Tick Dots */}
@@ -128,11 +146,12 @@ export default function WTEList({
                         key={i}
                         className={`w-2 h-2 rounded-full transform translate-y-[1px] ${i <= tierIdx ? 'bg-red-600' : 'bg-gray-400'
                           }`}
+                        style={{ transition: 'background-color 0.4s linear' }}
                       />
                     ))}
                   </div>
 
-                  {/* Real Input Slider (invisible but reachable) */}
+                  {/* Real native slider with transparent track and visible thumb */}
                   <input
                     type="range"
                     min={0}
@@ -140,17 +159,8 @@ export default function WTEList({
                     step={1}
                     value={tierIdx}
                     onChange={e => onTierChange(w.id, Number(e.target.value))}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    className="absolute inset-0 w-full h-full cursor-pointer z-20"
                   />
-
-                  {/* Thumb Indicator (Red circle) */}
-                  <div
-                    className="absolute w-6 h-6 bg-red-600 rounded-full pointer-events-none z-20"
-                    style={{
-                      left: `calc(${(tierIdx / ((w.tiers?.length || 1) - 1)) * 100}% - 12px)`,
-                      transition: 'left 0.1s ease-out'
-                    }}
-                  ></div>
                 </div>
 
                 <div className="text-[12px] leading-relaxed text-[#323232]">

@@ -1,6 +1,6 @@
 // src/components/LeafletMap.jsx
 import React, { useMemo } from 'react';
-import { MapContainer, GeoJSON, Circle, CircleMarker, Marker, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, GeoJSON, Circle, Marker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import worldData from '../assets/world-countries.json';
@@ -22,13 +22,13 @@ L.Marker.prototype.options.icon = DefaultIcon;
 // Or stick to standard pins. User said "The only labels we want is from our app with our labels for destinations."
 // pins are good.
 
-// Style for the GeoJSON layer (White continents)
 const geoStyle = {
     fillColor: '#ffffff', // White fill
     weight: 0,            // No border for cleaner look
     opacity: 1,
     color: '#ffffff',
-    fillOpacity: 1
+    fillOpacity: 1,
+    interactive: false
 };
 
 // Component to handle View changes
@@ -61,6 +61,27 @@ const createHeartIcon = (fillColor) => {
         `,
         iconSize: [48, 48],
         iconAnchor: [24, 24]
+    });
+};
+
+const createDotIcon = (fillColor, isSelected) => {
+    const size = isSelected ? 24 : 12; // Corresponding to radius 12 and 6
+    const border = isSelected ? '2px solid white' : 'none';
+    return L.divIcon({
+        className: 'custom-dot-marker',
+        html: `
+            <div style="
+                width: ${size}px;
+                height: ${size}px;
+                background-color: ${fillColor};
+                border: ${border};
+                border-radius: 50%;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                pointer-events: auto;
+            "></div>
+        `,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2]
     });
 };
 
@@ -114,7 +135,8 @@ export default function LeafletMap({
                             fillColor: 'white',
                             fillOpacity: 0.2,
                             weight: 2,
-                            dashArray: '5, 10' // optional styling
+                            dashArray: '5, 10', // optional styling
+                            interactive: false
                         }}
                     />
                 )}
@@ -133,6 +155,7 @@ export default function LeafletMap({
                                 key={f.id}
                                 position={[f.lat, f.lon]}
                                 icon={createHeartIcon(heartColor)}
+                                zIndexOffset={1000}
                                 eventHandlers={{
                                     click: () => onFlightClick && onFlightClick(f.id),
                                 }}
@@ -143,16 +166,11 @@ export default function LeafletMap({
                     // 2. Implicit Selection (Example Reward): Large Dot without Heart
                     // 3. Normal Dot
                     return (
-                        <CircleMarker
+                        <Marker
                             key={f.id}
-                            center={[f.lat, f.lon]}
-                            radius={isSelected ? 12 : 6} // Large radius for selected (even if implicit)
-                            pathOptions={{
-                                fillColor: isAffordable ? '#e61c2e' : '#999999',
-                                color: isSelected ? 'white' : 'transparent',
-                                weight: 2,
-                                fillOpacity: 1
-                            }}
+                            position={[f.lat, f.lon]}
+                            icon={createDotIcon(isAffordable ? '#e61c2e' : '#999999', isSelected)}
+                            zIndexOffset={isSelected ? 500 : 0}
                             eventHandlers={{
                                 click: () => onFlightClick && onFlightClick(f.id),
                             }}

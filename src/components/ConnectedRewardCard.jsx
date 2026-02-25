@@ -26,8 +26,13 @@ export default function ConnectedRewardCard({ reward }) {
     const handleFavoriteClick = () => {
         if (isFavorited) {
             // Un-favorite: Clear the explicit selection
-            // The WTESelection auto-picker will then kick in to show an example.
             updateSelectedRewardId(null, null, false);
+        } else {
+            // Promote to favorite: Set this reward as explicit selection
+            // We need to know the category. Reward object usually has it or we can pass it.
+            // In most cases, reward objects from data.js have a type that maps to tabs, 
+            // but let's assume we can get it from the reward object or just use the current tab.
+            updateSelectedRewardId(reward.id, current?.selectedWTU, true);
         }
     };
 

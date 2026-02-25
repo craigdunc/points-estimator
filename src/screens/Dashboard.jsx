@@ -8,10 +8,13 @@ import {
   marketplaceList,
   giftCardsList,
   entertainmentList,
+  SC_VALUES,
 } from '../data';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ConnectedRewardCard from '../components/ConnectedRewardCard';
+import TierCard from '../components/TierCard';
+import KoalaSprite from '../components/KoalaSprite';
 import PointsRooLogo from '../assets/points-roo.svg';
 import OnboardingStepper from '../components/OnboardingStepper';
 import MonthWrapUpModal from '../components/MonthWrapUpModal';
@@ -23,7 +26,7 @@ const HotelThumb = "https://images.unsplash.com/photo-1566073771259-6a8506099945
 const ExperienceThumb = "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=400";
 
 export default function Dashboard({ goTo }) {
-  const { slots, activeSlotId, current, advanceMonth, setDashboardIntroDismissed } = useSaveSlots();
+  const { slots, activeSlotId, current, advanceMonth, setDashboardIntroDismissed, updateFavouriteTierIndex } = useSaveSlots();
   const [showOnboardingId, setShowOnboardingId] = useState(null);
   const [showWrapup, setShowWrapup] = useState(false);
   const [lastMonthData, setLastMonthData] = useState(null);
@@ -35,8 +38,13 @@ export default function Dashboard({ goTo }) {
     totalAnnualPts = 0,
     selectedWTU,
     selectedRewardId,
+    favouriteTierIndex,
     dashboardIntroDismissed,
+    tierIndexById,
   } = current;
+
+  const hasFlights = selectedWTEs?.some((w) => String(w.id) === '22');
+  const flightTierIndex = hasFlights ? (tierIndexById?.[22] ?? 2) : 0;
 
   const isIntroState = !dashboardIntroDismissed;
 
@@ -71,53 +79,84 @@ export default function Dashboard({ goTo }) {
 
   return (
     <div className="min-h-screen bg-[#F3F5F7] font-sans text-[#323232]">
-      <Header isMobile={false} />
+      <Header
+        isMobile={false}
+        onProfileClick={() => goTo(0)}
+        activeTab="For you"
+        onTabClick={(tab) => {
+          if (tab === 'Earn and use points') goTo(3);
+        }}
+      />
 
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8 py-8">
+
+        {/* --- Top Global Header (Outside White Box) --- */}
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-[32px] font-medium text-[#323232] leading-tight" style={{ fontFamily: 'Qantas Sans, sans-serif' }}>
+              Good morning, {slot?.name || 'William'}
+            </h1>
+          </div>
+          <div className="text-right flex items-center gap-4">
+            <button
+              onClick={handleTimePasses}
+              className="text-[#E40000] text-[13px] font-bold hover:underline bg-[#FFEAEA] px-3 py-1.5 rounded-full mr-2 hidden md:block"
+            >
+              Time passes
+            </button>
+            <div className="text-right">
+              <p className="text-[16px] font-bold leading-none">Bronze</p>
+              <p className="text-[11px] text-gray-500 mt-1 uppercase tracking-wider">Frequent Flyer 1234 567 890</p>
+            </div>
+            <div className="w-[42px] h-[42px] bg-[#E40000] rounded-full flex items-center justify-center shadow-md">
+              <img src={PointsRooLogo} alt="" className="w-6 h-6 brightness-0 invert" />
+            </div>
+          </div>
+        </div>
 
         {/* --- Top White Panel --- */}
         <div className="bg-white rounded-[32px] shadow-sm p-10 mb-8">
           {isIntroState ? (
-            <div className="flex flex-col lg:flex-row gap-12 items-center">
-              {/* Left: Intro Content */}
-              <div className="lg:w-1/2">
-                <h1 className="text-[32px] font-medium text-[#323232] leading-tight mb-4">
-                  Good morning, {slot?.name || 'William'}
-                </h1>
-                <div className="max-w-[440px]">
-                  <h2 className="text-[24px] font-bold text-[#323232] mb-3">Let's get you some points</h2>
-                  <p className="text-[14px] text-gray-500 leading-relaxed mb-8">
-                    One of the best ways to get the most out of your membership is by finding a few different ways of earning points. You can add points to your account homepage.
-                  </p>
+            <div className="flex flex-col xl:flex-row gap-8 items-center justify-between">
+              {/* Left: Koala Sprite */}
+              <div className="flex-shrink-0 flex items-center justify-center transform scale-90">
+                <KoalaSprite />
+              </div>
 
-                  <div className="flex flex-wrap items-center gap-6">
-                    <button
-                      onClick={() => {
-                        setDashboardIntroDismissed(true);
-                        goTo(3);
-                      }}
-                      className="bg-[#E40000] text-white px-8 py-3 rounded-[4px] font-bold text-[13px] uppercase tracking-wider hover:bg-red-700 transition-colors shadow-lg"
-                    >
-                      SHOW ME
-                    </button>
-                    <button
-                      onClick={() => goTo(4)}
-                      className="text-[#E40000] text-[13px] font-bold hover:underline"
-                    >
-                      Choose favorite reward
-                    </button>
-                  </div>
+              {/* Middle: Intro Content */}
+              <div className="flex-grow max-w-[400px]">
+                <h2 className="text-[24px] font-medium text-[#323232] mb-3">Let's get you some points</h2>
+                <p className="text-[14px] text-gray-800 leading-relaxed mb-8">
+                  One of the best ways to get the most out of your membership is by finding a few different ways of earning points. You can add points to your account homepage.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-6 mb-4">
                   <button
-                    onClick={() => setDashboardIntroDismissed(true)}
-                    className="mt-6 text-[11px] text-gray-400 font-bold hover:text-gray-600 uppercase tracking-widest"
+                    onClick={() => {
+                      setDashboardIntroDismissed(true);
+                      goTo(3);
+                    }}
+                    className="bg-[#E40000] text-white px-8 py-3 rounded-[6px] font-bold text-[13px] uppercase tracking-wider hover:bg-red-700 transition-colors shadow-sm"
                   >
-                    Skip
+                    SHOW ME
+                  </button>
+                  <button
+                    onClick={() => goTo(4)}
+                    className="text-[#E40000] text-[13px] font-bold hover:underline"
+                  >
+                    Choose favorite reward
                   </button>
                 </div>
+                <button
+                  onClick={() => setDashboardIntroDismissed(true)}
+                  className="text-[12px] text-[#E40000] font-bold hover:underline"
+                >
+                  Skip
+                </button>
               </div>
 
               {/* Right: Illustration */}
-              <div className="lg:w-1/2 flex justify-center lg:justify-end">
+              <div className="flex-shrink-0 flex justify-end">
                 <div className="flex items-end gap-6">
                   {/* Step 1: Choose */}
                   <div className="flex flex-col items-center">
@@ -167,16 +206,8 @@ export default function Dashboard({ goTo }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Left: Greeting and Progress */}
+              {/* Left: Progress */}
               <div className="lg:col-span-8">
-                <div className="flex justify-between items-start mb-10">
-                  <div>
-                    <h1 className="text-[36px] font-medium text-[#323232] leading-tight">
-                      Good morning, {slot?.name || 'William'}
-                    </h1>
-                    <p className="text-[14px] text-gray-500 mt-1">Let's get started</p>
-                  </div>
-                </div>
 
                 <div className="flex items-center space-x-6 mb-8">
                   <span className="text-[16px] font-medium">February</span>
@@ -263,26 +294,6 @@ export default function Dashboard({ goTo }) {
 
               {/* Right: Target Reward & Profile */}
               <div className="lg:col-span-4 flex flex-col">
-                <div className="flex justify-end mb-10">
-                  <div className="text-right flex items-center gap-4">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={handleTimePasses}
-                        className="text-[#E40000] text-[13px] font-bold hover:underline bg-[#FFEAEA] px-3 py-1.5 rounded-full"
-                      >
-                        Time passes
-                      </button>
-                      <div className="text-right">
-                        <p className="text-[28px] font-bold leading-none">Bronze</p>
-                        <p className="text-[11px] text-gray-500 mt-1 uppercase tracking-wider">Frequent Flyer 1234 567 890</p>
-                      </div>
-                    </div>
-                    <div className="w-[60px] h-[60px] bg-[#E40000] rounded-full flex items-center justify-center shadow-lg">
-                      <img src={PointsRooLogo} alt="" className="w-10 h-10 brightness-0 invert" />
-                    </div>
-                  </div>
-                </div>
-
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex flex-col">
                     <span className="text-[11px] font-bold text-[#666] uppercase tracking-wider">Target Annual Earn: {totalAnnualPts.toLocaleString()} PTS</span>
@@ -295,9 +306,9 @@ export default function Dashboard({ goTo }) {
                   </button>
                 </div>
 
-                <p className="text-[11px] font-bold text-[#666] uppercase tracking-wider mb-4">Favourite reward:</p>
+                <p className="text-[11px] font-bold text-[#666] uppercase tracking-wider mb-4">Target reward:</p>
 
-                <div className="w-full">
+                <div className="w-full mb-8">
                   {selectedReward ? (
                     <ConnectedRewardCard reward={selectedReward} />
                   ) : (
@@ -305,6 +316,30 @@ export default function Dashboard({ goTo }) {
                       <button onClick={() => goTo(4)} className="text-[#E40000] font-bold hover:underline">Select a target reward</button>
                     </div>
                   )}
+                </div>
+
+                <p className="text-[11px] font-bold text-[#666] uppercase tracking-wider mb-4 flex justify-between items-center">
+                  <span>Target tier:</span>
+                  <button
+                    onClick={() => goTo(3)}
+                    className="text-[11px] font-bold text-[#E40000] hover:underline normal-case"
+                  >
+                    Edit
+                  </button>
+                </p>
+
+                <div className="w-full">
+                  <TierCard
+                    tierIndex={favouriteTierIndex !== null ? favouriteTierIndex : flightTierIndex}
+                    isFavourite={favouriteTierIndex !== null}
+                    onToggleFavourite={() => {
+                      if (favouriteTierIndex !== null) {
+                        updateFavouriteTierIndex(null);
+                      } else {
+                        updateFavouriteTierIndex(flightTierIndex);
+                      }
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -336,7 +371,7 @@ export default function Dashboard({ goTo }) {
               </div>
             </div>
             <div className="md:col-span-1">
-              <button className="w-full bg-[#E40000] text-white font-bold py-3.5 rounded-lg uppercase tracking-widest text-[13px] flex items-center justify-center space-x-2">
+              <button className="w-full bg-white border border-[#E40000] text-[#E40000] hover:bg-[#FFEAEA] transition-colors font-bold py-3.5 rounded-lg uppercase tracking-widest text-[13px] flex items-center justify-center space-x-2">
                 <span>Search Flights</span>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg>
               </button>

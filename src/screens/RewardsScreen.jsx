@@ -15,13 +15,17 @@ import {
   marketplaceList,
   giftCardsList,
   entertainmentList,
-  ORIGIN_CITY
+  ORIGIN_CITY,
+  SC_VALUES,
+  SC_NAMES,
+  calculateGroundSC
 } from '../data';
 import CategoryTabs from '../components/CategoryTabs';
 import PointsRooLogo from '../assets/points-roo.svg';
 import LeafletMap from '../components/LeafletMap';
 import RewardCard from '../components/RewardCard';
-import DuoMascot from '../assets/icons/duo.png';
+import KoalaSprite from '../components/KoalaSprite';
+import TierCard from '../components/TierCard';
 
 // Reward tab config
 const rewardTabsConfig = [
@@ -33,7 +37,6 @@ const rewardTabsConfig = [
   { key: 'Entertainment', label: 'ENTERTAINMENT' },
 ];
 const rewardTabKeys = rewardTabsConfig.map(t => t.key);
-
 // Combine lists into a map
 const useRewardsMap = () =>
   useMemo(
@@ -48,8 +51,116 @@ const useRewardsMap = () =>
     []
   );
 
+const TIER_BENEFITS_DATA = {
+  0: [ // Bronze
+    { id: 1, icon: 'lightning', text: 'Earn Qantas Points on Qantas, Jetstar and partner airlines' },
+    { id: 2, icon: 'chair', text: 'Access to Qantas Frequent Flyer member offers' },
+    { id: 3, icon: 'award', text: 'Use points for Classic Flight Rewards' },
+    { id: 4, icon: 'plane', text: 'Manage your bookings easily with the Qantas App' },
+    { id: 5, icon: 'bag', text: 'Earn Status Credits on eligible flights' },
+    { id: 6, icon: 'ticket', text: 'Access to the Rewards Store' },
+  ],
+  1: [ // Silver
+    { id: 1, icon: 'lightning', text: 'Earn 50% more Qantas Points on Qantas, Jetstar and American Airlines flights' },
+    { id: 2, icon: 'chair', text: 'One Qantas Club lounge invitation each year' },
+    { id: 3, icon: 'award', text: 'Priority check-in counters' },
+    { id: 4, icon: 'plane', text: 'Extra checked baggage allowance' },
+    { id: 5, icon: 'bag', text: 'Priority baggage tagging' },
+    { id: 6, icon: 'ticket', text: 'Waitlist priority for domestic and international flights' },
+  ],
+  2: [ // Gold
+    { id: 1, icon: 'lightning', text: 'Earn 75% more Qantas Points on Qantas, Jetstar and American Airlines flights' },
+    { id: 2, icon: 'chair', text: 'Access to over 600 lounges globally' },
+    { id: 3, icon: 'award', text: 'Early access to Classic Flight Reward seats' },
+    { id: 4, icon: 'plane', text: 'On departure upgrades for domestic Qantas operated flights when you use points' },
+    { id: 5, icon: 'bag', text: 'Fast track to ALL - Accor Live Limitless Silver status after one eligible stay***' },
+    { id: 6, icon: 'ticket', text: 'Premium boarding' },
+  ],
+  3: [ // Platinum
+    { id: 1, icon: 'lightning', text: 'Earn 100% more Qantas Points on Qantas, Jetstar and American Airlines flights' },
+    { id: 2, icon: 'chair', text: 'Access to Qantas First and Business lounges' },
+    { id: 3, icon: 'award', text: 'Highest priority for Classic Flight Reward seats' },
+    { id: 4, icon: 'plane', text: 'Highest priority for flight upgrades' },
+    { id: 5, icon: 'bag', text: 'Priority First Class check-in' },
+    { id: 6, icon: 'ticket', text: 'Priority baggage tagging (First)' },
+  ],
+  4: [ // Platinum One
+    { id: 1, icon: 'lightning', text: 'Earn points at the highest status bonus rate' },
+    { id: 2, icon: 'chair', text: 'The highest priority for domestic and international flight upgrades' },
+    { id: 3, icon: 'award', text: 'Platinum One Team available 24/7' },
+    { id: 4, icon: 'plane', text: 'Complimentary Platinum status for a partner' },
+    { id: 5, icon: 'bag', text: 'No fees for reward flight changes or cancellations' },
+    { id: 6, icon: 'ticket', text: 'Complimentary Qantas Wine Premium Membership' },
+  ],
+  5: [ // Lifetime Tiers
+    { id: 1, icon: 'lightning', text: 'Lifetime Silver at 7,000 Status Credits' },
+    { id: 2, icon: 'chair', text: 'Lifetime Gold at 14,000 Status Credits' },
+    { id: 3, icon: 'award', text: 'Lifetime Platinum at 75,000 Status Credits' },
+    { id: 4, icon: 'plane', text: 'Status that never expires' },
+    { id: 5, icon: 'bag', text: 'Enjoy benefits even when you fly less' },
+    { id: 6, icon: 'ticket', text: 'A true mark of loyalty' },
+  ]
+};
+
+const BenefitIcon = ({ name, className }) => {
+  if (name === 'lightning') return (
+    <div className={`w-12 h-12 rounded-full bg-[#B5A16E]/20 flex items-center justify-center ${className}`}>
+      <svg className="w-6 h-6 text-[#B5A16E]" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M13 10V3L4 14H11V21L20 10H13Z" />
+      </svg>
+    </div>
+  );
+  if (name === 'chair') return (
+    <div className={`w-12 h-12 rounded-full bg-[#B5A16E]/20 flex items-center justify-center ${className}`}>
+      <svg className="w-6 h-6 text-[#B5A16E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M19 21V15M19 15V13C19 11.8954 18.1046 11 17 11H7C5.89543 11 5 11.8954 5 13V15M19 15H5M5 15V21M7 11V3M17 11V3" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+  if (name === 'award') return (
+    <div className={`w-12 h-12 rounded-full bg-[#B5A16E]/20 flex items-center justify-center ${className}`}>
+      <svg className="w-6 h-6 text-[#B5A16E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="8" r="7" />
+        <path d="M8.21 13.89L7 23L12 20L17 23L15.79 13.88" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+  if (name === 'plane') return (
+    <div className={`w-12 h-12 rounded-full bg-[#B5A16E]/20 flex items-center justify-center ${className}`}>
+      <svg className="w-6 h-6 text-[#B5A16E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M15 13L20 22L12 19L4 22L9 13M15 13L12 3L9 13M15 13H9" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+  if (name === 'bag') return (
+    <div className={`w-12 h-12 rounded-full bg-[#B5A16E]/20 flex items-center justify-center ${className}`}>
+      <svg className="w-6 h-6 text-[#B5A16E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="3" y="7" width="18" height="13" rx="3" />
+        <path d="M8 7V5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V7" />
+      </svg>
+    </div>
+  );
+  if (name === 'ticket') return (
+    <div className={`w-12 h-12 rounded-full bg-[#B5A16E]/20 flex items-center justify-center ${className}`}>
+      <svg className="w-6 h-6 text-[#B5A16E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <path d="M12 5V19M2 12H12M12 12H22M7 5V19M17 5V19" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+  return null;
+};
+
 export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = false, containerRef = null }) {
-  const { current, updateSelectedWTU, updateSelectedRewardId, updateIsShowingHow, updateActiveDuoCard } = useSaveSlots();
+  const {
+    current,
+    updateSelectedWTU,
+    updateSelectedRewardId,
+    updateIsShowingHow,
+    updateActiveDuoCard,
+    updateFavouriteTierIndex,
+    updateDismissedCoachings
+  } = useSaveSlots();
   const rewardsMap = useRewardsMap();
 
   // Global state
@@ -57,6 +168,12 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
   const activeTabKey = current?.selectedWTU ?? rewardTabKeys[0];
   const globalSelectedRewardId = current?.selectedRewardId ?? null;
   const globalSelectedRewardCategory = current?.selectedRewardCategory ?? null;
+  const favouriteTierIndex = current?.favouriteTierIndex ?? null;
+
+  const hasFlights = current?.selectedWTEs?.some((w) => String(w.id) === '22');
+  const flightTierIndex = hasFlights ? (current?.tierIndexById?.[22] ?? 2) : 0;
+  const groundSC = calculateGroundSC(current?.selectedWTEs);
+  const totalAnnualSC = SC_VALUES[Math.max(0, Math.min(4, flightTierIndex))] + groundSC;
 
   // Build flightPoints array for map (just flat list of flights)
   const flightPoints = useMemo(
@@ -72,11 +189,24 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     [totalAnnualPts]
   );
 
+  const [selectedHotelCity, setSelectedHotelCity] = useState('All');
+  const [selectedActivityLocation, setSelectedActivityLocation] = useState('All');
+  const [selectedMarketCategory, setSelectedMarketCategory] = useState('All');
+
   // All rewards for list view (sorted: affordable first, then unaffordable)
   const allRewards = useMemo(
     () => {
-      const rewards = rewardsMap[activeTabKey] || [];
-      return [...rewards].sort((a, b) => {
+      let rewards = [...(rewardsMap[activeTabKey] || [])];
+      if (activeTabKey === 'Hotels' && selectedHotelCity !== 'All') {
+        rewards = rewards.filter(r => r.city === selectedHotelCity);
+      }
+      if (activeTabKey === 'Activities' && selectedActivityLocation !== 'All') {
+        rewards = rewards.filter(r => r.city === selectedActivityLocation);
+      }
+      if (activeTabKey === 'Marketplace' && selectedMarketCategory !== 'All') {
+        rewards = rewards.filter(r => r.marketCategory === selectedMarketCategory);
+      }
+      return rewards.sort((a, b) => {
         const aAffordable = a.pts <= totalAnnualPts;
         const bAffordable = b.pts <= totalAnnualPts;
         if (aAffordable && !bAffordable) return -1;
@@ -84,7 +214,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
         return a.pts - b.pts;
       });
     },
-    [activeTabKey, totalAnnualPts, rewardsMap]
+    [activeTabKey, totalAnnualPts, rewardsMap, selectedHotelCity, selectedActivityLocation, selectedMarketCategory]
   );
 
   // UI state
@@ -92,6 +222,31 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
   const [pendingRewardId, setPendingRewardId] = useState(null);
   const [pendingRewardCategory, setPendingRewardCategory] = useState(null);
   const [userHasInteracted, setUserHasInteracted] = useState(false);
+  const [explorerMode, setExplorerMode] = useState(desktopMode ? null : 'rewards');
+  const [explorerTierIndex, setExplorerTierIndex] = useState(null);
+
+  useEffect(() => {
+    if (explorerTierIndex === null && flightTierIndex !== null) {
+      setExplorerTierIndex(flightTierIndex);
+    }
+  }, [flightTierIndex, explorerTierIndex]);
+
+  const selectedRewardObj = useMemo(() => {
+    const cat = globalSelectedRewardCategory || activeTabKey;
+    const list = rewardsMap[cat] || [];
+    return list.find(r => r.id === globalSelectedRewardId) || null;
+  }, [rewardsMap, activeTabKey, globalSelectedRewardId, globalSelectedRewardCategory]);
+
+  // Get the pending reward object for the modal
+  const pendingRewardObj = useMemo(() => {
+    if (!pendingRewardId || !pendingRewardCategory) return null;
+    const list = rewardsMap[pendingRewardCategory] || [];
+    return list.find(r => r.id === pendingRewardId) || null;
+  }, [rewardsMap, pendingRewardId, pendingRewardCategory]);
+
+  const isSelectedAffordable = useMemo(() => {
+    return selectedRewardObj ? selectedRewardObj.pts <= totalAnnualPts : false;
+  }, [selectedRewardObj, totalAnnualPts]);
 
   // Minimization state for mobile
   const [isMinimized, setIsMinimized] = useState(false);
@@ -145,6 +300,43 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     }
   }, [activeTabKey, desktopMode]);
 
+  const selectedRewardPts = pendingRewardObj?.pts ?? 0;
+  const activeDuoCard = current?.activeDuoCard ?? null;
+
+  // Sync ActiveDuoCard with favorites and affordability
+  useEffect(() => {
+    if (!desktopMode || current?.isShowingHow) return;
+
+    // 1. If active one becomes affordable or unset, clear it
+    if (activeDuoCard === 'reward-guidance') {
+      const isAffordable = totalAnnualPts >= selectedRewardPts;
+      if (isAffordable || !globalSelectedRewardId) {
+        updateActiveDuoCard(null);
+      }
+    } else if (activeDuoCard === 'tier-guidance') {
+      const isAffordable = flightTierIndex >= (favouriteTierIndex ?? 999);
+      if (isAffordable || favouriteTierIndex === null) {
+        updateActiveDuoCard(null);
+      }
+    }
+
+    // 2. Auto-trigger if nothing is active and something is newly unaffordable/favorited
+    // (This handles the case where user favorites something then adjusts points)
+    if (!activeDuoCard) {
+      if (current?.hasSelectedReward && totalAnnualPts < selectedRewardPts) {
+        const cid = `reward-${globalSelectedRewardId}`;
+        if (!current?.dismissedCoachings?.includes(cid)) {
+          updateActiveDuoCard('reward-guidance');
+        }
+      } else if (favouriteTierIndex !== null && flightTierIndex < favouriteTierIndex) {
+        const cid = `tier-${favouriteTierIndex}`;
+        if (!current?.dismissedCoachings?.includes(cid)) {
+          updateActiveDuoCard('tier-guidance');
+        }
+      }
+    }
+  }, [totalAnnualPts, globalSelectedRewardId, favouriteTierIndex, flightTierIndex, activeDuoCard, selectedRewardPts, desktopMode, current?.isShowingHow, current?.hasSelectedReward, current?.dismissedCoachings, updateActiveDuoCard]);
+
   // Handlers
   const handleTabChange = useCallback(key => {
     updateSelectedWTU(key);
@@ -152,14 +344,21 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     // Clear pending state when switching tabs to avoid "ghost" highlights
     setPendingRewardId(null);
     setPendingRewardCategory(null);
-    updateActiveDuoCard(null);
-  }, [updateSelectedWTU, updateActiveDuoCard]);
+  }, [updateSelectedWTU]);
 
   const handleToggleExpand = useCallback(id => {
     setExpandedId(prev => (prev === id ? null : id));
   }, []);
 
   const handleSelectRewardOnMap = useCallback(id => {
+    if (globalSelectedRewardId === id || pendingRewardId === id) {
+      updateSelectedRewardId(null, null, false);
+      setPendingRewardId(null);
+      setPendingRewardCategory(null);
+      updateActiveDuoCard(null);
+      return;
+    }
+
     // Check affordability
     const reward = flightPoints.find(r => r.id === id);
     const isAffordable = reward && reward.pts <= totalAnnualPts;
@@ -177,19 +376,25 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       // Unaffordable - set pending for Duo guidance
       setPendingRewardId(id);
       setPendingRewardCategory('Flights');
+      updateActiveDuoCard('reward-guidance');
 
       // Animated transition: scroll to top first
       if (desktopMode && containerRef?.current) {
         containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
-
-      setTimeout(() => {
-        updateActiveDuoCard('reward-guidance');
-      }, desktopMode ? 800 : 400);
     }
-  }, [flightPoints, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
+  }, [flightPoints, totalAnnualPts, globalSelectedRewardId, pendingRewardId, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
 
   const handleSelectRewardInList = useCallback((id) => {
+    if ((globalSelectedRewardId === id && globalSelectedRewardCategory === activeTabKey) ||
+      (pendingRewardId === id && pendingRewardCategory === activeTabKey)) {
+      updateSelectedRewardId(null, null, false);
+      setPendingRewardId(null);
+      setPendingRewardCategory(null);
+      updateActiveDuoCard(null);
+      return;
+    }
+
     // Check affordability
     const list = rewardsMap[activeTabKey] || [];
     const reward = list.find(r => r.id === id);
@@ -207,22 +412,19 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     } else {
       setPendingRewardId(id);
       setPendingRewardCategory(activeTabKey);
+      updateActiveDuoCard('reward-guidance');
 
       // Animated transition: scroll to top first
       if (desktopMode && containerRef?.current) {
         containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
-
-      setTimeout(() => {
-        updateActiveDuoCard('reward-guidance');
-      }, desktopMode ? 800 : 400);
     }
-  }, [activeTabKey, rewardsMap, totalAnnualPts, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
+  }, [activeTabKey, rewardsMap, totalAnnualPts, globalSelectedRewardId, globalSelectedRewardCategory, pendingRewardId, pendingRewardCategory, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
 
   const handleCloseModal = useCallback(() => {
-    updateActiveDuoCard(null);
     setPendingRewardId(null);
     setPendingRewardCategory(null);
+    updateActiveDuoCard(null);
   }, [updateActiveDuoCard]);
 
   const handleShowMe = useCallback(() => {
@@ -232,7 +434,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     }
     // Toggle the guidance to show on the left panel
     updateIsShowingHow(true);
-    // Then navigate to WTE selection (step 3) (Should probably update this to handle combined view?)
+    // Then navigate to WTE selection (step 3)
     if (!isEmbedded) goTo(3);
   }, [pendingRewardId, pendingRewardCategory, updateSelectedRewardId, goTo, isEmbedded, updateIsShowingHow]);
 
@@ -247,22 +449,6 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
 
   const handleGoBack = useCallback(() => !isEmbedded && goTo(3), [goTo, isEmbedded]);
 
-  const selectedRewardObj = useMemo(() => {
-    const cat = globalSelectedRewardCategory || activeTabKey;
-    const list = rewardsMap[cat] || [];
-    return list.find(r => r.id === globalSelectedRewardId) || null;
-  }, [rewardsMap, activeTabKey, globalSelectedRewardId, globalSelectedRewardCategory]);
-
-  // Get the pending reward object for the modal
-  const pendingRewardObj = useMemo(() => {
-    if (!pendingRewardId || !pendingRewardCategory) return null;
-    const list = rewardsMap[pendingRewardCategory] || [];
-    return list.find(r => r.id === pendingRewardId) || null;
-  }, [rewardsMap, pendingRewardId, pendingRewardCategory]);
-
-  const isSelectedAffordable = useMemo(() => {
-    return selectedRewardObj ? selectedRewardObj.pts <= totalAnnualPts : false;
-  }, [selectedRewardObj, totalAnnualPts]);
 
   if (!current) return <div className="p-6 text-center">Loading rewards...</div>;
 
@@ -292,45 +478,89 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     const sel = list.find(r => r.id === globalSelectedRewardId);
 
     if (!sel) return (
-      <div className="p-6 text-gray-400 text-center text-xs border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-        Choose a reward from the {activeTabKey === 'Flights' ? 'map' : 'list'} above.
-      </div>
+      <button
+        onClick={() => setExplorerMode('rewards')}
+        className="w-full aspect-[1.8/1] flex flex-col items-center justify-center p-6 text-[#758195] text-center text-[15px] font-medium border-2 border-dashed border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors rounded-[14px] cursor-pointer"
+      >
+        Choose a reward
+      </button>
     );
 
     return <ConnectedRewardCard key={globalSelectedRewardId || 'none'} reward={sel} />;
   };
 
-  const renderDesktopGuidance = () => {
-    if (current?.activeDuoCard !== 'reward-guidance' || !pendingRewardObj || current?.isShowingHow) return null;
+  // Helper for coaching/Duo card
+  const renderCoachingCard = (type) => {
+    if (!desktopMode || current?.isShowingHow) return null;
+
+    const isReward = type === 'reward';
+
+    // Character logic: Duo can only be in one place
+    const isVisible = isReward
+      ? (current?.activeDuoCard === 'reward-guidance')
+      : (current?.activeDuoCard === 'tier-guidance');
+
+    if (!isVisible) return null;
+
+    const rewardId = pendingRewardObj?.id;
+    const tierIndex = favouriteTierIndex;
+
+    const coachingId = isReward ? `reward-${rewardId}` : `tier-${tierIndex}`;
+    const alreadyDismissed = current?.dismissedCoachings?.includes(coachingId);
+
+    if (alreadyDismissed) return null;
+
+    const selectedRewardPts = pendingRewardObj?.pts ?? 0;
+    const isUnaffordable = isReward
+      ? (pendingRewardObj && selectedRewardPts > totalAnnualPts)
+      : (favouriteTierIndex !== null && flightTierIndex < favouriteTierIndex);
+
+    if (!isUnaffordable) return null;
+
+    const title = isReward
+      ? <>This reward is <span className="font-bold">{pendingRewardObj.pts.toLocaleString()}</span><span className="text-[10px] font-bold text-[#999999] ml-1 uppercase transition-colors group-hover:text-[#E40000]">PTS</span></>
+      : <>This tier is <span className="font-bold">{SC_VALUES[favouriteTierIndex].toLocaleString()}</span><span className="text-[10px] font-bold text-[#999999] ml-1 uppercase">SC</span></>;
+
+    const subtitle = isReward
+      ? "I'll show you how you can earn the points, in one year."
+      : "I'll show you how you can earn the status credits, in one year.";
+
     return (
-      <div className="w-full animate-duo-entrance">
-        <div className="bg-[#E1F5F5] rounded-[14px] p-3 border border-[#C5EDED] flex items-start space-x-3 relative h-full shadow-sm">
+      <div className="w-full animate-duo-entrance mt-4">
+        <div className="bg-[#E2F1F0] rounded-[16px] p-5 flex items-center space-x-4 relative overflow-hidden shadow-sm border border-[#CDE5E3]">
           <button
-            onClick={() => updateActiveDuoCard(null)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+            onClick={() => {
+              updateDismissedCoachings(coachingId);
+              updateActiveDuoCard(null);
+            }}
+            className="absolute top-1.5 right-1.5 text-gray-500 hover:text-gray-700 transition-colors z-10 p-1"
+            style={{ marginRight: 0, top: 4, right: 4 }}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          <div className="shrink-0">
-            <div className="w-12 h-12 bg-white rounded-[12px] shadow-sm flex items-center justify-center border border-gray-100 p-1.5">
-              <img src={DuoMascot} alt="Duo mascot" className="w-full h-full object-contain" />
-            </div>
+          <div className="shrink-0 flex items-end justify-center z-10" style={{ width: '100px', height: '90px' }}>
+            <KoalaSprite variant="down" scale={0.35} className="origin-bottom" />
           </div>
 
-          <div className="flex-grow pt-0.5">
-            <div className="text-[13px] text-[#323232] mb-0.5 leading-tight pr-6">
-              This reward is <span className="font-bold text-[14px]">{pendingRewardObj.pts.toLocaleString()}</span>
-              <span className="text-[10px] font-bold text-[#999999] ml-1 uppercase">PTS</span>
+          <div className="flex-grow pr-4 z-10 pb-0">
+            <div className="text-[14px] text-[#222222] font-medium mb-1 leading-tight">
+              {title}
             </div>
-            <p className="text-[12px] text-[#666666] leading-relaxed mb-2.5">
-              I'll show you how you can earn the points, in one year.
+            <p className="text-[11px] text-[#666666] leading-relaxed mb-3">
+              {subtitle}
             </p>
             <button
-              onClick={handleShowMe}
-              className="px-4 py-2 bg-white border border-gray-100 text-[#E40000] text-[11px] font-bold uppercase tracking-[0.15em] rounded-lg hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
+              onClick={() => {
+                if (isReward && pendingRewardId && pendingRewardCategory) {
+                  updateSelectedRewardId(pendingRewardId, pendingRewardCategory, true);
+                }
+                updateIsShowingHow(true);
+                if (!isEmbedded) goTo(3);
+              }}
+              className="px-3 py-1.5 bg-white border border-gray-100 text-[#E40000] text-[10px] font-bold uppercase tracking-[0.1em] rounded-lg hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
             >
               Show me how
             </button>
@@ -340,40 +570,166 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     );
   };
 
-  const renderDesktopHeaderContent = () => (
-    <div className="mb-6 flex flex-col space-y-3">
-      {/* Full-width Estimated Line */}
-      <div className="w-full text-left">
-        <span className="text-[12px] text-[#323232]">Estimated</span>
-        <img src={PointsRooLogo} alt="" className="w-[14px] h-[16px] translate-y-0.5 inline mx-1" />
-        <span className="text-[14px] font-bold text-[#323232]">
-          {totalAnnualPts.toLocaleString()}
-        </span>
-        <span className="text-[9px] font-bold text-[#999999] uppercase ml-1">PTS</span>
-        <span className="text-[12px] text-[#323232] ml-1">a year from selected</span>
-      </div>
+  const renderTierExplorer = () => {
+    const activeTier = explorerTierIndex ?? 2;
+    const benefits = TIER_BENEFITS_DATA[activeTier] || [];
+    const tierOptions = ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'PLATINUM ONE', 'LIFETIME TIERS'];
 
-      {/* Grid: Stacks on Tablet (<1200px), Side-by-Side on Desktop (>=1200px) */}
-      <div className="grid xl:grid-cols-2 grid-cols-1 gap-4 items-stretch">
-        <div className="flex flex-col max-w-[320px] w-full">
-          <div className="mb-2 text-[12px] text-gray-700">
-            {current.hasSelectedReward ? 'Favourite reward' : 'Example reward'}
+    return (
+      <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white min-h-[500px]">
+        {/* Tier Tabs */}
+        <div className="w-full border-b border-gray-100 mb-8 overflow-x-auto bg-white">
+          <div className="flex justify-between min-w-[700px] px-8 max-w-[900px] mx-auto">
+            {tierOptions.map((name, idx) => (
+              <button
+                key={name}
+                onClick={() => setExplorerTierIndex(idx)}
+                className={`py-4 px-2 text-[12px] font-bold tracking-wider relative transition-all duration-300 ${activeTier === idx ? 'text-[#E40000]' : 'text-[#666666] hover:text-[#323232]'}`}
+              >
+                {name}
+                {activeTier === idx && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#E40000] rounded-t-full" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Benefits Section */}
+        <div className="w-full px-8 pb-20 max-w-[1100px] mx-auto relative">
+          <div className="flex items-center justify-center mb-12 relative max-w-[500px] mx-auto">
+            <h2 className="text-center text-[18px] font-medium text-[#323232]">
+              Key benefits of {tierOptions[activeTier].charAt(0) + tierOptions[activeTier].slice(1).toLowerCase()} status
+            </h2>
+
+            {/* Heart Icon Toggle */}
+            <button
+              onClick={() => {
+                if (activeTier === 5) return; // Skip Lifetime Tiers
+                if (favouriteTierIndex === activeTier) {
+                  updateFavouriteTierIndex(null);
+                  updateActiveDuoCard(null);
+                } else {
+                  updateFavouriteTierIndex(activeTier);
+                  // Duo moves to the tier guidance if it's unaffordable
+                  if (flightTierIndex < activeTier) {
+                    updateActiveDuoCard('tier-guidance');
+                    // Scroll to top to see Duo
+                    if (desktopMode && containerRef?.current) {
+                      containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }
+                }
+              }}
+              className="absolute -right-12 top-1/2 -translate-y-1/2 p-2 group transition-transform active:scale-95"
+            >
+              {favouriteTierIndex === activeTier ? (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 text-[#E40000] animate-in zoom-in-50 duration-200">
+                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-gray-300 group-hover:text-gray-400 transition-colors">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-y-12 gap-x-8">
+            {benefits.map(benefit => (
+              <div key={benefit.id} className="flex flex-col items-center text-center group">
+                <BenefitIcon name={benefit.icon} className="mb-4 transition-transform group-hover:scale-110 duration-300" />
+                <p className="text-[12px] text-[#222222] leading-[1.6] max-w-[210px] regular">
+                  {benefit.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDesktopHeaderContent = () => {
+    return (
+      <div className="flex flex-col xl:flex-row gap-8 p-6 mb-4">
+        {/* Top/Left Column (Rewards) */}
+        <div className="flex flex-col w-full xl:w-1/2 min-w-0 max-w-[440px]">
+          {/* Estimated PTS Line */}
+          <div className="flex items-center text-left mb-4">
+            <span className="text-[14px] text-[#323232]">Estimated</span>
+            <img src={PointsRooLogo} alt="" className="w-[16px] h-[18px] translate-y-[1px] inline mx-1.5" />
+            <span className="text-[15px] font-bold text-[#323232]">
+              {totalAnnualPts.toLocaleString()} <span className="text-[10px] font-bold text-[#999999] uppercase">PTS</span>
+            </span>
+            <span className="text-[14px] text-[#323232] ml-1.5">a year from selected</span>
+          </div>
+
+          <div className="mb-2 text-[14px] text-[#323232]">
+            {current?.hasSelectedReward ? 'Favourite reward' : 'Example reward'}
           </div>
           <div className="flex-grow">
             {renderSelectedRewardPreview()}
           </div>
+          {renderCoachingCard('reward')}
+
+          <div className="mt-5 text-left">
+            <button
+              onClick={() => setExplorerMode(prev => prev === 'rewards' ? null : 'rewards')}
+              className={`px-6 py-2.5 rounded-full text-[13px] font-bold transition-all duration-300 ${explorerMode === 'rewards' ? 'bg-[#323232] text-white shadow-md' : 'bg-white text-[#323232] border border-gray-200 hover:border-gray-300'}`}
+            >
+              Explore rewards
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-col max-w-[320px] w-full">
-          {/* Label spacer only shown on desktop (xl) where side-by-side relies on it for alignment */}
-          <div className="mb-2 h-[18px] hidden xl:block"></div>
-          <div className="flex-grow">
-            {renderDesktopGuidance()}
+        {/* Divider: Vertical on xl screens, Horizontal below xl */}
+        <div className="hidden xl:block w-px bg-gray-200 shrink-0"></div>
+        <div className="block xl:hidden h-px bg-gray-200 w-full shrink-0 -my-2"></div>
+
+        {/* Bottom/Right Column (Tiers) */}
+        <div className="flex flex-col w-full xl:w-1/2 min-w-0 max-w-[440px]">
+          {/* Estimated SC Line */}
+          <div className="flex items-center text-left mb-4">
+            <span className="text-[14px] text-[#323232]">Estimated</span>
+            <span className="text-[14px] font-bold text-[#E40000] ml-1.5 mr-0.5">★</span>
+            <span className="text-[15px] font-bold text-[#323232]">
+              {totalAnnualSC.toLocaleString()} <span className="text-[10px] font-bold text-[#999999] uppercase">SC</span>
+            </span>
+            <span className="text-[14px] text-[#323232] ml-1.5">a year from selected</span>
+          </div>
+
+          <div className="mb-2 text-[14px] text-[#323232]">
+            {favouriteTierIndex !== null ? 'Favourite tier' : 'Example tier'}
+          </div>
+          <div className="flex-grow flex flex-col" style={{ alignSelf: 'stretch' }}>
+            <TierCard
+              tierIndex={favouriteTierIndex !== null ? favouriteTierIndex : flightTierIndex}
+              isFavourite={favouriteTierIndex !== null}
+              onToggleFavourite={() => {
+                if (favouriteTierIndex !== null) {
+                  updateFavouriteTierIndex(null);
+                  updateActiveDuoCard(null);
+                } else {
+                  updateFavouriteTierIndex(flightTierIndex);
+                }
+              }}
+            />
+          </div>
+          {renderCoachingCard('tier')}
+
+          <div className="mt-5 text-left">
+            <button
+              onClick={() => setExplorerMode(prev => prev === 'tiers' ? null : 'tiers')}
+              className={`px-6 py-2.5 rounded-full text-[13px] font-bold transition-all duration-300 ${explorerMode === 'tiers' ? 'bg-[#323232] text-white shadow-md' : 'bg-white text-[#323232] border border-gray-200 hover:border-gray-300'}`}
+            >
+              Explore tiers
+            </button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className={`${isEmbedded ? 'w-full' : 'fixed inset-0 bg-white z-40 flex flex-col h-full overflow-hidden'}`}>
@@ -406,110 +762,240 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
         </div>
       )}
 
-      {/* Tabs */}
-      <div className={`shrink-0 py-0 border-b border-gray-100 bg-white ${isEmbedded ? '' : ''}`}>
-        <CategoryTabs
-          categories={rewardTabsConfig}
-          activeCategory={activeTabKey}
-          onCategoryChange={handleTabChange}
-        />
-      </div>
+      {/* Tabs / Tier Explorer Header */}
+      {explorerMode === 'rewards' ? (
+        <div className={`shrink-0 py-0 border-b border-gray-100 bg-white ${isEmbedded ? '' : ''}`}>
+          <CategoryTabs
+            categories={rewardTabsConfig}
+            activeCategory={activeTabKey}
+            onCategoryChange={handleTabChange}
+          />
+        </div>
+      ) : null}
 
-      {/* Main Content (Map or List) */}
+      {/* Main Content (Map or List or Tier Explorer) */}
       <div className={`${isEmbedded ? 'w-full bg-gray-50' : 'flex-grow flex flex-col min-h-0 bg-gray-50 overflow-y-auto'}`}>
-        {activeTabKey === 'Flights' ? (
-          renderMapSection()
-        ) : (
-          <div>
-            {allRewards.map(r => {
-              const isExpanded = expandedId === r.id;
-              // Category-aware selection check
-              const isSelected = globalSelectedRewardId === r.id && globalSelectedRewardCategory === activeTabKey;
-              const isPending = pendingRewardId === r.id && pendingRewardCategory === activeTabKey;
-              const isAffordable = r.pts <= totalAnnualPts;
-
-              return (
-                <div key={r.id} className={`border-b border-gray-100 transition-colors duration-300 
-                  ${isExpanded || isSelected || isPending ? 'bg-[#EEF7F8]' : isAffordable ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
-                  {/* Header Row */}
-                  <div
-                    className={`flex items-center cursor-pointer hover:bg-[#EEF7F8]/50 transition-colors group ${desktopMode ? 'py-2 px-3' : 'p-4'}`}
-                    onClick={() => handleSelectRewardInList(r.id)}
-                  >
-                    {/* Selection Indicator / Icon Area */}
-                    <div
-                      className={`${desktopMode ? 'w-7 h-7 mr-3' : 'w-10 h-10 mr-4'} flex-shrink-0 flex items-center justify-center relative`}
+        {explorerMode === 'tiers' ? (
+          renderTierExplorer()
+        ) : explorerMode === 'rewards' ? (
+          activeTabKey === 'Flights' ? (
+            renderMapSection()
+          ) : (
+            <div>
+              {activeTabKey === 'Hotels' && (
+                <div className="bg-white px-4 py-3 border-b border-gray-100 flex justify-end sticky top-0 z-10 shrink-0">
+                  <div className="relative">
+                    <select
+                      className="appearance-none bg-gray-50/80 hover:bg-gray-100 py-1.5 pl-3 pr-8 rounded-[8px] border border-gray-200 text-[13px] font-medium text-[#444] outline-none transition-colors cursor-pointer"
+                      value={selectedHotelCity}
+                      onChange={(e) => setSelectedHotelCity(e.target.value)}
                     >
-                      {(isSelected || isPending) ? (
-                        <div className={`${desktopMode ? 'w-[24px] h-[24px]' : 'w-10 h-10'} rounded-full flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200 ${isAffordable ? 'bg-[#E40000]' : 'bg-gray-400'}`}>
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`${desktopMode ? 'w-3.5 h-3.5' : 'w-6 h-6'} text-white`}>
-                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                          </svg>
-                        </div>
-                      ) : (
-                        <img src={r.icon} alt="" className={`${desktopMode ? 'w-full h-full' : 'w-8 h-8'} transition-opacity group-hover:opacity-100 ${isAffordable ? 'opacity-80' : 'opacity-40'}`} />
-                      )}
-                    </div>
-
-                    {/* Reward Name Area (Selectable) */}
-                    <div className="flex-grow pr-2">
-                      <div className={`text-[12px] font-medium ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.reward}</div>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center space-x-1.5 mb-1">
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">USE</span>
-                        <img src={PointsRooLogo} className={`w-3.5 h-3.5 ${isAffordable ? '' : 'opacity-40'}`} />
-                        <span className={`text-[12px] font-medium ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.pts.toLocaleString()}</span>
-                        <span className={`text-[10px] font-bold ${isAffordable ? 'text-[#999999]' : 'text-gray-400'}`}>PTS</span>
-                      </div>
-                    </div>
-
-                    {/* Arrow Glyph Area (Exclusive Expand) */}
-                    <div
-                      className={`ml-3 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-all duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleExpand(r.id);
-                      }}
-                    >
-                      <svg className={desktopMode ? "w-4 h-4" : "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      <option value="All">All Cities</option>
+                      <option value="Sydney">Sydney Hotels</option>
+                      <option value="Melbourne">Melbourne Hotels</option>
+                      <option value="Brisbane">Brisbane Hotels</option>
+                      <option value="Perth">Perth Hotels</option>
+                      <option value="Tokyo">Tokyo Hotels</option>
+                      <option value="Bali">Bali Hotels</option>
+                      <option value="Singapore">Singapore Hotels</option>
+                      <option value="London">London Hotels</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+                      <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
                   </div>
-
-                  {/* Expanded Content */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
-                  >
-                    <div className="px-4 pb-6 pl-[72px]">
-                      {/* Description */}
-                      {r.desc && (
-                        <p className={`text-[12px] leading-relaxed mb-3 whitespace-pre-line ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>
-                          {r.desc}
-                        </p>
-                      )}
-
-                      {/* Link */}
-                      {r.linkText && (
-                        <button className="text-[12px] text-red-600 font-medium hover:underline flex items-center mb-2">
-                          {r.linkText}
-                        </button>
-                      )}
+                </div>
+              )}
+              {activeTabKey === 'Activities' && (
+                <div className="bg-white px-4 py-3 border-b border-gray-100 flex justify-end sticky top-0 z-10 shrink-0">
+                  <div className="relative">
+                    <select
+                      className="appearance-none bg-gray-50/80 hover:bg-gray-100 py-1.5 pl-3 pr-8 rounded-[8px] border border-gray-200 text-[13px] font-medium text-[#444] outline-none transition-colors cursor-pointer"
+                      value={selectedActivityLocation}
+                      onChange={(e) => setSelectedActivityLocation(e.target.value)}
+                    >
+                      <option value="All">All Destinations</option>
+                      <option value="Melbourne">Melbourne</option>
+                      <option value="Las Vegas">Las Vegas</option>
+                      <option value="Rome">Rome</option>
+                      <option value="Paris">Paris</option>
+                      <option value="London">London</option>
+                      <option value="New York City">New York City</option>
+                      <option value="Washington DC">Washington DC</option>
+                      <option value="Cancun">Cancun</option>
+                      <option value="Florence">Florence</option>
+                      <option value="Barcelona">Barcelona</option>
+                      <option value="Oahu">Oahu</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+                      <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-            {allRewards.length === 0 && (
-              <div className="text-center text-gray-500 py-10 px-6">
-                No rewards available in this category.
-              </div>
-            )}
-            {/* Bottom spacer for footer visibility */}
-            <div className="h-[320px]"></div>
-          </div>
-        )}
+              )}
+              {activeTabKey === 'Marketplace' && (
+                <div className="bg-white px-4 py-3 border-b border-gray-100 flex justify-end sticky top-0 z-10 shrink-0">
+                  <div className="relative">
+                    <select
+                      className="appearance-none bg-gray-50/80 hover:bg-gray-100 py-1.5 pl-3 pr-8 rounded-[8px] border border-gray-200 text-[13px] font-medium text-[#444] outline-none transition-colors cursor-pointer"
+                      value={selectedMarketCategory}
+                      onChange={(e) => setSelectedMarketCategory(e.target.value)}
+                    >
+                      <option value="All">All Categories</option>
+                      <option value="Appliances">Appliances</option>
+                      <option value="Home">Home</option>
+                      <option value="Travel">Travel</option>
+                      <option value="Sports, fitness and adventure">Sports, fitness and adventure</option>
+                      <option value="Outdoor living">Outdoor living</option>
+                      <option value="Women's fashion">Women's fashion</option>
+                      <option value="Men's fashion">Men's fashion</option>
+                      <option value="Baby, kids and toys">Baby, kids and toys</option>
+                      <option value="Beauty, health and personal care">Beauty, health and personal care</option>
+                      <option value="Qantas merchandise">Qantas merchandise</option>
+                      <option value="Electronics">Electronics</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+                      <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {allRewards.map(r => {
+                const isExpanded = expandedId === r.id;
+                // Category-aware selection check
+                const isSelected = globalSelectedRewardId === r.id && globalSelectedRewardCategory === activeTabKey;
+                const isPending = pendingRewardId === r.id && pendingRewardCategory === activeTabKey;
+                const isAffordable = r.pts <= totalAnnualPts;
+
+                return (
+                  <div key={r.id} className={`border-b border-gray-100 transition-colors duration-300 
+                  ${isExpanded || isSelected || isPending ? 'bg-[#EEF7F8]' : isAffordable ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
+                    {/* Header Row */}
+                    <div
+                      className={`flex items-center cursor-pointer hover:bg-[#EEF7F8]/50 transition-colors group ${desktopMode ? 'py-2 px-3' : 'p-4'}`}
+                      onClick={() => handleSelectRewardInList(r.id)}
+                    >
+                      {/* Selection Indicator / Icon Area */}
+                      <div
+                        className={`${desktopMode ? 'w-7 h-7 mr-3' : 'w-10 h-10 mr-4'} flex-shrink-0 flex items-center justify-center relative`}
+                      >
+                        {(isSelected || isPending) ? (
+                          <div className={`${desktopMode ? 'w-[24px] h-[24px]' : 'w-10 h-10'} rounded-full flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200 ${isAffordable ? 'bg-[#E40000]' : 'bg-gray-400'}`}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`${desktopMode ? 'w-3.5 h-3.5' : 'w-6 h-6'} text-white`}>
+                              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <img src={r.icon} alt="" className={`${desktopMode ? 'w-full h-full' : 'w-8 h-8'} transition-opacity group-hover:opacity-100 ${isAffordable ? 'opacity-80' : 'opacity-40'}`} />
+                        )}
+                      </div>
+
+                      {/* Reward Name Area (Selectable) */}
+                      <div className="flex-grow pr-2">
+                        <div className={`text-[12px] font-medium ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.reward}</div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center space-x-1.5 mb-1">
+                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">USE</span>
+                          <img src={PointsRooLogo} className={`w-3.5 h-3.5 ${isAffordable ? '' : 'opacity-40'}`} />
+                          <span className={`text-[12px] font-medium ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>{r.pts.toLocaleString()}</span>
+                          <span className={`text-[10px] font-bold ${isAffordable ? 'text-[#999999]' : 'text-gray-400'}`}>PTS</span>
+                        </div>
+                      </div>
+
+                      {/* Arrow Glyph Area (Exclusive Expand) */}
+                      <div
+                        className={`ml-3 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-all duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleExpand(r.id);
+                        }}
+                      >
+                        <svg className={desktopMode ? "w-4 h-4" : "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Expanded Content */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+                    >
+                      <div className="px-4 pb-6 pl-[72px]">
+                        {/* Description */}
+                        {r.desc && (
+                          <p className={`text-[12px] leading-relaxed mb-3 whitespace-pre-line ${isAffordable ? 'text-[#323232]' : 'text-gray-400'}`}>
+                            {r.desc}
+                          </p>
+                        )}
+
+                        {/* Link */}
+                        {activeTabKey === 'Hotels' && r.propertyId ? (
+                          <a
+                            href={`https://www.qantas.com/hotels/properties/${r.propertyId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[12px] text-red-600 font-medium hover:underline flex items-center mb-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            View property on qantas.com
+                          </a>
+                        ) : activeTabKey === 'Activities' && r.activityId ? (
+                          <a
+                            href={`https://activities.qantas.com.au/activity/${r.activityId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[12px] text-red-600 font-medium hover:underline flex items-center mb-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            View activity on qantas.com
+                          </a>
+                        ) : activeTabKey === 'Marketplace' && r.marketplaceId ? (
+                          <a
+                            href={`https://marketplace.qantas.com/p/${r.marketplaceId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[12px] text-red-600 font-medium hover:underline flex items-center mb-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            View item on Qantas Marketplace
+                          </a>
+                        ) : r.linkText ? (
+                          <button
+                            className="text-[12px] text-red-600 font-medium hover:underline flex items-center mb-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {r.linkText}
+                          </button>
+                        ) : null}
+
+                        {/* Disclaimer */}
+                        <div className="mt-4 border-t border-gray-100 pt-3">
+                          <p className="text-[10px] text-gray-400 font-normal leading-relaxed">
+                            Points shown are an illustrative example only. Actual points required may vary and are subject to availability, date, demand, and applicable booking or purchase conditions. Items, services, or experiences may not be available at all times. Taxes, fees or additional charges may apply.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {allRewards.length === 0 && (
+                <div className="text-center text-gray-500 py-10 px-6">
+                  No rewards available in this category.
+                </div>
+              )}
+              {/* Bottom spacer for footer visibility */}
+              <div className="h-[320px]"></div>
+            </div>
+          )
+        ) : null}
       </div>
 
       {/* Footer Container - Hidden in desktopMode */}
@@ -566,21 +1052,19 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                   </button>
 
                   <div className="p-5">
-                    <div className="flex items-start space-x-4">
-                      {/* Duo Mascot */}
-                      <img
-                        src={DuoMascot}
-                        alt=""
-                        className="w-14 h-14 flex-shrink-0"
-                      />
+                    <div className="flex items-center space-x-4">
+                      {/* Koala Sprite */}
+                      <div className="shrink-0 flex items-end justify-center z-10" style={{ width: '130px', height: '140px' }}>
+                        <KoalaSprite variant="down" scale={0.55} className="origin-bottom" />
+                      </div>
 
                       {/* Content */}
-                      <div className="flex-grow pt-1">
-                        <div className="text-[18px] text-[#323232] mb-1">
+                      <div className="flex-grow pr-4 z-10 pb-1">
+                        <div className="text-[18px] text-[#222222] font-medium mb-1.5 leading-tight">
                           This reward is <span className="font-bold">{pendingRewardObj.pts.toLocaleString()}</span>
-                          <span className="text-[12px] font-bold text-[#999999] ml-1">PTS</span>
+                          <span className="text-[14px] font-bold text-[#999999] ml-1">PTS</span>
                         </div>
-                        <p className="text-[15px] text-[#666666] leading-relaxed">
+                        <p className="text-[13px] text-[#222222] leading-[1.3] mb-4">
                           I'll show you how you can earn the points, in one year.
                         </p>
                       </div>

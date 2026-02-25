@@ -1,5 +1,6 @@
 import React from 'react';
 import QantasLogo from '../assets/logos/qantas.svg';
+import { useSaveSlots } from '../state/useSaveSlots';
 
 const oneWorldLogo = (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,15 +30,35 @@ const ChevronDown = () => (
     </svg>
 );
 
-export default function Header({ isMobile, showAccountNav = true }) {
+export default function Header({ isMobile, showAccountNav = true, onProfileClick, activeTab = 'Earn and use points', onTabClick }) {
+    const { slots, activeSlotId, current } = useSaveSlots() || {};
+    const activeSlot = slots?.find(s => s.id === activeSlotId);
+    const slotName = activeSlot?.name || 'Craig Duncan';
+    const pointsBalance = current?.currentPtsBalance !== undefined ? current.currentPtsBalance : 144513;
+
+    const getInitials = (name) => {
+        if (!name) return 'CD';
+        const words = name.trim().split(' ').filter(Boolean);
+        if (words.length === 1) {
+            return name.substring(0, 2).toUpperCase();
+        }
+        return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+    };
+
+    const initials = getInitials(slotName);
+    const formattedPoints = new Intl.NumberFormat().format(pointsBalance);
+
     if (isMobile) {
         return (
             <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
                 <img src={QantasLogo} alt="Qantas" className="h-6" />
                 <div className="flex items-center space-x-3">
-                    <div className="bg-[#E40000] text-white text-[10px] font-bold px-2 py-1 rounded-full">
-                        CD 144,513 pts
-                    </div>
+                    <button
+                        onClick={onProfileClick}
+                        className="bg-[#E40000] text-white text-[10px] font-bold px-2 py-1 rounded-full cursor-pointer hover:bg-red-700 transition-colors"
+                    >
+                        {initials} {formattedPoints} pts
+                    </button>
                     {cartIcon}
                 </div>
             </div>
@@ -62,12 +83,15 @@ export default function Header({ isMobile, showAccountNav = true }) {
                     <button className="text-gray-600 hover:text-black">
                         {cartIcon}
                     </button>
-                    <div className="flex items-center bg-[#E40000] text-white rounded-full pl-1 pr-4 py-1.5 shadow-sm overflow-hidden">
+                    <button
+                        onClick={onProfileClick}
+                        className="flex items-center bg-[#E40000] text-white rounded-full pl-1 pr-4 py-1.5 shadow-sm overflow-hidden hover:bg-red-700 transition-colors cursor-pointer"
+                    >
                         <div className="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center text-[11px] font-bold border border-white/20 mr-2">
-                            CD
+                            {initials}
                         </div>
-                        <span className="text-[14px] font-bold tracking-tight">144,513 points</span>
-                    </div>
+                        <span className="text-[14px] font-bold tracking-tight">{formattedPoints} points</span>
+                    </button>
                 </div>
             </div>
 
@@ -97,20 +121,24 @@ export default function Header({ isMobile, showAccountNav = true }) {
                             <div className="flex items-center h-full">
                                 {[
                                     'For you', 'Activity statement', 'My trips', 'Earn and use points', 'Status & benefits'
-                                ].map((item) => (
-                                    <button
-                                        key={item}
-                                        className={`px-5 text-[14px] font-medium h-full transition-colors relative flex items-center ${item === 'Earn and use points'
-                                            ? 'text-white'
-                                            : 'text-gray-300 hover:text-white hover:bg-white/5'
-                                            }`}
-                                    >
-                                        {item}
-                                        {item === 'Earn and use points' && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#E40000]" />
-                                        )}
-                                    </button>
-                                ))}
+                                ].map((item) => {
+                                    const isActive = item === activeTab;
+                                    return (
+                                        <button
+                                            key={item}
+                                            onClick={() => onTabClick && onTabClick(item)}
+                                            className={`px-5 text-[14px] font-medium h-full transition-colors relative flex items-center ${isActive
+                                                ? 'text-white'
+                                                : 'text-gray-300 hover:text-white hover:bg-white/5'
+                                                }`}
+                                        >
+                                            {item}
+                                            {isActive && (
+                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#E40000]" />
+                                            )}
+                                        </button>
+                                    )
+                                })}
                             </div>
                         </nav>
                         <button className="border border-white/40 hover:border-white text-white text-[13px] font-bold px-5 py-1.5 rounded-full transition-colors">

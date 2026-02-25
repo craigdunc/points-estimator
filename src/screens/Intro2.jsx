@@ -14,7 +14,7 @@ export default function Intro2({ goTo, currentStepIndex, dashboardStepIndex = 5 
 
   return (
     <div className="min-h-screen bg-[#F3F5F7] flex flex-col font-sans selection:bg-red-100">
-      <Header isMobile={!isSplitView} showAccountNav={false} />
+      <Header isMobile={!isSplitView} showAccountNav={false} onProfileClick={() => goTo(0)} />
 
       <main className={`flex-grow flex flex-col items-center justify-center p-4 py-8`}>
         {/* ── CENTRAL WHITE CARD ── */}

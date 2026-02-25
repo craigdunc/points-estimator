@@ -1,0 +1,51 @@
+﻿
+> prototype@0.0.0 build
+> vite build
+
+vite v6.3.3 building for production...
+transforming...
+Γ£ô 63 modules transformed.
+npm : Γ£ù Build 
+failed in 2.52s
+At line:1 char:1
++ npm run build > 
+build_error.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (  
+  Γ£ù Build failed i   
+ n 2.52s:String) [], Rem    
+oteException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+error during build:
+Could not resolve "./as
+sets/images/rewards/marketpl
+ace-apple-airtag.jpg" from 
+"src/data.js"
+file: C:/Users/Japan/On
+eDrive/Documents/Qantas/prot
+otype/src/data.js
+    at getRollupError (file:
+///C:/Users/Japan/OneDrive/D
+ocuments/Qantas/prototype/no
+de_modules/rollup/dist/es/sh
+ared/parseAst.js:397:41)
+    at error (file:///C:/Use
+rs/Japan/OneDrive/Documents/
+Qantas/prototype/node_module
+s/rollup/dist/es/shared/pars
+eAst.js:393:42)
+    at ModuleLoader.handleIn
+validResolvedId (file:///C:/
+Users/Japan/OneDrive/Documen
+ts/Qantas/prototype/node_mod
+ules/rollup/dist/es/shared/n
+ode-entry.js:21328:24)
+    at file:///C:/Users/Japa
+n/OneDrive/Documents/Qantas/
+prototype/node_modules/rollu
+p/dist/es/shared/node-entry.
+js:21288:26

@@ -4,7 +4,7 @@ import styles from './FlightMap.module.css';
 import worldMapSvg from '../assets/images/world.svg';
 
 // ——— Map constants ———
-export const BASE_MAP_WIDTH  = 800;
+export const BASE_MAP_WIDTH = 800;
 export const BASE_MAP_HEIGHT = 600;
 const PACIFIC_CENTER_OFFSET = -160;
 // wrap any longitude below this pivot by +360°
@@ -22,9 +22,9 @@ export function lonToX(lon) {
 }
 
 export function latToY(lat) {
-  const c   = Math.max(Math.min(lat, 85), -85);
+  const c = Math.max(Math.min(lat, 85), -85);
   const rad = (c * Math.PI) / 180;
-  const m   = Math.log(Math.tan(Math.PI / 4 + rad / 2));
+  const m = Math.log(Math.tan(Math.PI / 4 + rad / 2));
   return BASE_MAP_HEIGHT / 2 - (BASE_MAP_WIDTH * m) / (2 * Math.PI);
 }
 
@@ -35,8 +35,7 @@ export default function FlightMap({
   selectedFlightId,
   affordableIds,
   viewBox,
-  onFlightClick,
-  baseDotSize
+  onFlightClick
 }) {
   // compute positions (apply wrapLon to shift points < threshold)
   const originPos = useMemo(
@@ -69,9 +68,9 @@ export default function FlightMap({
   }, [affordableIds, destPos, originPos]);
 
   // dot sizes
-  const R_RED      = 5;
+  const R_RED = 5;
   const R_SELECTED = 6;
-  const R_ORIGIN   = 4;
+  const R_ORIGIN = 4;
 
   return (
     <div className="relative w-full h-64">
@@ -83,8 +82,8 @@ export default function FlightMap({
         viewBox={`${viewBox.minX} ${viewBox.minY} ${viewBox.width} ${viewBox.height}`}
         preserveAspectRatio="xMidYMid meet"
       >
- {/* grey background */}
-       <rect
+        {/* grey background */}
+        <rect
           x={-300}
           y={-300}
           width="500%"

@@ -1,17 +1,17 @@
 // src/components/MonthChange.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSaveSlots } from '../state/useSaveSlots';
 import { WTEs } from '../data';
 // NOTE: We might need Dashboard reference if dynamically getting index later
 // import Dashboard from '../screens/Dashboard';
 
 const monthNames = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December'
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
 // Changed props: accepting goTo and currentStepIndex instead of goBack
-export default function MonthChange({ goTo, currentStepIndex }) {
+export default function MonthChange({ goTo }) {
   const { current, saveState } = useSaveSlots();
 
   /* --- Get current slot data --- */
@@ -20,13 +20,13 @@ export default function MonthChange({ goTo, currentStepIndex }) {
   const selectedIds = (currentSafe.selectedWTEs || []).map(x =>
     typeof x === 'object' ? x.id : x
   );
-  const targetById  = currentSafe.monthlyTargetByWTE || {};
+  const targetById = currentSafe.monthlyTargetByWTE || {};
   const [y, initialM] = (currentSafe.currentMonth || new Date().toISOString().slice(0, 7)).split('-').map(Number);
 
   /* --- Local UI state --- */
-  const [monthNum,      setMonthNum]      = useState(initialM || 1);
-  const [earnedById,    setEarnedById]    = useState({});
-  const [hasAdvanced,   setHasAdvanced]   = useState(false);
+  const [monthNum, setMonthNum] = useState(initialM || 1);
+  const [earnedById, setEarnedById] = useState({});
+  const [hasAdvanced, setHasAdvanced] = useState(false);
 
   /* --- Derived state for next month --- */
   const currentYear = parseInt(y, 10); // Ensure year is number
@@ -38,8 +38,8 @@ export default function MonthChange({ goTo, currentStepIndex }) {
   const advance = () => {
     // Ensure current state is available
     if (!current) {
-        console.error("Cannot advance month: current slot state is missing.");
-        return;
+      console.error("Cannot advance month: current slot state is missing.");
+      return;
     }
 
     /* 1️⃣ generate earned ±20 % around each WTE target */
@@ -55,9 +55,9 @@ export default function MonthChange({ goTo, currentStepIndex }) {
     /* 2️⃣ persist back into this slot */
     saveState({
       ...current, // Spread the existing state
-      currentMonth:       nextIso,
+      currentMonth: nextIso,
       monthlyEarnedByWTE: results,
-      currentPtsBalance:  (current.currentPtsBalance || 0) + total
+      currentPtsBalance: (current.currentPtsBalance || 0) + total
     });
 
     /* 3️⃣ update local UI */
@@ -68,8 +68,8 @@ export default function MonthChange({ goTo, currentStepIndex }) {
 
   // --- Go To Dashboard Handler ---
   const handleGoToDashboard = () => {
-      const dashboardIndex = 5; // Based on steps in App.jsx
-      goTo(dashboardIndex);
+    const dashboardIndex = 5; // Based on steps in App.jsx
+    goTo(dashboardIndex);
   };
 
   // --- Render ---
@@ -96,27 +96,27 @@ export default function MonthChange({ goTo, currentStepIndex }) {
             </li>
           );
         }) : (
-            <li className="text-sm text-gray-500">No Ways to Earn selected.</li>
+          <li className="text-sm text-gray-500">No Ways to Earn selected.</li>
         )}
       </ul>
 
       {/* Action Buttons */}
       <div className="space-y-6">
-         <button
-           onClick={advance}
-           disabled={hasAdvanced} // Disable after advancing once
-           className="w-full py-3 text-black font-semibold border tracking-widest rounded-full disabled:opacity-50"
-         >
-           Advance Month
-         </button>
+        <button
+          onClick={advance}
+          disabled={hasAdvanced} // Disable after advancing once
+          className="w-full py-3 text-black font-semibold border tracking-widest rounded-full disabled:opacity-50"
+        >
+          Advance Month
+        </button>
 
-         {/* Updated onClick handler */}
-         <button
-           onClick={handleGoToDashboard}
-           className="w-full py-3 text-white bg-gray-600 font-semibold border tracking-widest rounded-full disabled:opacity-50"
-         >
-           Go to Dashboard
-         </button>
+        {/* Updated onClick handler */}
+        <button
+          onClick={handleGoToDashboard}
+          className="w-full py-3 text-white bg-gray-600 font-semibold border tracking-widest rounded-full disabled:opacity-50"
+        >
+          Go to Dashboard
+        </button>
       </div>
     </div>
   );

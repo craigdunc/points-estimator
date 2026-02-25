@@ -6,7 +6,7 @@ import { useSaveSlots } from '../state/useSaveSlots';
 const UNLOCK_FLAG = 'qff_demo_unlocked';
 
 // Changed props: accepting goTo and currentStepIndex instead of goNext
-export default function SlotSelect({ goTo, currentStepIndex }) {
+export default function SlotSelect({ goTo }) {
   /* ── 1. hooks that must ALWAYS run ─────────────────────────── */
   const {
     slots,
@@ -100,49 +100,54 @@ export default function SlotSelect({ goTo, currentStepIndex }) {
                 onBlur={() => commitRename(slot.id)}
                 onKeyDown={e => e.key === 'Enter' && nameInputRef.current.blur()}
                 placeholder="Enter name..." // Added placeholder
-                className="block w-full pl-12 pr-12 py-2 bg-transparent focus:outline-none" // Adjusted padding
+                className="block w-full pl-12 pr-20 py-2 bg-transparent focus:outline-none" // Adjusted padding
               />
             ) : (
               <div
                 onClick={() => loadSlot(slot.id)}
-                className="pl-12 pr-12 py-2 cursor-pointer" // Adjusted padding
+                className="pl-12 pr-20 py-2 cursor-pointer truncate" // Adjusted padding
               >
                 {slot.name || `Slot ${idx + 1}`} {/* Show default name if empty */}
               </div>
             )}
 
             {/* advance arrow */}
-            {/* Updated onClick to use the new handler */}
-            <button
-              onClick={handleGoToNextScreen}
-              // Disable if no slot is active or if the active slot has no name
-              disabled={!activeSlotId || (slot.id === activeSlotId && !draftName.trim())}
-              className={`absolute inset-y-0 right-0 w-10 flex items-center justify-center text-red-600 disabled:text-gray-400 disabled:cursor-not-allowed`}
-            >
-              ▶
-            </button>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
+              {/* Delete button (only show on inactive slots, or if it's the only slot we can still show it but maybe better to just show it always) */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteSlot(slot.id);
+                }}
+                className={`p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors`}
+                title="Delete Slot"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+
+              <button
+                onClick={handleGoToNextScreen}
+                disabled={slot.id !== activeSlotId || !draftName.trim()}
+                className={`w-8 h-8 flex items-center justify-center text-red-600 disabled:text-gray-300 disabled:cursor-not-allowed`}
+              >
+                ▶
+              </button>
+            </div>
           </div>
         ))}
 
         {/* actions row */}
-        <div className="mt-4 flex space-x-4"> {/* Added space-x */}
+        <div className="mt-4 flex space-x-4">
           <button
             onClick={() =>
-              createSlot(`Slot ${slots.length + 1}`, { /* ... initial state ... */ })
+              createSlot(`Slot ${slots.length + 1}`, {})
             }
-            className="text-red-600 hover:underline" // Added hover style
+            className="text-red-600 hover:underline font-medium text-sm"
           >
             + New Slot
           </button>
-
-          {activeSlotId && (
-            <button
-              onClick={() => { if (window.confirm('Are you sure you want to delete this slot?')) deleteSlot(activeSlotId); }}
-              className="text-red-600 hover:underline" // Added hover style and confirmation
-            >
-              Delete Slot {slots.findIndex(s => s.id === activeSlotId) + 1}
-            </button>
-          )}
         </div>
       </div>
     </div>

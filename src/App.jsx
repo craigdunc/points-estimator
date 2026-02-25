@@ -19,7 +19,6 @@ const steps = [
 ];
 
 // Simple helper to get the index of a component in the steps array
-const getStepIndex = (Component) => steps.findIndex(step => step === Component);
 
 export default function App() {
   const [stepIndex, setStepIndex] = useState(1);

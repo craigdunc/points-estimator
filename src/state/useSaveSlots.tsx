@@ -27,8 +27,10 @@ export interface AppState {
   setupProgressByWTE: Record<string | number, number>;
   originCity: string;
   isShowingHow?: boolean;
-  activeDuoCard?: 'onboarding' | 'reward-guidance' | null;
+  activeDuoCard?: 'onboarding' | 'reward-guidance' | 'tier-guidance' | null;
   dashboardIntroDismissed: boolean;
+  favouriteTierIndex?: number | null;
+  dismissedCoachings?: string[];
 }
 interface SaveSlot { id: string; name: string; created: number; state: AppState; }
 type Slots = SaveSlot[];
@@ -44,9 +46,11 @@ interface SlotsContextValue {
   updateTierIndex: (wteId: string | number, tierIndex: number) => void;
   updateOriginCity: (city: string) => void;
   updateIsShowingHow: (show: boolean) => void;
-  updateActiveDuoCard: (card: 'onboarding' | 'reward-guidance' | null) => void;
+  updateActiveDuoCard: (card: 'onboarding' | 'reward-guidance' | 'tier-guidance' | null) => void;
+  updateDismissedCoachings: (id: string) => void;
   setDashboardIntroDismissed: (dismissed: boolean) => void;
   advanceMonth: () => void;
+  updateFavouriteTierIndex: (index: number | null) => void;
 }
 
 
@@ -201,12 +205,23 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     saveState({ isShowingHow: show });
   }, [saveState]);
 
-  const updateActiveDuoCard = useCallback((card: 'onboarding' | 'reward-guidance' | null) => {
+  const updateActiveDuoCard = useCallback((card: 'onboarding' | 'reward-guidance' | 'tier-guidance' | null) => {
     saveState({ activeDuoCard: card });
   }, [saveState]);
 
+  const updateDismissedCoachings = useCallback((id: string) => {
+    const currentDismissed = current?.dismissedCoachings || [];
+    if (!currentDismissed.includes(id)) {
+      saveState({ dismissedCoachings: [...currentDismissed, id] });
+    }
+  }, [current, saveState]);
+
   const setDashboardIntroDismissed = useCallback((dismissed: boolean) => {
     saveState({ dashboardIntroDismissed: dismissed });
+  }, [saveState]);
+
+  const updateFavouriteTierIndex = useCallback((index: number | null) => {
+    saveState({ favouriteTierIndex: index });
   }, [saveState]);
 
 
@@ -290,7 +305,8 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       currentMonth: new Date().toISOString().slice(0, 7),
       monthlyEarnedByWTE: {}, monthlyTargetByWTE: {}, currentPtsBalance: 0,
       setupProgressByWTE: {}, originCity: 'Sydney', isShowingHow: false,
-      activeDuoCard: 'onboarding', dashboardIntroDismissed: false, ...initialState
+      activeDuoCard: 'onboarding', dashboardIntroDismissed: false,
+      favouriteTierIndex: null, ...initialState
     };
     const newSlot: SaveSlot = { id: uuid(), name, created: Date.now(), state: defaultState };
     setSlots(s => [newSlot, ...s]);
@@ -306,29 +322,21 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteSlot = useCallback((id: string) => {
-    setSlots(prevSlots => {
-      const remaining = prevSlots.filter(slot => slot.id !== id);
+    const remaining = slots.filter(slot => slot.id !== id);
+    setSlots(remaining);
 
-      // If we deleted the active slot, we must switch to a new one
-      if (activeSlotId === id) {
-        const nextSlot = remaining[0] || null;
-
-        // Perform these updates as side effects outside the pure filter
-        // We use setTimeout to ensure these fire after this setSlots completes
-        setTimeout(() => {
-          if (nextSlot) {
-            setActiveSlotId(nextSlot.id);
-            setCurrent(nextSlot.state);
-          } else {
-            // If No slots left, create an initial one
-            createSlot('Kim', {});
-          }
-        }, 0);
+    // If we deleted the currently active slot, we must switch to another one
+    if (activeSlotId === id) {
+      if (remaining.length > 0) {
+        const nextSlot = remaining[0];
+        setActiveSlotId(nextSlot.id);
+        setCurrent(nextSlot.state);
+      } else {
+        // If no slots left, create an initial one safely
+        createSlot('Kim', {});
       }
-
-      return remaining;
-    });
-  }, [activeSlotId, createSlot]);
+    }
+  }, [slots, activeSlotId, createSlot]);
 
   const loadSlot = useCallback((id: string) => {
     const slot = slots.find(s => s.id === id);
@@ -346,7 +354,10 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         createSlot, renameSlot, deleteSlot, loadSlot, saveState,
         updateSelectedWTU, updateSelectedRewardId,
         updateSelectedWTEs, updateTierIndex, updateOriginCity, updateIsShowingHow,
-        updateActiveDuoCard, setDashboardIntroDismissed, advanceMonth,
+        updateActiveDuoCard,
+        updateDismissedCoachings,
+        setDashboardIntroDismissed, advanceMonth,
+        updateFavouriteTierIndex,
       }}
     >
       {children}

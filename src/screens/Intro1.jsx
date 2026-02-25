@@ -17,7 +17,7 @@ export default function Intro1({ goTo }) {
 
   return (
     <div className="min-h-screen bg-[#F3F5F7] flex flex-col font-sans selection:bg-red-100">
-      <Header isMobile={!isSplitView} showAccountNav={false} />
+      <Header isMobile={!isSplitView} showAccountNav={false} onProfileClick={() => goTo(0)} />
 
       <main className={`flex-grow ${isSplitView ? 'max-w-[1200px] mx-auto w-full px-6 pt-10' : 'pb-12'}`}>
 

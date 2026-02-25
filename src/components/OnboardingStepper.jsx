@@ -5,11 +5,10 @@ import { WTEOnboarding } from '../onboardingConfig';
 export default function OnboardingStepper({ wteId, onDone }) {
   const { current, saveState } = useSaveSlots();
 
-  if (!current) return null;
-
   const steps = WTEOnboarding[wteId] || [];
   const total = steps.length;
-  const doneSoFar = current.setupProgressByWTE?.[wteId] || 0;
+  const currentSafe = current || {};
+  const doneSoFar = currentSafe.setupProgressByWTE?.[wteId] || 0;
 
   const [choice, setChoice] = useState(
     steps[doneSoFar]?.kind === 'pickMany' ? [] : ''
@@ -25,6 +24,7 @@ export default function OnboardingStepper({ wteId, onDone }) {
     return () => html.classList.remove('overflow-hidden');
   }, []);
 
+  if (!current) return null;
   if (doneSoFar >= total) return null;
 
   const step = steps[doneSoFar];
@@ -136,11 +136,10 @@ export default function OnboardingStepper({ wteId, onDone }) {
               <button
                 key={opt}
                 onClick={() => setChoice(opt)}
-                className={`block w-full text-left px-3 py-2 border rounded ${
-                  choice === opt
+                className={`block w-full text-left px-3 py-2 border rounded ${choice === opt
                     ? 'border-red-600 bg-red-50'
                     : 'border-gray-300'
-                }`}
+                  }`}
               >
                 {opt}
               </button>
