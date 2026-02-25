@@ -37,7 +37,7 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-[15px] mb-5 tracking-tight">About us</h4>
+                        <h4 className="font-medium text-[16px] mb-5">About us</h4>
                         <ul className="space-y-4 text-[#666] text-[14px]">
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">About Qantas</li>
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">oneworld</li>
@@ -47,7 +47,7 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-[15px] mb-5 tracking-tight">Qantas Group</h4>
+                        <h4 className="font-medium text-[16px] mb-5">Qantas Group</h4>
                         <ul className="space-y-4 text-[#666] text-[14px]">
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">About Qantas Group</li>
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">Careers</li>
@@ -55,7 +55,7 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-[15px] mb-5 tracking-tight">Support</h4>
+                        <h4 className="font-medium text-[16px] mb-5">Support</h4>
                         <ul className="space-y-4 text-[#666] text-[14px]">
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">Help & support</li>
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">Contact us</li>
@@ -65,7 +65,7 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-[15px] mb-5 tracking-tight">Qantas App</h4>
+                        <h4 className="font-medium text-[16px] mb-5">Qantas App</h4>
                         <ul className="space-y-4 text-[#666] text-[14px]">
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">Qantas App iOS</li>
                             <li className="hover:text-[#E40000] cursor-pointer transition-colors">Qantas App Android</li>
@@ -74,7 +74,7 @@ export default function Footer() {
                 </div>
 
                 <div className="mb-12">
-                    <h4 className="font-bold text-[15px] mb-5 tracking-tight">Connect with us</h4>
+                    <h4 className="font-medium text-[16px] mb-5">Connect with us</h4>
                     <div className="flex space-x-4 text-[#323232]">
                         {Object.entries(socialIcons).map(([key, icon]) => (
                             <button key={key} className="hover:text-[#E40000] transition-colors p-1 -ml-1">

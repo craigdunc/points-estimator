@@ -798,7 +798,7 @@ export default function Dashboard({ goTo }) {
 
             {/* Terms and conditions block */}
             <div className="border-t border-[#E1E1E1] pt-6 mb-4">
-              <h4 className="text-[13px] font-bold text-[#666] mb-3">Terms and conditions</h4>
+              <h4 className="text-[13px] font-medium text-[#666] mb-3">Terms and conditions</h4>
               <p className="text-[13px] text-[#666] mb-4 leading-relaxed max-w-[90%]">
                 You must be a Qantas Frequent Flyer to earn and redeem Qantas Points. A joining fee may apply. Membership and points are subject to the Qantas Frequent Flyer program <a href="#" className="underline">Terms and Conditions</a>.
               </p>
