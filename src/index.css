@@ -26,8 +26,22 @@
 
 /* ─────────────────────────────────────────────────────────────────────────────── */
 
+@font-face {
+  font-family: 'Qantas Sans';
+  src: url('./assets/fonts/QantasSans-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Qantas Sans';
+  src: url('./assets/fonts/QantasSans-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Qantas Sans', 'Inter', system-ui, sans-serif;
 }
 
 /* Hide scrollbars on mobile but show on desktop/tablet */
@@ -161,7 +175,7 @@ input[type="range"]:focus {
 }
 
 .onboarding-card-content.visible {
-  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.3s ease-out, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   opacity: 1;
   transform: translateY(0);
 }
@@ -205,4 +219,261 @@ input[type="range"]:focus {
 
 .delay-5 {
   animation-delay: 2.5s;
+}
+
+/* ─── Gamified Flair Animations (Duolingo-inspired) ─────────────────────────── */
+
+/* Radiating pulse rings — plays on checkbox select */
+@keyframes select-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 166, 0, 0.5);
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.15);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(0, 166, 0, 0);
+    transform: scale(1);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 166, 0, 0);
+    transform: scale(1);
+  }
+}
+
+.animate-select-pulse {
+  animation: select-pulse 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Celebratory pop — grows then settles */
+@keyframes celebrate-pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-celebrate-pop {
+  animation: celebrate-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Heart burst — used on tier favourite */
+@keyframes heart-burst {
+  0% {
+    transform: scale(1);
+  }
+
+  25% {
+    transform: scale(1.35);
+  }
+
+  50% {
+    transform: scale(0.9);
+  }
+
+  75% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-heart-burst {
+  animation: heart-burst 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Radiating ring — the concentric circle burst */
+@keyframes radiate-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+    border-width: 3px;
+  }
+
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+    border-width: 0.5px;
+  }
+}
+
+.animate-radiate-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid #00a600;
+  animation: radiate-ring 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+.animate-radiate-ring-red {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid #E40000;
+  animation: radiate-ring 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+/* Progress bar shimmer */
+@keyframes progress-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-progress-shimmer {
+  background: linear-gradient(90deg,
+      #E40000 0%,
+      #E40000 40%,
+      #ff6b6b 50%,
+      #E40000 60%,
+      #E40000 100%);
+  background-size: 200% 100%;
+  animation: progress-shimmer 2s ease-in-out infinite;
+}
+
+/* Koala drop-in — fade in and drop 10px */
+@keyframes koala-drop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-koala-drop-in {
+  animation: koala-drop-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Counter tick-up effect */
+@keyframes counter-bump {
+  0% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-3px);
+  }
+
+  60% {
+    transform: translateY(1px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-counter-bump {
+  animation: counter-bump 0.3s ease-out;
+}
+
+/* Row highlight flash — subtle green flash for newly-selected rows */
+@keyframes row-highlight {
+  0% {
+    background-color: rgba(0, 166, 0, 0.15);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+.animate-row-highlight {
+  animation: row-highlight 1s ease-out forwards;
+}
+
+/* Onboarding button attention pulse */
+@keyframes button-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(228, 0, 0, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(228, 0, 0, 0);
+  }
+}
+
+.animate-button-glow {
+  animation: button-glow 2s ease-in-out infinite;
+}
+
+/* Magic Sparkles */
+@keyframes shoot-sparkle {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.animate-shoot-sparkle {
+  animation: shoot-sparkle 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+@keyframes scatter-sparkle {
+  0% {
+    transform: translate(0, 0) scale(1.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--sx), var(--sy)) scale(0);
+    opacity: 0;
+  }
+}
+
+.animate-scatter-sparkle {
+  animation: scatter-sparkle 0.6s ease-out forwards;
+}
+
+/* Confetti burst — colorful pieces fly outward from center */
+@keyframes confetti-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--cx)), calc(-50% + var(--cy))) scale(1.3);
+  }
+  100% {
+    transform: translate(calc(-50% + var(--cx)), calc(-50% + var(--cy))) scale(0);
+    opacity: 0;
+  }
 }

@@ -6,14 +6,16 @@ export default function RewardCard({
     originCity = 'Sydney',
     onOriginClick,
     isFavorited = false,
-    onFavoriteClick
+    onFavoriteClick,
+    variant = 'default'
 }) {
     if (!reward) return null;
 
     const isFlight = reward.type === 'Classic Flight Reward';
+    const isMini = variant === 'mini';
 
     return (
-        <div className="relative w-full aspect-[1.8/1] rounded-[14px] overflow-hidden shadow-lg bg-gray-200 group cursor-pointer">
+        <div className={`relative w-full ${isMini ? 'h-full' : 'aspect-[1.8/1]'} rounded-[5px] overflow-hidden shadow-lg bg-gray-200 group cursor-pointer block`}>
             {/* Background Image */}
             {reward.imageUrl && (
                 <img
@@ -30,8 +32,8 @@ export default function RewardCard({
                     if (onFavoriteClick) onFavoriteClick();
                 }}
                 className={`absolute top-3 right-3 z-20 cursor-pointer transition-all duration-300 hover:scale-110 ${isFavorited
-                        ? 'opacity-100 scale-100'
-                        : 'opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100'
+                    ? 'opacity-100 scale-100'
+                    : 'opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100'
                     }`}
             >
                 {isFavorited ? (
@@ -46,70 +48,84 @@ export default function RewardCard({
             </div>
 
             {/* Dark Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30"></div>
+            <div className={`absolute inset-0 bg-gradient-to-t ${isMini ? 'from-black/60 to-transparent pointer-events-none' : 'from-black/80 via-black/20 to-black/30'}`}></div>
 
             {/* Content Container */}
-            <div className="absolute inset-0 p-3 flex flex-col justify-between text-white">
-                {/* Top: Badge (if flight) or Icon */}
-                <div className="flex items-start">
-                    {isFlight ? (
-                        <div className="flex items-center space-x-1.5 bg-white/15 backdrop-blur-md rounded-full px-1.5 py-1 border border-white/20">
-                            <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                                <svg className="w-3.5 h-3.5 text-[#E40000]" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
-                            </div>
-                            <span className="text-[11px] font-medium">
-                                Classic Reward Flight
-                            </span>
-                        </div>
-                    ) : (
-                        <div className="flex items-center space-x-2.5">
-                            {reward.icon && (
-                                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1 shadow-md">
-                                    <img src={reward.icon} alt="" className="w-5 h-5" />
+            <div className={`absolute inset-0 ${isMini ? 'p-4' : 'p-3'} flex flex-col justify-between text-white pointer-events-none`}>
+                {isMini ? (
+                    <>
+                        <div />
+                        <span className="text-[17px] font-medium drop-shadow-md leading-tight">{reward.destCity || reward.reward}</span>
+                    </>
+                ) : (
+                    <>
+                        {/* Top: Badge (if flight) or Icon */}
+                        <div className="flex items-start">
+                            {isFlight ? (
+                                <div className="flex items-center space-x-1.5 bg-white/15 backdrop-blur-md rounded-full px-1.5 py-1 border border-white/20 pointer-events-auto">
+                                    <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center shrink-0">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[14px] h-[14px] text-[#E40000]">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M7.99794 1.33398C10.9434 1.33398 13.3318 3.72162 13.3319 6.66699C13.3319 8.07145 12.7878 9.34814 11.9003 10.3008L13.2724 13.3193C13.4751 13.7664 13.1421 14.2619 12.6679 14.2617L12.5917 14.2578L11.0663 14.0879L10.1493 15.1123C9.83708 15.4606 9.28171 15.3839 9.06728 14.9863L9.0331 14.9131L7.9999 12.3047L6.98622 14.9092C6.81665 15.3443 6.27133 15.4682 5.93056 15.1729L5.87197 15.1162L4.93447 14.0879L3.40517 14.2578C2.91687 14.3119 2.54926 13.8405 2.69716 13.3896L2.72451 13.3193L4.0956 10.3008C3.20848 9.34819 2.66493 8.07125 2.66493 6.66699C2.66511 3.72176 5.05272 1.3342 7.99794 1.33398ZM7.99794 2.66699C5.7891 2.66721 3.99812 4.45814 3.99794 6.66699C3.99794 8.876 5.78899 10.6668 7.99794 10.667C10.2071 10.667 11.9979 8.87613 11.9979 6.66699C11.9978 4.458 10.207 2.66699 7.99794 2.66699ZM7.82509 4.7793C7.89259 4.62989 8.10516 4.62997 8.17275 4.7793L8.66396 5.86719L9.829 5.9873C9.99255 6.00429 10.0588 6.20647 9.9374 6.31738L9.07997 7.10156L9.32509 8.24805C9.35928 8.40933 9.18667 8.53462 9.04384 8.45215L7.99892 7.84766L6.95497 8.45215C6.81214 8.5348 6.63865 8.40934 6.67275 8.24805L6.91884 7.10156L6.06044 6.31738C5.93931 6.20641 6.00632 6.00424 6.16982 5.9873L7.33388 5.86719L7.82509 4.7793Z" fill="currentColor" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-[11px] font-medium leading-[14px]">
+                                        Classic Flight Reward
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center space-x-2.5 pointer-events-auto">
+                                    {reward.icon && (
+                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1 shadow-md">
+                                            <img src={reward.icon} alt="" className="w-5 h-5" />
+                                        </div>
+                                    )}
+                                    <span className="text-[12px] font-medium tracking-tight">
+                                        {reward.type}
+                                    </span>
                                 </div>
                             )}
-                            <span className="text-[12px] font-medium tracking-tight">
-                                {reward.type}
-                            </span>
                         </div>
-                    )}
-                </div>
 
-                {/* Bottom: Destination and Points */}
-                <div className="flex justify-between items-end">
-                    <div className="flex flex-col">
-                        <button
-                            onClick={(e) => {
-                                if (onOriginClick) {
-                                    e.stopPropagation();
-                                    onOriginClick();
-                                }
-                            }}
-                            className={`text-[10px] font-semibold opacity-90 drop-shadow-md text-left ${onOriginClick ? 'hover:underline cursor-pointer' : ''}`}
-                        >
-                            {reward.destCity ? `${originCity} to` : ''}
-                        </button>
-                        <span className="text-[16px] font-medium drop-shadow-lg leading-tight mb-0.5">
-                            {reward.destCity || reward.reward}
-                        </span>
-                        {isFlight && (
-                            <span className="text-[10px] font-medium opacity-90">
-                                + $180 charges
-                            </span>
-                        )}
-                    </div>
+                        {/* Bottom: Destination and Points */}
+                        <div className="flex justify-between items-end">
+                            <div className="flex flex-col">
+                                <button
+                                    onClick={(e) => {
+                                        if (onOriginClick) {
+                                            e.stopPropagation();
+                                            onOriginClick();
+                                        }
+                                    }}
+                                    className={`text-[10px] font-semibold opacity-90 drop-shadow-md text-left pointer-events-auto ${onOriginClick ? 'hover:underline cursor-pointer' : ''}`}
+                                >
+                                    {reward.destCity ? `${originCity} to` : ''}
+                                </button>
+                                <span className="text-[16px] font-medium drop-shadow-lg leading-tight mb-0.5">
+                                    {reward.destCity || reward.reward}
+                                </span>
+                                {isFlight && (
+                                    <span className="text-[10px] font-medium opacity-90">
+                                        + $180 charges
+                                    </span>
+                                )}
+                            </div>
 
-                    <div className="flex items-baseline space-x-1 drop-shadow-lg pb-0.5">
-                        <span className="text-[16px] font-medium uppercase">
-                            {reward.pts.toLocaleString()}
-                        </span>
-                        <span className="text-[9px] font-bold uppercase opacity-80">
-                            PTS
-                        </span>
-                    </div>
-                </div>
+                            <div className="flex items-center space-x-1.5 drop-shadow-lg pb-0.5 pointer-events-auto">
+                                <svg className="w-[18px] h-[16px] text-white overflow-visible" viewBox="0 0 27 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M26.0576 23.6163C26.0794 23.639 26.1012 23.639 26.1232 23.639C26.167 23.639 26.1891 23.639 26.2329 23.5933C26.2764 23.5476 26.2764 23.4564 26.2329 23.4107C23.6278 20.5556 20.4319 18.249 16.8637 16.7647C15.7692 16.3078 15.7692 16.3078 15.7692 16.3078C15.1999 16.0563 14.8279 15.4856 14.8279 14.8232C14.8935 12.3795 20.4099 12.882 20.9791 11.7171C21.0668 11.5116 21.0668 11.5116 21.0668 11.5116C19.9284 10.4838 18.5929 9.73024 17.1046 9.2964C17.0828 9.36483 17.0387 9.63882 17.3451 10.1641C17.6738 10.7123 16.9949 11.603 15.988 10.6439C15.9004 10.5752 15.9004 10.5752 15.9004 10.5752C8.58908 3.58648 5.21819 8.19991 0.2491 0.0695199C0.20529 0.000828303 0.139698 -0.0218967 0.0738597 0.0238116C0.00826853 0.0695199 -0.0137602 0.137953 0.00826853 0.206386C3.92666 10.0499 11.9384 7.97163 12.8797 17.1528C12.9235 17.4955 13.1644 17.7695 13.4926 17.8152C17.9362 18.546 22.2707 20.4645 26.0358 23.6163H26.0576" fill="currentColor" />
+                                </svg>
+                                <div className="flex items-baseline space-x-1">
+                                    <span className="text-[16px] font-medium uppercase mt-0.5">
+                                        {reward.pts.toLocaleString()}
+                                    </span>
+                                    <span className="text-[9px] font-bold uppercase opacity-80">
+                                        PTS
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

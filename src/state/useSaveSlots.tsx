@@ -21,6 +21,7 @@ export interface AppState {
   selectedRewardCategory?: string | null;
   hasSelectedReward?: boolean;
   currentMonth: string;
+  currentWeek?: number;
   monthlyEarnedByWTE: Record<string | number, number>;
   monthlyTargetByWTE: Record<string | number, number>;
   currentPtsBalance: number;
@@ -31,6 +32,9 @@ export interface AppState {
   dashboardIntroDismissed: boolean;
   favouriteTierIndex?: number | null;
   dismissedCoachings?: string[];
+  opaqueSpend?: boolean;
+  opaqueEarn?: boolean;
+  wteFavourites: Record<string | number, string[]>;
 }
 interface SaveSlot { id: string; name: string; created: number; state: AppState; }
 type Slots = SaveSlot[];
@@ -49,8 +53,11 @@ interface SlotsContextValue {
   updateActiveDuoCard: (card: 'onboarding' | 'reward-guidance' | 'tier-guidance' | null) => void;
   updateDismissedCoachings: (id: string) => void;
   setDashboardIntroDismissed: (dismissed: boolean) => void;
-  advanceMonth: () => void;
+  advanceTime: () => void;
   updateFavouriteTierIndex: (index: number | null) => void;
+  setOpaqueSpend: (value: boolean) => void;
+  setOpaqueEarn: (value: boolean) => void;
+  updateWTEFavourites: (wteId: string | number, subId: string) => void;
 }
 
 
@@ -210,11 +217,33 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
   }, [saveState]);
 
   const updateDismissedCoachings = useCallback((id: string) => {
-    const currentDismissed = current?.dismissedCoachings || [];
-    if (!currentDismissed.includes(id)) {
-      saveState({ dismissedCoachings: [...currentDismissed, id] });
-    }
-  }, [current, saveState]);
+    saveState((prev) => {
+      if (!prev) return {};
+      const currentObj = prev.dismissedCoachings || [];
+      if (!currentObj.includes(id)) {
+        return { dismissedCoachings: [...currentObj, id] };
+      }
+      return {};
+    });
+  }, [saveState]);
+
+  const updateWTEFavourites = useCallback((wteId: string | number, subId: string) => {
+    saveState((prev) => {
+      if (!prev) return {};
+      const currentFavs = prev.wteFavourites || {};
+      const wteFavs = currentFavs[wteId] || [];
+      const newWteFavs = wteFavs.includes(subId)
+        ? wteFavs.filter(id => id !== subId)
+        : [...wteFavs, subId];
+
+      return {
+        wteFavourites: {
+          ...currentFavs,
+          [wteId]: newWteFavs
+        }
+      };
+    });
+  }, [saveState]);
 
   const setDashboardIntroDismissed = useCallback((dismissed: boolean) => {
     saveState({ dashboardIntroDismissed: dismissed });
@@ -224,6 +253,14 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     saveState({ favouriteTierIndex: index });
   }, [saveState]);
 
+  const setOpaqueSpend = useCallback((value: boolean) => {
+    saveState({ opaqueSpend: value });
+  }, [saveState]);
+
+  const setOpaqueEarn = useCallback((value: boolean) => {
+    saveState({ opaqueEarn: value });
+  }, [saveState]);
+
 
   const updateTierIndex = useCallback((wteId: string | number, tierIndex: number) => {
     saveState(prev => {
@@ -231,9 +268,17 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       const currentWTEs = prev.selectedWTEs || [];
       const currentTierIndexById = prev.tierIndexById || getDefaultTierIndexById();
       const newTierIndexById = { ...currentTierIndexById, [wteId]: tierIndex };
-      const newWTEs = currentWTEs.map(wte =>
-        wte.id === wteId ? { ...wte, level: String(tierIndex) } : wte
-      );
+
+      const exists = currentWTEs.some(w => String(w.id) === String(wteId));
+      let newWTEs;
+      if (exists) {
+        newWTEs = currentWTEs.map(w =>
+          String(w.id) === String(wteId) ? { ...w, level: String(tierIndex) } : w
+        );
+      } else {
+        newWTEs = [...currentWTEs, { id: wteId, level: String(tierIndex) }];
+      }
+
       const newSelectedIds = newWTEs.map(w => w.id);
 
       const newTotalAnnualPts = newWTEs.reduce((sum, wteSelection) => {
@@ -265,34 +310,47 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
     });
   }, [saveState]);
 
-  const advanceMonth = useCallback(() => {
+  const advanceTime = useCallback(() => {
     saveState(prev => {
       if (!prev) return ({} as Partial<AppState>);
 
-      const currentMonth = prev.currentMonth || new Date().toISOString().slice(0, 7);
-      const [y, m] = currentMonth.split('-').map(Number);
-      const nextMonthNum = m === 12 ? 1 : m + 1;
-      const nextYear = m === 12 ? y + 1 : y;
-      const nextIso = `${nextYear}-${String(nextMonthNum).padStart(2, '0')}`;
-
+      const currentWeek = prev.currentWeek || 1;
       const selectedWTEs = prev.selectedWTEs || [];
       const targetById = prev.monthlyTargetByWTE || {};
-      const results: Record<string | number, number> = {};
-      let monthTotal = 0;
 
-      selectedWTEs.forEach(w => {
-        const tgt = targetById[w.id] ?? 0;
-        // Generate ±20% variation
-        const actual = Math.floor(tgt * (0.8 + Math.random() * 0.4));
-        results[w.id] = actual;
-        monthTotal += actual;
-      });
+      let nextWeekTotal = 0;
+      const nextResults: Record<string | number, number> = { ...(prev.monthlyEarnedByWTE || {}) };
 
-      return {
-        currentMonth: nextIso,
-        monthlyEarnedByWTE: results,
-        currentPtsBalance: (prev.currentPtsBalance || 0) + monthTotal,
-      };
+      if (currentWeek < 4) {
+        // Advance week by adding ~1/4 of target
+        selectedWTEs.forEach(w => {
+          const tgt = targetById[w.id] ?? 0;
+          const weeklyTgt = tgt / 4;
+          const actual = Math.floor(weeklyTgt * (0.8 + Math.random() * 0.4));
+          nextResults[w.id] = (nextResults[w.id] || 0) + actual;
+          nextWeekTotal += actual;
+        });
+
+        return {
+          currentWeek: currentWeek + 1,
+          monthlyEarnedByWTE: nextResults,
+          currentPtsBalance: (prev.currentPtsBalance || 0) + nextWeekTotal,
+        };
+      } else {
+        // We're at the end of week 4 -> start of next month (week 1)
+        const currentMonth = prev.currentMonth || new Date().toISOString().slice(0, 7);
+        const [y, m] = currentMonth.split('-').map(Number);
+        const nextMonthNum = m === 12 ? 1 : m + 1;
+        const nextYear = m === 12 ? y + 1 : y;
+        const nextIso = `${nextYear}-${String(nextMonthNum).padStart(2, '0')}`;
+
+        return {
+          currentMonth: nextIso,
+          currentWeek: 1, // reset week
+          monthlyEarnedByWTE: {}, // reset points for the new month
+          // currentPtsBalance carries over
+        };
+      }
     });
   }, [saveState]);
 
@@ -306,7 +364,10 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
       monthlyEarnedByWTE: {}, monthlyTargetByWTE: {}, currentPtsBalance: 0,
       setupProgressByWTE: {}, originCity: 'Sydney', isShowingHow: false,
       activeDuoCard: 'onboarding', dashboardIntroDismissed: false,
-      favouriteTierIndex: null, ...initialState
+      favouriteTierIndex: null,
+      dismissedCoachings: [],
+      wteFavourites: {},
+      ...initialState
     };
     const newSlot: SaveSlot = { id: uuid(), name, created: Date.now(), state: defaultState };
     setSlots(s => [newSlot, ...s]);
@@ -356,8 +417,11 @@ export function SaveSlotsProvider({ children }: { children: ReactNode }) {
         updateSelectedWTEs, updateTierIndex, updateOriginCity, updateIsShowingHow,
         updateActiveDuoCard,
         updateDismissedCoachings,
-        setDashboardIntroDismissed, advanceMonth,
+        setDashboardIntroDismissed, advanceTime,
         updateFavouriteTierIndex,
+        setOpaqueSpend,
+        setOpaqueEarn,
+        updateWTEFavourites,
       }}
     >
       {children}

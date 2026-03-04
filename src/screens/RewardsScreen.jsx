@@ -26,6 +26,8 @@ import LeafletMap from '../components/LeafletMap';
 import RewardCard from '../components/RewardCard';
 import KoalaSprite from '../components/KoalaSprite';
 import TierCard from '../components/TierCard';
+import { maskPts } from '../utils/maskPts';
+import HTMLTypewriter from '../components/HTMLTypewriter';
 
 // Reward tab config
 const rewardTabsConfig = [
@@ -151,7 +153,15 @@ const BenefitIcon = ({ name, className }) => {
   return null;
 };
 
-export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = false, containerRef = null }) {
+export default function RewardsScreen({
+  goTo,
+  isEmbedded = false,
+  desktopMode = false,
+  containerRef = null,
+  onboardingStep = null,
+  onOnboardingAction = null,
+  onboardingData = null
+}) {
   const {
     current,
     updateSelectedWTU,
@@ -162,6 +172,14 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     updateDismissedCoachings
   } = useSaveSlots();
   const rewardsMap = useRewardsMap();
+
+  const [headlineDone, setHeadlineDone] = useState(false);
+  const [typewriterDone, setTypewriterDone] = useState(false);
+
+  useEffect(() => {
+    setHeadlineDone(false);
+    setTypewriterDone(false);
+  }, [onboardingStep]);
 
   // Global state
   const totalAnnualPts = current?.totalAnnualPts ?? 0;
@@ -346,6 +364,17 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     setPendingRewardCategory(null);
   }, [updateSelectedWTU]);
 
+  // Auto-set explorerMode when onboarding steps change
+  useEffect(() => {
+    if (onboardingStep === 9 || onboardingStep === 10) {
+      setExplorerMode('rewards');
+    } else if (onboardingStep === 11) {
+      setExplorerMode('tiers');
+    } else {
+      setExplorerMode(null);
+    }
+  }, [onboardingStep]);
+
   const handleToggleExpand = useCallback(id => {
     setExpandedId(prev => (prev === id ? null : id));
   }, []);
@@ -371,19 +400,27 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       // Clear any pending modal state
       setPendingRewardId(null);
       setPendingRewardCategory(null);
-      updateActiveDuoCard(null);
+      // Only clear if we're not currently in an onboarding flow
+      if (activeDuoCard !== 'onboarding') {
+        updateActiveDuoCard(null);
+      }
     } else {
       // Unaffordable - set pending for Duo guidance
       setPendingRewardId(id);
       setPendingRewardCategory('Flights');
       updateActiveDuoCard('reward-guidance');
 
+      // Dismiss onboarding steps if active
+      if ((onboardingStep >= 8 && onboardingStep <= 10) && onOnboardingAction) {
+        onOnboardingAction();
+      }
+
       // Animated transition: scroll to top first
       if (desktopMode && containerRef?.current) {
         containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
-  }, [flightPoints, totalAnnualPts, globalSelectedRewardId, pendingRewardId, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
+  }, [flightPoints, totalAnnualPts, globalSelectedRewardId, pendingRewardId, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard, onboardingStep, onOnboardingAction, activeDuoCard]);
 
   const handleSelectRewardInList = useCallback((id) => {
     if ((globalSelectedRewardId === id && globalSelectedRewardCategory === activeTabKey) ||
@@ -408,24 +445,37 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       // If affordable, select it immediately as explicit favourite
       setPendingRewardId(null);
       setPendingRewardCategory(null);
-      updateActiveDuoCard(null);
+      // Only clear if we're not currently in an onboarding flow
+      if (activeDuoCard !== 'onboarding') {
+        updateActiveDuoCard(null);
+      }
     } else {
       setPendingRewardId(id);
       setPendingRewardCategory(activeTabKey);
       updateActiveDuoCard('reward-guidance');
+
+      // Dismiss onboarding steps if active
+      if ((onboardingStep >= 8 && onboardingStep <= 10) && onOnboardingAction) {
+        onOnboardingAction();
+      }
 
       // Animated transition: scroll to top first
       if (desktopMode && containerRef?.current) {
         containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
-  }, [activeTabKey, rewardsMap, totalAnnualPts, globalSelectedRewardId, globalSelectedRewardCategory, pendingRewardId, pendingRewardCategory, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard]);
+  }, [activeTabKey, rewardsMap, totalAnnualPts, globalSelectedRewardId, globalSelectedRewardCategory, pendingRewardId, pendingRewardCategory, updateSelectedRewardId, desktopMode, containerRef, updateActiveDuoCard, onboardingStep, onOnboardingAction, activeDuoCard]);
 
   const handleCloseModal = useCallback(() => {
     setPendingRewardId(null);
     setPendingRewardCategory(null);
-    updateActiveDuoCard(null);
-  }, [updateActiveDuoCard]);
+    // If we're still in the onboarding flow (steps 8 to 10), revert back to onboarding card
+    if (onboardingStep !== null && onboardingStep <= 10) {
+      updateActiveDuoCard('onboarding');
+    } else {
+      updateActiveDuoCard(null);
+    }
+  }, [updateActiveDuoCard, onboardingStep]);
 
   const handleShowMe = useCallback(() => {
     // First, set the selected reward
@@ -455,19 +505,32 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
   const renderMapSection = () => {
     if (activeTabKey !== 'Flights') return null;
     const mapShellClass = desktopMode
-      ? 'relative border border-gray-200 rounded-[12px] overflow-hidden h-[340px] lg:h-[380px] bg-white'
-      : 'flex-grow relative border-t border-b border-gray-200';
+      ? 'relative border border-gray-200 rounded-[12px] overflow-hidden h-[340px] lg:h-[380px] bg-white shrink-0'
+      : 'flex-grow relative border-t border-b border-gray-200 min-h-[300px] shrink-0';
     return (
-      <div className={mapShellClass}>
-        <LeafletMap
-          flights={flightPoints}
-          origin={ORIGIN_CITY.coords}
-          selectedFlightId={globalSelectedRewardId}
-          pendingFlightId={pendingRewardId}
-          affordableIds={affordableFlightIds}
-          onFlightClick={handleSelectRewardOnMap}
-          isSelectionExplicit={current.hasSelectedReward || userHasInteracted}
-        />
+      <div className={`flex flex-col w-full ${desktopMode ? '' : 'h-full flex-grow'}`}>
+        <div className={mapShellClass}>
+          <LeafletMap
+            flights={flightPoints}
+            origin={ORIGIN_CITY.coords}
+            selectedFlightId={globalSelectedRewardId}
+            pendingFlightId={pendingRewardId}
+            affordableIds={affordableFlightIds}
+            onFlightClick={handleSelectRewardOnMap}
+            isSelectionExplicit={current.hasSelectedReward || userHasInteracted}
+          />
+        </div>
+
+        <div className={`mt-5 flex flex-wrap gap-2.5 shrink-0 ${desktopMode ? '' : 'px-4'}`}>
+          <button className="bg-[#323232] text-white px-4 py-[7px] rounded-full text-[13px] font-medium leading-tight">Classic Rewards</button>
+          <button className="bg-white text-[#323232] border border-[#323232] px-4 py-[7px] rounded-full text-[13px] font-medium leading-tight hover:bg-gray-50 transition-colors">Classic Plus Rewards</button>
+          <button className="bg-white text-[#323232] border border-[#323232] px-4 py-[7px] rounded-full text-[13px] font-medium leading-tight hover:bg-gray-50 transition-colors">Points Plus Pay</button>
+          <button className="bg-white text-[#323232] border border-[#323232] px-4 py-[7px] rounded-full text-[13px] font-medium leading-tight hover:bg-gray-50 transition-colors">Upgrades</button>
+        </div>
+
+        <p className={`mt-4 text-[13px] text-[#222] leading-relaxed shrink-0 max-w-[1000px] pb-6 ${desktopMode ? '' : 'px-4'}`}>
+          Classic Flight Rewards are typically the best value reward seats you can book with Qantas Points, but availability is limited. For the best chance of booking a Classic Flight Reward seat, be flexible with dates and times.
+        </p>
       </div>
     );
   };
@@ -526,14 +589,19 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       : "I'll show you how you can earn the status credits, in one year.";
 
     return (
-      <div className="w-full animate-duo-entrance mt-4">
-        <div className="bg-[#E2F1F0] rounded-[16px] p-5 flex items-center space-x-4 relative overflow-hidden shadow-sm border border-[#CDE5E3]">
+      <div className={`mt-4 w-full animate-duo-entrance`}>
+        <div className={`bg-[#E2F1F0] rounded-[16px] p-5 flex items-center space-x-4 relative overflow-hidden transition-all duration-300 shadow-sm border border-[#CDE5E3]`}>
           <button
             onClick={() => {
               updateDismissedCoachings(coachingId);
-              updateActiveDuoCard(null);
+              // If we're still in the onboarding flow, revert back to onboarding card
+              if (onboardingStep !== null && onboardingStep <= 10) {
+                updateActiveDuoCard('onboarding');
+              } else {
+                updateActiveDuoCard(null);
+              }
             }}
-            className="absolute top-1.5 right-1.5 text-gray-500 hover:text-gray-700 transition-colors z-10 p-1"
+            className="absolute top-1.5 right-1.5 p-1 text-gray-500 hover:text-gray-700 transition-colors z-10"
             style={{ marginRight: 0, top: 4, right: 4 }}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -541,15 +609,17 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
             </svg>
           </button>
 
-          <div className="shrink-0 flex items-end justify-center z-10" style={{ width: '100px', height: '90px' }}>
-            <KoalaSprite variant="down" scale={0.35} className="origin-bottom" />
+          <div className="shrink-0 relative z-10" style={{ width: '130px', height: '140px' }}>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[10%]">
+              <KoalaSprite variant="magic" scale={0.4} className="origin-bottom" />
+            </div>
           </div>
 
-          <div className="flex-grow pr-4 z-10 pb-0">
-            <div className="text-[14px] text-[#222222] font-medium mb-1 leading-tight">
+          <div className="flex-grow pr-4 z-10 pb-1">
+            <div className="text-[18px] text-[#222222] font-medium mb-1.5 leading-tight">
               {title}
             </div>
-            <p className="text-[11px] text-[#666666] leading-relaxed mb-3">
+            <p className="text-[13px] text-[#222222] leading-[1.3] mb-4">
               {subtitle}
             </p>
             <button
@@ -560,7 +630,8 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                 updateIsShowingHow(true);
                 if (!isEmbedded) goTo(3);
               }}
-              className="px-3 py-1.5 bg-white border border-gray-100 text-[#E40000] text-[10px] font-bold uppercase tracking-[0.1em] rounded-lg hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
+              className="bg-white text-[13px] font-bold text-[#E40000] px-5 py-2 rounded-full hover:bg-gray-50 transition-all active:scale-95 shadow-sm inline-flex items-center justify-center whitespace-nowrap"
+              style={{ minWidth: '100px' }}
             >
               Show me how
             </button>
@@ -578,31 +649,34 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
     return (
       <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white min-h-[500px]">
         {/* Tier Tabs */}
-        <div className="w-full border-b border-gray-100 mb-8 overflow-x-auto bg-white">
-          <div className="flex justify-between min-w-[700px] px-8 max-w-[900px] mx-auto">
+        <div className="w-full border-b border-gray-100 bg-white overflow-x-auto no-scrollbar shrink-0">
+          <div className="inline-flex space-x-8 whitespace-nowrap px-8">
             {tierOptions.map((name, idx) => (
               <button
                 key={name}
                 onClick={() => setExplorerTierIndex(idx)}
-                className={`py-4 px-2 text-[12px] font-bold tracking-wider relative transition-all duration-300 ${activeTier === idx ? 'text-[#E40000]' : 'text-[#666666] hover:text-[#323232]'}`}
+                className={`text-[12px] whitespace-nowrap pb-3 transition-colors duration-300 relative ${activeTier === idx
+                  ? 'text-red-600 font-medium'
+                  : 'text-gray-800 font-normal hover:text-[#323232]'}`}
               >
                 {name}
                 {activeTier === idx && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#E40000] rounded-t-full" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-red-600" />
                 )}
               </button>
             ))}
           </div>
         </div>
+        <div className="mb-8" /> {/* Spacer */}
 
         {/* Benefits Section */}
         <div className="w-full px-8 pb-20 max-w-[1100px] mx-auto relative">
-          <div className="flex items-center justify-center mb-12 relative max-w-[500px] mx-auto">
+          <div className="flex items-center justify-center mb-12 relative w-full mx-auto">
             <h2 className="text-center text-[18px] font-medium text-[#323232]">
-              Key benefits of {tierOptions[activeTier].charAt(0) + tierOptions[activeTier].slice(1).toLowerCase()} status
+              Key benefits of {tierOptions[activeTier].split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')} status
             </h2>
 
-            {/* Heart Icon Toggle */}
+            {/* Heart Icon Toggle - Positioned top right of container */}
             <button
               onClick={() => {
                 if (activeTier === 5) return; // Skip Lifetime Tiers
@@ -614,6 +688,11 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                   // Duo moves to the tier guidance if it's unaffordable
                   if (flightTierIndex < activeTier) {
                     updateActiveDuoCard('tier-guidance');
+
+                    if (onboardingStep === 8 && onOnboardingAction) {
+                      onOnboardingAction();
+                    }
+
                     // Scroll to top to see Duo
                     if (desktopMode && containerRef?.current) {
                       containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -621,10 +700,10 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                   }
                 }
               }}
-              className="absolute -right-12 top-1/2 -translate-y-1/2 p-2 group transition-transform active:scale-95"
+              className="absolute right-0 top-1/2 -translate-y-1/2 p-2 group transition-transform active:scale-95 z-20"
             >
               {favouriteTierIndex === activeTier ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 text-[#E40000] animate-in zoom-in-50 duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 text-[#E40000] animate-heart-burst">
                   <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                 </svg>
               ) : (
@@ -634,6 +713,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
               )}
             </button>
           </div>
+
 
           <div className="grid grid-cols-3 gap-y-12 gap-x-8">
             {benefits.map(benefit => (
@@ -655,23 +735,65 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
       <div className="flex flex-col xl:flex-row gap-8 p-6 mb-4">
         {/* Top/Left Column (Rewards) */}
         <div className="flex flex-col w-full xl:w-1/2 min-w-0 max-w-[440px]">
-          {/* Estimated PTS Line */}
+          {/* Target PTS Line */}
           <div className="flex items-center text-left mb-4">
-            <span className="text-[14px] text-[#323232]">Estimated</span>
+            <span className="text-[14px] text-[#323232]">Target</span>
             <img src={PointsRooLogo} alt="" className="w-[16px] h-[18px] translate-y-[1px] inline mx-1.5" />
             <span className="text-[15px] font-bold text-[#323232]">
-              {totalAnnualPts.toLocaleString()} <span className="text-[10px] font-bold text-[#999999] uppercase">PTS</span>
+              {current?.opaqueEarn ? maskPts(totalAnnualPts) : totalAnnualPts.toLocaleString()} <span className="text-[10px] font-bold text-[#999999] uppercase">PTS</span>
             </span>
             <span className="text-[14px] text-[#323232] ml-1.5">a year from selected</span>
           </div>
 
           <div className="mb-2 text-[14px] text-[#323232]">
-            {current?.hasSelectedReward ? 'Favourite reward' : 'Example reward'}
+            {current?.hasSelectedReward ? 'Target reward' : 'Example reward'}
           </div>
           <div className="flex-grow">
             {renderSelectedRewardPreview()}
           </div>
           {renderCoachingCard('reward')}
+
+          {(onboardingStep >= 8 && onboardingStep <= 10) && onboardingData && activeDuoCard === 'onboarding' && (
+            <div className={`mt-4 w-full animate-duo-entrance`}>
+              <div className={`bg-[#E2F1F0] rounded-[16px] p-5 flex items-center space-x-4 relative overflow-hidden transition-all duration-300 shadow-sm border border-[#CDE5E3]`}>
+                <button onClick={() => updateActiveDuoCard(null)} className="absolute top-1.5 right-1.5 p-1 text-gray-500 hover:text-gray-700 transition-colors z-10" style={{ marginRight: 0, top: 4, right: 4 }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <div className="shrink-0 relative z-10 animate-koala-drop-in" style={{ width: '130px', height: '140px' }}>
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+                    <KoalaSprite variant={onboardingStep >= 9 ? "down" : "coins"} scale={onboardingStep >= 9 ? 0.55 : 0.4} className="origin-bottom" />
+                  </div>
+                </div>
+                <div className="flex-grow pr-4 z-10 pb-1">
+                  <div className="text-[18px] text-[#222222] font-medium mb-1.5 leading-tight min-h-[30px]">
+                    <HTMLTypewriter
+                      html={onboardingData.title}
+                      speed={40}
+                      onComplete={() => setHeadlineDone(true)}
+                    />
+                  </div>
+                  <div className="min-h-[50px]">
+                    {headlineDone && (
+                      <p className="text-[13px] text-[#222222] leading-[1.3] mb-4">
+                        <HTMLTypewriter
+                          html={onboardingData.text}
+                          speed={30}
+                          onComplete={() => setTypewriterDone(true)}
+                        />
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    className={`bg-white text-[15px] font-semibold text-[#E40000] px-6 py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-all active:scale-95 shadow-sm inline-flex items-center justify-center whitespace-nowrap ${typewriterDone ? 'animate-button-glow visible' : 'invisible'}`}
+                    onClick={onOnboardingAction}
+                    style={{ minWidth: '100px' }}
+                  >
+                    {onboardingData.buttonLabel}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mt-5 text-left">
             <button
@@ -689,9 +811,9 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
 
         {/* Bottom/Right Column (Tiers) */}
         <div className="flex flex-col w-full xl:w-1/2 min-w-0 max-w-[440px]">
-          {/* Estimated SC Line */}
+          {/* Target SC Line */}
           <div className="flex items-center text-left mb-4">
-            <span className="text-[14px] text-[#323232]">Estimated</span>
+            <span className="text-[14px] text-[#323232]">Target</span>
             <span className="text-[14px] font-bold text-[#E40000] ml-1.5 mr-0.5">★</span>
             <span className="text-[15px] font-bold text-[#323232]">
               {totalAnnualSC.toLocaleString()} <span className="text-[10px] font-bold text-[#999999] uppercase">SC</span>
@@ -700,7 +822,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
           </div>
 
           <div className="mb-2 text-[14px] text-[#323232]">
-            {favouriteTierIndex !== null ? 'Favourite tier' : 'Example tier'}
+            {favouriteTierIndex !== null ? 'Target tier' : 'Example tier'}
           </div>
           <div className="flex-grow flex flex-col" style={{ alignSelf: 'stretch' }}>
             <TierCard
@@ -718,6 +840,54 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
           </div>
           {renderCoachingCard('tier')}
 
+          {onboardingStep === 11 && onboardingData && activeDuoCard === 'onboarding' && (
+            <div className={`mt-4 w-full animate-duo-entrance`}>
+              <div className={`bg-[#E2F1F0] rounded-[16px] p-5 flex items-center space-x-4 relative overflow-hidden transition-all duration-300 shadow-sm border border-[#CDE5E3]`}>
+                <button
+                  onClick={() => updateActiveDuoCard(null)}
+                  className="absolute top-1.5 right-1.5 p-1 text-gray-500 hover:text-gray-700 transition-colors z-10"
+                  style={{ marginRight: 0, top: 4, right: 4 }}
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <div className="shrink-0 relative z-10 animate-koala-drop-in" style={{ width: '130px', height: '140px' }}>
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+                    <KoalaSprite variant="bling" scale={0.55} className="origin-bottom" />
+                  </div>
+                </div>
+                <div className="flex-grow pr-4 z-10 pb-1">
+                  <div className="text-[18px] text-[#222222] font-medium mb-1.5 leading-tight min-h-[30px]">
+                    <HTMLTypewriter
+                      html={onboardingData.title}
+                      speed={40}
+                      onComplete={() => setHeadlineDone(true)}
+                    />
+                  </div>
+                  <div className="min-h-[50px]">
+                    {headlineDone && (
+                      <p className="text-[13px] text-[#222222] leading-[1.3] mb-4">
+                        <HTMLTypewriter
+                          html={onboardingData.text}
+                          speed={30}
+                          onComplete={() => setTypewriterDone(true)}
+                        />
+                      </p>
+                    )}
+                  </div>
+                  {typewriterDone && (
+                    <button
+                      className="bg-white text-[15px] font-semibold text-[#E40000] px-6 py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-all active:scale-95 shadow-sm inline-flex items-center justify-center whitespace-nowrap animate-button-glow"
+                      onClick={onOnboardingAction}
+                      style={{ minWidth: '100px' }}
+                    >
+                      {onboardingData.buttonLabel}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="mt-5 text-left">
             <button
               onClick={() => setExplorerMode(prev => prev === 'tiers' ? null : 'tiers')}
@@ -726,6 +896,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
               Explore tiers
             </button>
           </div>
+
         </div>
       </div>
     );
@@ -1023,10 +1194,10 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
             <div className="text-center mb-4 flex justify-center items-center">
               {totalAnnualPts > 0 ? (
                 <div className="flex items-baseline space-x-1 flex-wrap justify-center">
-                  <span className="text-[15px] text-[#323232]">Est</span>
+                  <span className="text-[15px] text-[#323232]">Target</span>
                   <img src={PointsRooLogo} alt="" className="w-[16px] h-[18px] translate-y-0.5" />
                   <span className="text-[16px] font-medium text-[#323232] leading-none">
-                    {totalAnnualPts.toLocaleString()}
+                    {current?.opaqueEarn ? maskPts(totalAnnualPts) : totalAnnualPts.toLocaleString()}
                   </span>
                   <span className="text-[10px] font-bold text-[#999999] uppercase">PTS</span>
                   <span className="text-[15px] text-[#323232] ml-1">a year from selected</span>
@@ -1088,7 +1259,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                     <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                   </svg>
-                  <span>FAVOURITE REWARD</span>
+                  <span>TARGET REWARD</span>
                 </button>
               </>
             ) : (
@@ -1097,7 +1268,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                 {/* Labels Row */}
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-[14px] font-medium text-[#323232]">
-                    {current.hasSelectedReward ? 'Favourite reward' : 'Example reward'}
+                    {current.hasSelectedReward ? 'Target reward' : 'Example reward'}
                   </span>
                   <button
                     onClick={handleGoBack}
@@ -1122,7 +1293,7 @@ export default function RewardsScreen({ goTo, isEmbedded = false, desktopMode = 
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                     <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                   </svg>
-                  <span>FAVOURITE REWARD</span>
+                  <span>TARGET REWARD</span>
                 </button>
               </>
             )}

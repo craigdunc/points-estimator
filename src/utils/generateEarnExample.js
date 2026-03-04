@@ -111,7 +111,7 @@ export const generateEarnExample = (wte, tierIdx) => {
     if (tierIdx === 0) frequencyDesc = "infrequent";
     if (tierIdx >= 3) frequencyDesc = "frequent";
 
-    const personaDesc = `${fName} lives in ${city} and is a ${frequencyDesc} customer of ${wte.name}. Over the course of 2025, ${fName} made several purchases adjusting to their standard spending habits. Across ${numItems} main transaction periods, ${fName} spent approximately $${spend.toLocaleString()} with ${wte.name}, which yielded an estimated total of ${pts.toLocaleString()} Qantas Points for their Frequent Flyer account. They hold no active bonus status, so the points reflect the standard base earn rate.`;
+    const personaDesc = `${fName} lives in ${city} and is a ${frequencyDesc} customer of ${wte.name}. Over the course of 2025, ${fName} made several purchases adjusting to their standard spending habits. Across ${numItems} main transaction periods, ${fName} spent approximately $${spend?.toLocaleString() ?? 0} with ${wte.name}, which yielded an estimated total of ${pts.toLocaleString()} Qantas Points for their Frequent Flyer account. They hold no active bonus status, so the points reflect the standard base earn rate.`;
 
     return {
         personaName,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import QantasLogo from '../assets/logos/qantas.svg';
 import { useSaveSlots } from '../state/useSaveSlots';
 
@@ -30,7 +30,7 @@ const ChevronDown = () => (
     </svg>
 );
 
-export default function Header({ isMobile, showAccountNav = true, onProfileClick, activeTab = 'Earn and use points', onTabClick }) {
+export default function Header({ isMobile, showAccountNav = true, onProfileClick, activeTab = 'Earn and use points', onTabClick, onTimePasses, onSettingsClick }) {
     const { slots, activeSlotId, current } = useSaveSlots() || {};
     const activeSlot = slots?.find(s => s.id === activeSlotId);
     const slotName = activeSlot?.name || 'Craig Duncan';
@@ -46,7 +46,51 @@ export default function Header({ isMobile, showAccountNav = true, onProfileClick
     };
 
     const initials = getInitials(slotName);
-    const formattedPoints = new Intl.NumberFormat().format(pointsBalance);
+    const [animatedPts, setAnimatedPts] = useState(pointsBalance);
+
+    useEffect(() => {
+        let currentAnimatedPts = 0;
+        setAnimatedPts((prev) => {
+            currentAnimatedPts = prev;
+            return prev;
+        });
+
+        if (pointsBalance === currentAnimatedPts) return;
+        const diff = pointsBalance - currentAnimatedPts;
+
+        // Don't animate if difference is huge (like initial load vs actual), only smooth small transitions
+        if (Math.abs(diff) > 10000) {
+            setAnimatedPts(pointsBalance);
+            return;
+        }
+
+        const duration = 800; // ms
+        const startPts = currentAnimatedPts;
+        const startTime = performance.now();
+        let animationFrame;
+
+        const animate = (time) => {
+            let progress = (time - startTime) / duration;
+            if (progress > 1) progress = 1;
+
+            // easeOutExpo
+            const easeOutProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+            setAnimatedPts(Math.round(startPts + diff * easeOutProgress));
+
+            if (progress < 1) {
+                animationFrame = requestAnimationFrame(animate);
+            } else {
+                setAnimatedPts(pointsBalance);
+            }
+        };
+
+        animationFrame = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationFrame);
+    }, [pointsBalance]);
+
+    const formattedPoints = new Intl.NumberFormat().format(animatedPts);
 
     if (isMobile) {
         return (
@@ -68,7 +112,7 @@ export default function Header({ isMobile, showAccountNav = true, onProfileClick
     return (
         <header className="w-full bg-white font-sans">
             {/* Layer 1: Global Bar */}
-            <div className="max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8 py-4 flex justify-between items-center">
+            <div className="max-w-[1218px] mx-auto px-4 xl:px-0 py-4 flex justify-between items-center">
                 <div className="flex items-center space-x-4">
                     <img src={QantasLogo} alt="Qantas" className="h-10" />
                     <div className="w-px h-8 bg-gray-200" />
@@ -84,6 +128,7 @@ export default function Header({ isMobile, showAccountNav = true, onProfileClick
                         {cartIcon}
                     </button>
                     <button
+                        id="header-points-pill"
                         onClick={onProfileClick}
                         className="flex items-center bg-[#E40000] text-white rounded-full pl-1 pr-4 py-1.5 shadow-sm overflow-hidden hover:bg-red-700 transition-colors cursor-pointer"
                     >
@@ -96,7 +141,7 @@ export default function Header({ isMobile, showAccountNav = true, onProfileClick
             </div>
 
             {/* Layer 2: Main Navigation */}
-            <div className="max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8 py-3 flex justify-between items-center bg-white border-t border-gray-50">
+            <div className="max-w-[1218px] mx-auto px-4 xl:px-0 py-3 flex justify-between items-center bg-white border-t border-gray-50">
                 <nav className="flex items-center space-x-8">
                     {[
                         'Flights', 'Travel', 'Shop', 'Banking & Insurance', 'Frequent Flyer', 'Qantas for Business'
@@ -113,7 +158,7 @@ export default function Header({ isMobile, showAccountNav = true, onProfileClick
             {/* Layer 3: Account Navigation */}
             {showAccountNav && (
                 <div className="w-full bg-[#323232]">
-                    <div className="max-w-[1400px] mx-auto px-4 md:px-6 xl:px-8 flex justify-between items-center">
+                    <div className="max-w-[1218px] mx-auto px-4 xl:px-0 flex justify-between items-center">
                         <nav className="flex items-center h-14">
                             <button className="px-5 text-[14px] text-white font-medium hover:bg-white/10 h-full transition-colors border-r border-white/10">
                                 My Account
@@ -141,9 +186,22 @@ export default function Header({ isMobile, showAccountNav = true, onProfileClick
                                 })}
                             </div>
                         </nav>
-                        <button className="border border-white/40 hover:border-white text-white text-[13px] font-bold px-5 py-1.5 rounded-full transition-colors">
-                            Settings
-                        </button>
+                        <div className="flex items-center space-x-3">
+                            {onTimePasses && (
+                                <button
+                                    onClick={onTimePasses}
+                                    className="border-2 border-white hover:bg-white/10 text-white text-[15px] font-medium px-5 py-1.5 rounded-full transition-colors"
+                                >
+                                    Time Passes
+                                </button>
+                            )}
+                            <button
+                                onClick={onSettingsClick}
+                                className="border-2 border-white hover:bg-white/10 text-white text-[15px] font-medium px-5 py-1.5 rounded-full transition-colors"
+                            >
+                                Settings
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

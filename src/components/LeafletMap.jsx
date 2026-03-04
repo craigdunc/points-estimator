@@ -177,11 +177,21 @@ export default function LeafletMap({
                         />
                     );
                 })}
-
-                {/* Force re-center if selection changes significantly? 
-            Maybe not, let user explore. 
-        */}
             </MapContainer>
+
+            {/* City Name Label Overlay */}
+            {(() => {
+                const focusedFlight = flights.find(f => f.id === (pendingFlightId || selectedFlightId));
+                const cityName = focusedFlight ? (focusedFlight.destCity || focusedFlight.city) : '';
+                if (!cityName) return null;
+                return (
+                    <div className="absolute bottom-0 left-0 bg-white px-8 py-5 rounded-tr-[36px] shadow-[0_4px_20px_rgba(0,0,0,0.15)] z-[1000] min-w-[200px] border-t border-r border-gray-50 flex items-center">
+                        <span className="text-[34px] font-medium text-[#222] tracking-tight" style={{ fontFamily: 'Qantas Sans, sans-serif' }}>
+                            {cityName}
+                        </span>
+                    </div>
+                );
+            })()}
         </div>
     );
 }

@@ -8,6 +8,10 @@ import KoalaBig from '../assets/images/sprites/Koala-big.png';
 import KoalaMap from '../assets/images/sprites/Koala-map.png';
 import KoalaShop from '../assets/images/sprites/Koala-shop.png';
 import KoalaCard from '../assets/images/sprites/Koala-card.png';
+import KoalaCoins from '../assets/images/sprites/Koala-coins.png';
+import KoalaBling from '../assets/images/sprites/Koala-bling.png';
+import KoalaForYou from '../assets/images/sprites/Koala-foryou.png';
+import KoalaMagic from '../assets/images/sprites/Koala-magic.png';
 
 const SPRITE_CONFIG = {
   idle: { src: KoalaIdle, width: 219, height: 264, loop: true },
@@ -19,6 +23,10 @@ const SPRITE_CONFIG = {
   map: { src: KoalaMap, width: 262, height: 263, loop: false },
   shop: { src: KoalaShop, width: 368, height: 264, loop: false, cols: 6, totalFrames: 36 },
   card: { src: KoalaCard, width: 225, height: 270, loop: false, cols: 6, totalFrames: 36 },
+  coins: { src: KoalaCoins, width: 378, height: 378, loop: false, cols: 6, totalFrames: 36 },
+  bling: { src: KoalaBling, width: 219, height: 259, loop: false, cols: 6, totalFrames: 36 },
+  foryou: { src: KoalaForYou, width: 223, height: 266, loop: false, cols: 6, totalFrames: 36 },
+  magic: { src: KoalaMagic, width: 378, height: 378, loop: false, cols: 6, totalFrames: 36 },
 };
 
 export default function KoalaSprite({ className = '', style = {}, variant = 'idle', scale = 1 }) {

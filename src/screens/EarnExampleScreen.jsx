@@ -1,13 +1,21 @@
 import React from 'react';
 
 import { generateEarnExample } from '../utils/generateEarnExample';
+import { maskSpend } from '../utils/maskSpend';
+import { maskPts } from '../utils/maskPts';
+import { useSaveSlots } from '../state/useSaveSlots';
 
 export default function EarnExampleScreen({ wte, tierIdx, onClose }) {
+    const { current } = useSaveSlots();
+    const opaqueSpend = current?.opaqueSpend ?? false;
+    const opaqueEarn = current?.opaqueEarn ?? false;
+    const displaySpend = (str) => opaqueSpend ? maskSpend(str) : str;
+    const displayPts = (str) => opaqueEarn ? maskPts(str) : str;
+
     if (!wte) return null;
 
     const exampleData = generateEarnExample(wte, tierIdx);
     const { personaName, personaImg, personaDesc, tableData, spendStr, ptsStr } = exampleData;
-
     return (
         <div className="w-full h-full flex flex-col bg-white overflow-y-auto no-scrollbar relative animate-duo-entrance">
             <div className="flex items-center justify-between pb-4 pt-2 sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-4">
@@ -21,8 +29,8 @@ export default function EarnExampleScreen({ wte, tierIdx, onClose }) {
 
             <div className="px-4 pb-12 pt-2">
                 <div className="mb-8 pl-1">
-                    <p className="font-bold text-[#222] text-[15px] mb-1 leading-snug">{wte.name}: {ptsStr} Qantas Points in 2025</p>
-                    <p className="text-[#666] text-[14px] leading-snug">Approximately ${spendStr} {wte.name} spent in 2025</p>
+                    <p className="font-bold text-[#222] text-[15px] mb-1 leading-snug">{wte.name}: {displayPts(ptsStr)} Qantas Points in 2025</p>
+                    <p className="text-[#666] text-[14px] leading-snug">{opaqueSpend ? `${displaySpend(spendStr)} ${wte.name} spent in 2025` : `Approximately $${displaySpend(spendStr)} ${wte.name} spent in 2025`}</p>
                 </div>
 
                 <h3 className="font-bold text-[18px] text-[#222] mb-4 pl-1" style={{ fontFamily: 'Qantas Sans, sans-serif' }}>Meet {personaName}</h3>
@@ -49,8 +57,8 @@ export default function EarnExampleScreen({ wte, tierIdx, onClose }) {
                                 <tr key={i} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                                     <td className="py-3 px-1 text-[12px] text-[#222] font-medium align-top w-[110px]">{row.date}</td>
                                     <td className="py-3 px-1 text-[12px] text-[#444] align-top">{row.item}</td>
-                                    <td className="py-3 px-1 text-[12px] text-[#444] align-top text-right w-[90px]">{row.spend}</td>
-                                    <td className="py-3 px-1 text-[12px] text-[#222] font-medium align-top text-right w-[110px]">{row.points}</td>
+                                    <td className="py-3 px-1 text-[12px] text-[#444] align-top text-right w-[90px]">{displaySpend(row.spend)}</td>
+                                    <td className="py-3 px-1 text-[12px] text-[#222] font-medium align-top text-right w-[110px]">{displayPts(row.points)}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -101,6 +101,18 @@ import GiftCardRewardIcon from './assets/icons/gift-card-reward.svg';
 import EntertainmentRewardIcon from './assets/icons/entertainment-reward.svg';
 import PointsPlusPayIcon from './assets/icons/points-plus-pay.svg';
 
+// --- Category section icon imports ---
+import CategoryFlightsIcon from './assets/icons/flights.svg';
+import CategoryHolidaysIcon from './assets/icons/holidays-activities-and-experiences.svg';
+import CategoryHotelsIcon from './assets/icons/hotels-and-accommodation.svg';
+import CategoryGroundIcon from './assets/icons/ground-transportation.svg';
+import CategoryEverydayIcon from './assets/icons/everyday-shopping.svg';
+import CategoryLifestyleIcon from './assets/icons/lifestyle-retail-and-entertainment.svg';
+import CategoryUtilitiesIcon from './assets/icons/home-utilities.svg';
+import CategoryCardsIcon from './assets/icons/cards-and-payments.svg';
+import CategoryBankingIcon from './assets/icons/banking-and-home-loans.svg';
+import CategorySustainabilityIcon from './assets/icons/sustainability.svg';
+
 
 export const SC_VALUES = [0, 300, 700, 1400, 3600];
 export const SC_NAMES = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Platinum One'];
@@ -183,11 +195,11 @@ export const WTEs = [
     subCategory: 'everyday',
     desc: 'Earn up to 1,000 bonus points in 28 days, then daily points for steps, sleep and wellness challenges. Conditions apply.',
     tiers: [
-      { spend: 300, pts: 450 },
-      { spend: 600, pts: 675 },
-      { spend: 900, pts: 900 },
-      { spend: 1200, pts: 1125 },
-      { spend: 1500, pts: 1350 },
+      { spend: 0, pts: 1000 },
+      { spend: 0, pts: 3500 },
+      { spend: 0, pts: 6000 },
+      { spend: 0, pts: 9000 },
+      { spend: 0, pts: 12000 },
     ],
   },
   {
@@ -437,22 +449,6 @@ export const WTEs = [
     ],
   },
 
-  {
-    id: 26,
-    name: 'Qantas Pay (Travel Money)',
-    iconSrc: QantasPayTravelLogo,
-    category: 'travel',
-    section: 'travel',
-    subCategory: 'ground',
-    desc: 'Earn 1 Qantas Point per A$1 loaded with Qantas Pay, and 1 Point per A$1 spent overseas. Conditions apply.',
-    tiers: [
-      { spend: 500, pts: 750 },
-      { spend: 2000, pts: 3000 },
-      { spend: 5000, pts: 7500 },
-      { spend: 8000, pts: 12000 },
-      { spend: 12000, pts: 18000 },
-    ],
-  },
 
   {
     id: 27,
@@ -514,8 +510,8 @@ export const WTEs = [
     tiers: [
       { spend: 1000, pts: 1000 },
       { spend: 2000, pts: 2000 },
-      { spend: 5000, pts: 5000 },
       { spend: 3000, pts: 3000 },
+      { spend: 5000, pts: 5000 },
       { spend: 36000, pts: 36000 },
     ],
   },
@@ -526,28 +522,28 @@ export const WTE_HIERARCHY = [
     id: 'travel',
     label: 'Travel',
     categories: [
-      { id: 'flights', label: 'FLIGHTS', iconType: 'leisure' },
-      { id: 'holidays', label: 'HOLIDAYS, ACTIVITIES & EXPERIENCES', iconType: 'leisure' },
-      { id: 'hotels', label: 'HOTELS & ACCOMMODATION', iconType: 'building' },
-      { id: 'ground', label: 'GROUND TRANSPORTATION', iconType: 'leisure' },
+      { id: 'flights', label: 'FLIGHTS', iconSrc: CategoryFlightsIcon },
+      { id: 'holidays', label: 'HOLIDAYS, ACTIVITIES & EXPERIENCES', iconSrc: CategoryHolidaysIcon },
+      { id: 'hotels', label: 'HOTELS & ACCOMMODATION', iconSrc: CategoryHotelsIcon },
+      { id: 'ground', label: 'GROUND TRANSPORTATION', iconSrc: CategoryGroundIcon },
     ]
   },
   {
     id: 'shop',
     label: 'Shop',
     categories: [
-      { id: 'everyday', label: 'EVERYDAY SHOPPING', iconType: 'leisure' },
-      { id: 'lifestyle', label: 'LIFESTYLE RETAIL & ENTERTAINMENT', iconType: 'building' },
-      { id: 'utilities', label: 'Home Utilities', iconType: 'leisure' },
+      { id: 'everyday', label: 'EVERYDAY SHOPPING', iconSrc: CategoryEverydayIcon },
+      { id: 'lifestyle', label: 'LIFESTYLE RETAIL & ENTERTAINMENT', iconSrc: CategoryLifestyleIcon },
+      { id: 'utilities', label: 'Home Utilities', iconSrc: CategoryUtilitiesIcon },
     ]
   },
   {
     id: 'banking',
     label: 'Banking & Insurance',
     categories: [
-      { id: 'cards', label: 'CARDS & BANKING', iconType: 'leisure' },
-      { id: 'homeloans', label: 'BANKING & HOMELOANS', iconType: 'leisure' },
-      { id: 'insurance', label: 'INSURANCE', iconType: 'building' },
+      { id: 'cards', label: 'CARDS & BANKING', iconSrc: CategoryCardsIcon },
+      { id: 'homeloans', label: 'BANKING & HOMELOANS', iconSrc: CategoryBankingIcon },
+      { id: 'insurance', label: 'INSURANCE', iconSrc: CategorySustainabilityIcon },
     ]
   }
 ];

@@ -13,7 +13,7 @@ import CitySelectionModal from './CitySelectionModal';
  * 
  * Usage: <ConnectedRewardCard reward={rewardObject} />
  */
-export default function ConnectedRewardCard({ reward }) {
+export default function ConnectedRewardCard({ reward, variant = 'default' }) {
     const { current, updateOriginCity, updateSelectedRewardId } = useSaveSlots();
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
 
@@ -44,6 +44,7 @@ export default function ConnectedRewardCard({ reward }) {
                 onOriginClick={() => setIsCityModalOpen(true)}
                 isFavorited={isFavorited}
                 onFavoriteClick={handleFavoriteClick}
+                variant={variant}
             />
 
             <CitySelectionModal

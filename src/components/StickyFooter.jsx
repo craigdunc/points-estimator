@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ConnectedRewardCard from './ConnectedRewardCard';
 import PointsRooLogo from '../assets/points-roo.svg';
+import { useSaveSlots } from '../state/useSaveSlots';
+import { maskPts } from '../utils/maskPts';
 
 /**
  * StickyFooter
@@ -22,6 +24,8 @@ export default function StickyFooter({
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startY = useRef(0);
+  const { current } = useSaveSlots();
+  const opaqueEarn = current?.opaqueEarn ?? false;
 
   // Sync state if prop changes (e.g. entering/leaving target mode)
   useEffect(() => {
@@ -101,10 +105,10 @@ export default function StickyFooter({
       <div className="px-6 py-2">
         <div className="flex flex-col items-center">
           <div className="flex items-baseline space-x-1 flex-wrap justify-center">
-            <span className="text-[15px] text-[#323232]">Est</span>
+            <span className="text-[15px] text-[#323232]">Target</span>
             <img src={PointsRooLogo} alt="" className="w-[16px] h-[18px] translate-y-0.5" />
             <span className="text-[16px] font-medium text-[#323232] leading-none">
-              {totalPts ? totalPts.toLocaleString() : '0'}
+              {opaqueEarn ? maskPts(totalPts || 0) : (totalPts ? totalPts.toLocaleString() : '0')}
             </span>
             <span className="text-[10px] font-bold text-[#999999] uppercase">PTS</span>
             <span className="text-[15px] text-[#323232] ml-1">a year from selected</span>

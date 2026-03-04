@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import PointsRooLogo from '../assets/points-roo.svg';
+import { useSaveSlots } from '../state/useSaveSlots';
+import { maskSpend } from '../utils/maskSpend';
+import { maskPts } from '../utils/maskPts';
 
 /**
  * WTEList
@@ -25,8 +28,34 @@ export default function WTEList({
   onTierChange,
   onToggleEarnExample,
   isEarnExampleOpen,
+  onToggleFindOutMore,
+  isFindOutMoreOpen,
   compact = false
 }) {
+  const { current } = useSaveSlots();
+  const opaqueSpend = current?.opaqueSpend ?? false;
+  const opaqueEarn = current?.opaqueEarn ?? false;
+  const [justSelected, setJustSelected] = useState(new Set());
+
+  const handleToggleWithFlair = useCallback((id) => {
+    const isCurrentlySelected = selectedIds.includes(id);
+    if (!isCurrentlySelected) {
+      setJustSelected(prev => new Set(prev).add(id));
+      setTimeout(() => setJustSelected(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      }), 700);
+    }
+    onToggleSelect(id);
+  }, [selectedIds, onToggleSelect]);
+  const TIER_LABELS = [
+    'Low earn target',
+    'Medium-low earn target',
+    'Medium earn target',
+    'Medium-high earn target',
+    'High earn target',
+  ];
   const displayItems = items || WTEs.filter(w => w.category === activeCategory);
 
   return (
@@ -49,15 +78,18 @@ export default function WTEList({
               <div className="flex items-center space-x-3">
                 {/* Logo or Checkmark */}
                 <div
-                  className={`${compact ? 'w-7 h-7' : 'w-10 h-10'} flex-shrink-0 flex items-center justify-center overflow-hidden`}
-                  onClick={(e) => { e.stopPropagation(); onToggleSelect(w.id); }}
+                  className={`${compact ? 'w-7 h-7' : 'w-10 h-10'} flex-shrink-0 flex items-center justify-center overflow-visible relative`}
+                  onClick={(e) => { e.stopPropagation(); handleToggleWithFlair(w.id); }}
                 >
                   {isSelected ? (
-                    <div className={`${compact ? 'w-[24px] h-[24px]' : 'w-[32px] h-[32px]'} bg-[#00a600] rounded-full flex items-center justify-center shadow-sm`}>
-                      <svg className={`${compact ? 'w-3.5 h-3.5' : 'w-5 h-5'} text-white`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
+                    <>
+                      <div className={`${compact ? 'w-[24px] h-[24px]' : 'w-[32px] h-[32px]'} bg-[#00a600] rounded-full flex items-center justify-center shadow-sm ${justSelected.has(w.id) ? 'animate-celebrate-pop' : ''}`}>
+                        <svg className={`${compact ? 'w-3.5 h-3.5' : 'w-5 h-5'} text-white`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      {justSelected.has(w.id) && <span className="animate-radiate-ring" />}
+                    </>
                   ) : (
                     <img
                       src={w.iconSrc}
@@ -86,7 +118,7 @@ export default function WTEList({
                   )}
                   <div className="flex items-baseline space-x-1">
                     <span className={`${compact ? 'text-[12px]' : 'text-[16px]'} font-medium text-[#323232]`}>
-                      {tier.pts.toLocaleString()}
+                      {opaqueEarn ? maskPts(tier.pts) : tier.pts.toLocaleString()}
                     </span>
                     <span className={`${compact ? 'text-[9px]' : 'text-[10px]'} font-bold text-[#999999] uppercase`}>
                       PTS
@@ -108,25 +140,15 @@ export default function WTEList({
                 }`}
             >
               <div className="px-5 pb-6 pt-2">
-                <div className="mb-4 flex justify-between items-center px-1">
-                  <div className="text-[12px] text-[#323232]">
-                    Approx. ${tier.spend.toLocaleString()} spend/year
-                  </div>
-                  {onToggleEarnExample && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onToggleEarnExample(); }}
-                      className="text-[11px] font-bold text-[#E40000] hover:underline flex items-center group transition-colors"
-                    >
-                      {isEarnExampleOpen && isExpanded ? 'Close Earn Example' : 'Show Earn Example'}
-                      <svg className={`w-3 h-3 ml-1 transform transition-transform ${isEarnExampleOpen && isExpanded ? 'rotate-180' : 'group-hover:translate-x-0.5'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isEarnExampleOpen && isExpanded ? "M19 9l-7 7-7-7" : "M9 5l7 7-7 7"} />
-                      </svg>
-                    </button>
-                  )}
+
+                {/* Heading: tier label + pts inline */}
+                <div className="text-[12px] font-medium text-[#323232] leading-normal mb-4 px-1">
+                  {TIER_LABELS[tierIdx] ?? TIER_LABELS[0]}:{' '}
+                  {opaqueEarn ? maskPts(tier.pts) : tier.pts.toLocaleString()} pts in a year
                 </div>
 
-                {/* Custom Slider Overlay Container */}
-                <div className="relative w-full h-8 flex items-center mb-6 px-1">
+                {/* Slider */}
+                <div className="relative w-full h-8 flex items-center mb-4 px-1">
                   {/* Background Track */}
                   <div className="absolute inset-x-1 h-2 bg-gray-200 rounded-full"></div>
 
@@ -163,9 +185,77 @@ export default function WTEList({
                   />
                 </div>
 
-                <div className="text-[12px] leading-relaxed text-[#323232]">
-                  {w.desc}
-                </div>
+                {/* Earn example sentence + inline link */}
+                {(onToggleEarnExample || onToggleFindOutMore) && (
+                  <div className="text-[14px] md:text-[12px] text-[#323232] leading-normal mb-4 px-1">
+                    {onToggleEarnExample && (
+                      <div className="mb-4">
+                        {isEarnExampleOpen && isExpanded ? (
+                          <>
+                            Showing an example of earning{' '}
+                            {opaqueEarn ? maskPts(tier.pts) : tier.pts.toLocaleString()} pts with{' '}
+                            {opaqueSpend ? maskSpend(String(tier.spend)) : `$${tier.spend?.toLocaleString()}`} spend in a year.{' '}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onToggleEarnExample(); }}
+                              className="font-bold text-[#E40000] hover:underline inline-flex items-center group transition-colors"
+                            >
+                              Hide earn example
+                              <svg className="w-3 h-3 ml-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            See an example of earning{' '}
+                            {opaqueEarn ? maskPts(tier.pts) : tier.pts.toLocaleString()} pts with{' '}
+                            {opaqueSpend ? maskSpend(String(tier.spend)) : `$${tier.spend?.toLocaleString()}`} spend in a year.{' '}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onToggleEarnExample(); }}
+                              className="font-bold text-[#E40000] hover:underline inline-flex items-center group transition-colors"
+                            >
+                              Show earn example
+                              <svg className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="text-[14px] md:text-[12px] leading-normal text-[#323232] mb-4">
+                      {w.desc}
+                    </div>
+
+                    {/* Find Out More Logic for Supported Cards */}
+                    {onToggleFindOutMore && [2, 3, 4, 5, 7, 12, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30].includes(w.id) && (
+                      <div>
+                        {isFindOutMoreOpen && isExpanded ? (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onToggleFindOutMore(); }}
+                            className="font-bold text-[#E40000] hover:underline inline-flex items-center group transition-colors"
+                          >
+                            Less information
+                            <svg className="w-3 h-3 ml-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onToggleFindOutMore(); }}
+                            className="font-bold text-[#E40000] hover:underline inline-flex items-center group transition-colors"
+                          >
+                            More information
+                            <svg className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

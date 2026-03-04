@@ -1,0 +1,642 @@
+{
+  "2": {
+    "1": {
+      "name": "Woolworths Supermarkets",
+      "category": "Supermarket"
+    },
+    "2": {
+      "name": "BIG W",
+      "category": "Retail"
+    },
+    "3": {
+      "name": "BWS",
+      "category": "Liquor"
+    },
+    "4": {
+      "name": "Everyday Market",
+      "category": "Retail"
+    }
+  },
+  "3": {
+    "1": {
+      "name": "Qantas American Express Discovery Card",
+      "category": ""
+    },
+    "2": {
+      "name": "BOQ Specialist Platinum Card",
+      "category": ""
+    }
+  },
+  "4": {
+    "1": {
+      "name": "Ultimate 98",
+      "category": "Premium Fuel"
+    },
+    "2": {
+      "name": "Premium 95",
+      "category": "Premium Fuel"
+    },
+    "3": {
+      "name": "Regular Unleaded",
+      "category": "Regular Fuel"
+    },
+    "4": {
+      "name": "BP Diesel",
+      "category": "Regular Fuel"
+    },
+    "5": {
+      "name": "wildbean cafe Coffee",
+      "category": "In-Store"
+    },
+    "6": {
+      "name": "Hot Snacks & Pastries",
+      "category": "In-Store"
+    },
+    "7": {
+      "name": "Drinks & Groceries",
+      "category": "In-Store"
+    },
+    "8": {
+      "name": "Car Wash",
+      "category": "Services"
+    }
+  },
+  "5": {
+    "1": {
+      "name": "Daily Step Goal",
+      "category": "Activity"
+    },
+    "2": {
+      "name": "Cycling Challenges",
+      "category": "Activity"
+    },
+    "3": {
+      "name": "Swimming Tracker",
+      "category": "Activity"
+    },
+    "4": {
+      "name": "Sleep Health",
+      "category": "Sleep"
+    },
+    "5": {
+      "name": "BMI & Blood Pressure",
+      "category": "Health Checks"
+    },
+    "6": {
+      "name": "Weekly Group Challenges",
+      "category": "Challenges"
+    },
+    "7": {
+      "name": "Car Insurance Connection",
+      "category": "Partner Bonuses"
+    }
+  },
+  "7": {
+    "1": {
+      "name": "HBO Originals",
+      "category": "TV Shows"
+    },
+    "2": {
+      "name": "Blockbuster Movies",
+      "category": "Movies"
+    },
+    "3": {
+      "name": "True Crime",
+      "category": "Documentaries"
+    },
+    "4": {
+      "name": "Reality TV",
+      "category": "Reality"
+    },
+    "5": {
+      "name": "Australian Drama",
+      "category": "TV Shows"
+    },
+    "6": {
+      "name": "Comedy Specials",
+      "category": "Comedy"
+    },
+    "7": {
+      "name": "Lifestyle & Design",
+      "category": "Lifestyle"
+    },
+    "8": {
+      "name": "Family & Kids",
+      "category": "Family"
+    }
+  },
+  "12": {
+    "1": {
+      "name": "Qantas Premier Platinum",
+      "category": ""
+    },
+    "2": {
+      "name": "Qantas Premier Titanium",
+      "category": ""
+    },
+    "3": {
+      "name": "NAB Qantas Rewards Signature",
+      "category": ""
+    },
+    "4": {
+      "name": "NAB Qantas Rewards Premium",
+      "category": ""
+    },
+    "5": {
+      "name": "Westpac Altitude Qantas Platinum",
+      "category": ""
+    },
+    "6": {
+      "name": "ANZ Frequent Flyer Black",
+      "category": ""
+    },
+    "7": {
+      "name": "CommBank Ultimate Awards",
+      "category": ""
+    },
+    "8": {
+      "name": "Amex Qantas Ultimate Card",
+      "category": ""
+    }
+  },
+  "16": {
+    "1": {
+      "name": "Shiraz",
+      "category": "Red Wine"
+    },
+    "2": {
+      "name": "Pinot Noir",
+      "category": "Red Wine"
+    },
+    "3": {
+      "name": "Chardonnay",
+      "category": "White Wine"
+    },
+    "4": {
+      "name": "Sauvignon Blanc",
+      "category": "White Wine"
+    },
+    "5": {
+      "name": "Champagne & Sparkling",
+      "category": "Sparkling"
+    },
+    "6": {
+      "name": "Australian Gin",
+      "category": "Spirits"
+    },
+    "7": {
+      "name": "Single Malt Whisky",
+      "category": "Spirits"
+    },
+    "8": {
+      "name": "Gourmet Hampers",
+      "category": "Food"
+    }
+  },
+  "20": {
+    "1": {
+      "name": "THE ICONIC",
+      "category": "Fashion"
+    },
+    "2": {
+      "name": "Myer",
+      "category": "Department Store"
+    },
+    "3": {
+      "name": "David Jones",
+      "category": "Department Store"
+    },
+    "4": {
+      "name": "Apple",
+      "category": "Tech & Electronics"
+    },
+    "5": {
+      "name": "Samsung",
+      "category": "Tech & Electronics"
+    },
+    "6": {
+      "name": "Sephora",
+      "category": "Beauty"
+    },
+    "7": {
+      "name": "Adore Beauty",
+      "category": "Beauty"
+    },
+    "8": {
+      "name": "Catch.com.au",
+      "category": "Home & General"
+    },
+    "9": {
+      "name": "Sheridan",
+      "category": "Home & Living"
+    },
+    "10": {
+      "name": "Lululemon",
+      "category": "Activewear"
+    }
+  },
+  "21": {
+    "1": {
+      "name": "Sniip",
+      "category": "Finance"
+    },
+    "2": {
+      "name": "Superhero",
+      "category": "Finance"
+    },
+    "3": {
+      "name": "Zip",
+      "category": "Finance"
+    },
+    "4": {
+      "name": "Lotte Duty Free",
+      "category": "Travel"
+    },
+    "5": {
+      "name": "Sydney Airport Parking",
+      "category": "Travel"
+    },
+    "6": {
+      "name": "Carpet Court",
+      "category": "Home & Retail"
+    },
+    "7": {
+      "name": "David Jones",
+      "category": "Home & Retail"
+    },
+    "8": {
+      "name": "Forty Winks",
+      "category": "Home & Retail"
+    },
+    "9": {
+      "name": "HelloFresh",
+      "category": "Food & Drink"
+    },
+    "10": {
+      "name": "Luxaflex",
+      "category": "Home & Retail"
+    },
+    "11": {
+      "name": "Pizza Hut",
+      "category": "Food & Drink"
+    },
+    "12": {
+      "name": "Spotlight",
+      "category": "Home & Retail"
+    },
+    "13": {
+      "name": "Fitness First",
+      "category": "Health & Fitness"
+    },
+    "14": {
+      "name": "Goodlife Health Clubs",
+      "category": "Health & Fitness"
+    },
+    "15": {
+      "name": "Mobile Tyre Shop",
+      "category": "Services"
+    },
+    "16": {
+      "name": "Solargain",
+      "category": "Services"
+    },
+    "17": {
+      "name": "Ticketek",
+      "category": "Entertainment"
+    },
+    "18": {
+      "name": "Platypus",
+      "category": "Footwear & Apparel"
+    },
+    "19": {
+      "name": "Dr Martens",
+      "category": "Footwear & Apparel"
+    },
+    "20": {
+      "name": "Hype DC",
+      "category": "Footwear & Apparel"
+    },
+    "21": {
+      "name": "The Athlete\\",
+      "category": "Footwear & Apparel"
+    },
+    "22": {
+      "name": "Skechers",
+      "category": "Footwear & Apparel"
+    },
+    "23": {
+      "name": "Vans",
+      "category": "Footwear & Apparel"
+    },
+    "24": {
+      "name": "Timberland",
+      "category": "Footwear & Apparel"
+    },
+    "25": {
+      "name": "Stylerunner",
+      "category": "Footwear & Apparel"
+    },
+    "26": {
+      "name": "Merrell",
+      "category": "Footwear & Apparel"
+    },
+    "27": {
+      "name": "Saucony",
+      "category": "Footwear & Apparel"
+    },
+    "28": {
+      "name": "Hoka",
+      "category": "Footwear & Apparel"
+    },
+    "29": {
+      "name": "Subtype",
+      "category": "Footwear & Apparel"
+    },
+    "30": {
+      "name": "The Trybe",
+      "category": "Footwear & Apparel"
+    },
+    "31": {
+      "name": "CAT",
+      "category": "Footwear & Apparel"
+    },
+    "32": {
+      "name": "UGG",
+      "category": "Footwear & Apparel"
+    }
+  },
+  "22": {
+    "skytrans": {
+      "name": "SkyTrans",
+      "category": ""
+    },
+    "qantas": {
+      "name": "Qantas",
+      "category": ""
+    },
+    "jetstar": {
+      "name": "Jetstar",
+      "category": ""
+    },
+    "airfrance": {
+      "name": "Air France",
+      "category": ""
+    },
+    "airnewzealand": {
+      "name": "Air New Zealand",
+      "category": ""
+    },
+    "airtahitinui": {
+      "name": "Air Tahiti Nui",
+      "category": ""
+    },
+    "aircalin": {
+      "name": "Aircalin",
+      "category": ""
+    },
+    "alaska": {
+      "name": "Alaska Airlines",
+      "category": ""
+    },
+    "aa": {
+      "name": "American Airlines",
+      "category": ""
+    },
+    "bangkok": {
+      "name": "Bangkok Airways",
+      "category": ""
+    },
+    "ba": {
+      "name": "British Airways",
+      "category": ""
+    },
+    "cathay": {
+      "name": "Cathay Pacific",
+      "category": ""
+    },
+    "chinaairlines": {
+      "name": "China Airlines",
+      "category": ""
+    },
+    "chinaeastern": {
+      "name": "China Eastern",
+      "category": ""
+    },
+    "elal": {
+      "name": "EL AL",
+      "category": ""
+    },
+    "emirates": {
+      "name": "Emirates",
+      "category": ""
+    },
+    "fiji": {
+      "name": "Fiji Airways",
+      "category": ""
+    },
+    "finnair": {
+      "name": "Finnair",
+      "category": ""
+    },
+    "iberia": {
+      "name": "Iberia",
+      "category": ""
+    },
+    "indigo": {
+      "name": "IndiGo",
+      "category": ""
+    },
+    "jal": {
+      "name": "Japan Airlines",
+      "category": ""
+    },
+    "klm": {
+      "name": "KLM",
+      "category": ""
+    },
+    "latam": {
+      "name": "LATAM",
+      "category": ""
+    },
+    "malaysia": {
+      "name": "Malaysia Airlines",
+      "category": ""
+    },
+    "qatar": {
+      "name": "Qatar Airways",
+      "category": ""
+    },
+    "royalairmaroc": {
+      "name": "Royal Air Maroc",
+      "category": ""
+    },
+    "royaljordanian": {
+      "name": "Royal Jordanian",
+      "category": ""
+    },
+    "srilankan": {
+      "name": "SriLankan Airlines",
+      "category": ""
+    },
+    "westjet": {
+      "name": "WestJet",
+      "category": ""
+    },
+    "hawaiian": {
+      "name": "Hawaiian Airlines",
+      "category": ""
+    }
+  },
+  "25": {
+    "1": {
+      "name": "Compact Car",
+      "category": ""
+    },
+    "2": {
+      "name": "Standard SUV",
+      "category": ""
+    },
+    "3": {
+      "name": "Luxury Sedan",
+      "category": ""
+    },
+    "4": {
+      "name": "Value Compact",
+      "category": ""
+    },
+    "5": {
+      "name": "Intermediate SUV",
+      "category": ""
+    },
+    "6": {
+      "name": "8-Seater Van",
+      "category": ""
+    }
+  },
+  "28": {
+    "1": {
+      "name": "Queensland Island Escapes",
+      "category": ""
+    },
+    "2": {
+      "name": "Tasmanian Road Trips",
+      "category": ""
+    },
+    "3": {
+      "name": "Northern Territory Adventures",
+      "category": ""
+    },
+    "4": {
+      "name": "Fiji Family Packages",
+      "category": ""
+    },
+    "5": {
+      "name": "Bali Beach Resorts",
+      "category": ""
+    },
+    "6": {
+      "name": "Hawaii Luxury Stays",
+      "category": ""
+    },
+    "7": {
+      "name": "London City Breaks",
+      "category": ""
+    },
+    "8": {
+      "name": "New York Theatre Tours",
+      "category": ""
+    },
+    "9": {
+      "name": "Maldives Overwater Bungalows",
+      "category": ""
+    },
+    "10": {
+      "name": "New Zealand Ski Trips",
+      "category": ""
+    }
+  },
+  "29": {
+    "1": {
+      "name": "Japan Highlights Tour",
+      "category": ""
+    },
+    "2": {
+      "name": "Vietnam & Cambodia Discovery",
+      "category": ""
+    },
+    "3": {
+      "name": "Classic Italy & Swiss Alps",
+      "category": ""
+    },
+    "4": {
+      "name": "Greek Islands Escapade",
+      "category": ""
+    },
+    "5": {
+      "name": "Canadian Rockies & Alaska Cruise",
+      "category": ""
+    },
+    "6": {
+      "name": "Highlights of Peru & Machu Picchu",
+      "category": ""
+    },
+    "7": {
+      "name": "Taste of Tasmania",
+      "category": ""
+    },
+    "8": {
+      "name": "Top End & Kakadu Explorer",
+      "category": ""
+    },
+    "9": {
+      "name": "South Coast Safari",
+      "category": ""
+    },
+    "10": {
+      "name": "Best of China",
+      "category": ""
+    }
+  },
+  "30": {
+    "1": {
+      "name": "South Pacific Discovery",
+      "category": ""
+    },
+    "2": {
+      "name": "Fiji & Vanuatu Cruise",
+      "category": ""
+    },
+    "3": {
+      "name": "New Zealand Splendour",
+      "category": ""
+    },
+    "4": {
+      "name": "Caribbean Island Hopper",
+      "category": ""
+    },
+    "5": {
+      "name": "Bahamas & Keys Escape",
+      "category": ""
+    },
+    "6": {
+      "name": "Western Caribbean Explorer",
+      "category": ""
+    },
+    "7": {
+      "name": "Mediterranean Romance",
+      "category": ""
+    },
+    "8": {
+      "name": "Greek Islands & Adriatic",
+      "category": ""
+    },
+    "9": {
+      "name": "Glaciers of Alaska",
+      "category": ""
+    },
+    "10": {
+      "name": "Inside Passage Wildlife",
+      "category": ""
+    }
+  }
+}
